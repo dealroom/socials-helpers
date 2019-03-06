@@ -21,7 +21,7 @@ class Parser
 
     const FACEBOOK_PROFILE_URL_REGEX = '/http(s)?:\/\/(www\.)?(facebook|fb)\.com\/(people\/_\/|profile\.php\?id=)(\d+)\/?/';
 
-    const TWITTER_URL_REGEX = '/http(s)?:\/\/(www\.)?twitter\.com\/(?!share)@?(#!\/)?([A-z0-9_]+)\/?/';
+    const TWITTER_URL_REGEX = '/http(s)?:\/\/(www\.)?twitter\.com\/@?(#!\/)?([A-z0-9_]+)\/?/';
 
     /**
      * @param string $url

@@ -2,6 +2,7 @@
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
+use Dealroom\SocialsHelpers\Exceptions\InvalidUrlException;
 use Dealroom\SocialsHelpers\Exceptions\NormalizeException;
 use Dealroom\SocialsHelpers\Parser;
 
@@ -19,6 +20,10 @@ class TwitterNormalizer extends AbstractNormalizer
 
         if (!$result) {
             throw new NormalizeException();
+        }
+
+        if ($matches[4] === 'share') {
+            throw new InvalidUrlException();
         }
 
         return 'https://twitter.com/'.$matches[4];
