@@ -22,7 +22,7 @@ class TwitterNormalizer extends AbstractNormalizer
             throw new NormalizeException();
         }
 
-        if ($matches[4] === 'share') {
+        if ($matches[4] === 'share' || strlen($matches[4]) > 15) {
             throw new InvalidUrlException();
         }
 
