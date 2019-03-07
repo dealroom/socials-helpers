@@ -18,6 +18,16 @@ class Result
     private $url;
 
     /**
+     * @var string
+     */
+    private $normalizedUrl;
+
+    /**
+     * @var NormalizerInterface
+     */
+    private $normalizer;
+
+    /**
      * Result constructor.
      *
      * @param string $platform
@@ -27,6 +37,8 @@ class Result
     {
         $this->platform = $platform;
         $this->url = $url;
+        $this->normalizer = $this->getNormalizer();
+        $this->normalizedUrl = $this->normalizer ? $this->normalizer->normalize($this->url) : $this->url;
     }
 
     /**
@@ -50,9 +62,7 @@ class Result
      */
     public function getNormalizedUrl(): string
     {
-        $normalizer = $this->getNormalizer();
-
-        return $normalizer ? $normalizer->normalize($this->url) : $this->url;
+        return $this->normalizedUrl;
     }
 
     /**
