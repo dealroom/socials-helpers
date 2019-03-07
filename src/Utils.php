@@ -16,8 +16,10 @@ class Utils
         $url = str_replace('#!/', '/', $url);
 
         // Clean weird double slashes //
-        while (strpos($url, '//', 7) !== false) {
-            $url = substr_replace($url, '', strpos($url, '//', 7), 1);
+        if (strlen($url) > 7) {
+            while (strpos($url, '//', 7) !== false) {
+                $url = substr_replace($url, '', strpos($url, '//', 7), 1);
+            }
         }
 
         return $url;

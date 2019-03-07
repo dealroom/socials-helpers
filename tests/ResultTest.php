@@ -15,7 +15,7 @@ class ResultTest extends TestCase
         $result = Factory::parseUrl($url);
 
         $this->assertEquals(Parser::PLATFORM_TWITTER, $result->getPlatform());
-        $this->assertEquals($url, $result->getUrl());
+        $this->assertEquals(strtolower($url), $result->getUrl());
         $this->assertEquals('https://twitter.com/dealroom', $result->getNormalizedUrl());
     }
 }
