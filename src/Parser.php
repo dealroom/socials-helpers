@@ -30,6 +30,8 @@ class Parser
      */
     public function parseUrl(string $url, array $allowedPlatforms = []): Result
     {
+        $url = Utils::cleanUrl($url);
+
         if (!Utils::isValidUrl($url)) {
             throw new InvalidUrlException(sprintf('Invalid url %s', $url));
         }
