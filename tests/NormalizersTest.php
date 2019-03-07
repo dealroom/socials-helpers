@@ -74,6 +74,13 @@ class NormalizersTest extends TestCase
             'http://www.facebook.com/pages/agility+inc./114838698562760' => 'https://www.facebook.com/pages/agility+inc./114838698562760',
             'http://www.facebook.com/pages/karen-mali-m%c3%bc%c5%9favirlik-logo-muhasebe/194296120603783' => 'https://www.facebook.com/pages/karen-mali-m%c3%bc%c5%9favirlik-logo-muhasebe/194296120603783',
             'http://www.facebook.com//pages/custom-case-guy/1445342082363874' => 'https://www.facebook.com/pages/custom-case-guy/1445342082363874',
+            'https://en-gb.facebook.com/wonderbill/' => 'https://www.facebook.com/wonderbill/',
+            'https://business.facebook.com/TectradeHQ/?business_id=284925295380988&ref=bookmarks' => 'https://www.facebook.com/TectradeHQ',
+            'https://web.facebook.com/dermexpert/' => 'https://www.facebook.com/dermexpert',
+            'https://m.facebook.com/umadic1/' => 'https://www.facebook.com/umadic1',
+            'https://p-upload.facebook.com/epicvue/' => 'https://www.facebook.com/epicvue',
+            'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333',
+            'https://en-gb.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333',
         ];
 
         foreach ($values as $source => $result) {

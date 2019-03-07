@@ -17,7 +17,7 @@ class Parser
         self::PLATFORM_TWITTER => self::TWITTER_URL_REGEX,
     ];
 
-    const FACEBOOK_PAGE_URL_REGEX = '/http(s)?:\/\/(www\.)?(facebook|fb)\.com\/(?!share.php)(?!people\/_\/)(?!profile\.php)(pages\/)?([A-z0-9_\-\.\+]+)(\/\d+)?\/?/';
+    const FACEBOOK_PAGE_URL_REGEX = '/http(s)?:\/\/(www\.|m\.|mobile\.|business\.|web\.|p-upload\.|[a-z]{2}-[a-z]{2}\.)?(facebook|fb)\.com\/(?!share.php)(?!people\/_\/)(?!profile\.php)(pages\/)?([A-z0-9_\-\.\+]+)(\/\d+)?\/?/';
 
     const FACEBOOK_PROFILE_URL_REGEX = '/http(s)?:\/\/(www\.)?(facebook|fb)\.com\/(people\/_\/|profile\.php\?id=)(\d+)\/?/';
 
@@ -31,7 +31,7 @@ class Parser
     public function parseUrl(string $url, array $allowedPlatforms = []): Result
     {
         if (!Utils::isValidUrl($url)) {
-            throw new InvalidUrlException();
+            throw new InvalidUrlException(sprintf('Invalid url %s', $url));
         }
 
         $platform = $this->identifyPlatform($url, $allowedPlatforms);
