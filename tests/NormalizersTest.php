@@ -81,6 +81,9 @@ class NormalizersTest extends TestCase
             'https://p-upload.facebook.com/epicvue/' => 'https://www.facebook.com/epicvue',
             'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333',
             'https://en-gb.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333',
+            'https://www.facebook.com/KitVita-කියවීමේ-නිදහස්-විධිය-102446816592434/' => 'https://www.facebook.com/KitVita-කියවීමේ-නිදහස්-විධිය-102446816592434',
+            'https://www.facebook.com/pages/කියවීමේ-නිදහස්-විධිය/398754970290333' => 'https://www.facebook.com/pages/කියවීමේ-නිදහස්-විධිය/398754970290333',
+            'https://www.facebook.com/Пивотека-1383152971928719/' => 'https://www.facebook.com/Пивотека-1383152971928719',
         ];
 
         foreach ($values as $source => $result) {
