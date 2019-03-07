@@ -16,11 +16,14 @@ class FacebookPageNormalizer extends AbstractNormalizer
 
         if (strpos($url, '/pages/') !== false) {
             $result = preg_match(
-                '/(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/pages\/(?:[\w\-\+\.\%\,\(\)]{1,})\/(?:[\d]{1,})/',
+                '/(?:(?:http|https):\/\/)?(www\.|m\.|mobile\.|business\.|web\.|p-upload\.|[a-z]{2}-[a-z]{2}\.)?facebook.com\/pages\/(?:[\w\-\+\.\%\,\(\)]{1,})\/(?:[\d]{1,})/',
                 $url,
                 $matches
             );
             if ($result) {
+                if (isset($matches[1])) {
+                    $matches[0] = str_replace($matches[1], '', $matches[0]);
+                }
                 if (strpos($matches[0], 'http://') === 0) {
                     $matches[0] = str_replace('http://', 'https://', $matches[0]);
                 }
@@ -30,11 +33,14 @@ class FacebookPageNormalizer extends AbstractNormalizer
                 return $matches[0];
             } else {
                 $result = preg_match(
-                    '/(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/pages\/(?:[\w\-\+\.\%\,\(\)]{1,})\/(?:[\w\-]{1,})\/(?:[\d]{1,})/',
+                    '/(?:(?:http|https):\/\/)?(www\.|m\.|mobile\.|business\.|web\.|p-upload\.|[a-z]{2}-[a-z]{2}\.)?facebook.com\/pages\/(?:[\w\-\+\.\%\,\(\)]{1,})\/(?:[\w\-]{1,})\/(?:[\d]{1,})/',
                     $url,
                     $matches
                 );
                 if ($result) {
+                    if (isset($matches[1])) {
+                        $matches[0] = str_replace($matches[1], '', $matches[0]);
+                    }
                     if (strpos($matches[0], 'http://') === 0) {
                         $matches[0] = str_replace('http://', 'https://', $matches[0]);
                     }
@@ -49,18 +55,21 @@ class FacebookPageNormalizer extends AbstractNormalizer
         }
 
         $result = preg_match(
-            '/(?:(?:http|https):\/\/)?(?:www.)?facebook.com\/(?:[\w\-\+\.\%\,\(\)]{1,})/',
+            '/(?:(?:http|https):\/\/)?(www\.|m\.|mobile\.|business\.|web\.|p-upload\.|[a-z]{2}-[a-z]{2}\.)?facebook.com\/(?:[\w\-\+\.\%\,\(\)]{1,})/',
             $url,
             $matches
         );
         if ($result) {
+            if (isset($matches[1])) {
+                $matches[0] = str_replace($matches[1], '', $matches[0]);
+            }
             if (strpos($matches[0], 'http://') === 0) {
                 $matches[0] = str_replace('http://', 'https://', $matches[0]);
             }
             if (strpos($matches[0], 'www.facebook.com') === false) {
                 $matches[0] = str_replace('facebook.com', 'www.facebook.com', $matches[0]);
             }
-            return $matches[0];
+            return rtrim($matches[0], '/');
         }
 
         throw new NormalizeException();

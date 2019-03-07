@@ -43,15 +43,14 @@ class NormalizersTest extends TestCase
             'https://twitter.com/code_school' => 'https://twitter.com/code_school',
             'https://twitter.com/greentextbooks#' => 'https://twitter.com/greentextbooks',
             'https://twitter.com/shopbop#cs=ov=73421773243,os=1,link=footerconnecttwitterlink\',' => 'https://twitter.com/shopbop',
-            'https://twitter.com/share' => null,
         ];
 
         foreach ($values as $source => $result) {
-            if (!$result) {
-                $this->expectException(NormalizeException::class);
-            }
             $this->assertEquals($result, $twitterNormalizer->normalize($source));
         }
+
+        $this->expectException(NormalizeException::class);
+        $twitterNormalizer->normalize('https://twitter.com/share');
     }
 
     public function testFacebookPageNormalizer(): void
@@ -69,28 +68,38 @@ class NormalizersTest extends TestCase
             'http://www.facebook.com/pages/The-bloomtrigger-project/125218650866978/fasdfas?asdas' => 'https://www.facebook.com/pages/the-bloomtrigger-project/125218650866978',
             'http://www.facebook.com/pages/DealMarket/157833714232772' => 'https://www.facebook.com/pages/dealmarket/157833714232772',
             'http://www.facebook.com/#!/pages/dealmarket/157833714232772' => 'https://www.facebook.com/pages/dealmarket/157833714232772',
-            'http://www.facebook.com/home.php?tests#!/pages/dealmarket/157833714232772' => null,
             'http://www.facebook.com/pages/san-diego-ca/layer3-security-services/207635209271099' => 'https://www.facebook.com/pages/san-diego-ca/layer3-security-services/207635209271099',
             'http://www.facebook.com/pages/agility+inc./114838698562760' => 'https://www.facebook.com/pages/agility+inc./114838698562760',
             'http://www.facebook.com/pages/karen-mali-m%c3%bc%c5%9favirlik-logo-muhasebe/194296120603783' => 'https://www.facebook.com/pages/karen-mali-m%c3%bc%c5%9favirlik-logo-muhasebe/194296120603783',
             'http://www.facebook.com//pages/custom-case-guy/1445342082363874' => 'https://www.facebook.com/pages/custom-case-guy/1445342082363874',
-            'https://en-gb.facebook.com/wonderbill/' => 'https://www.facebook.com/wonderbill/',
-            'https://business.facebook.com/TectradeHQ/?business_id=284925295380988&ref=bookmarks' => 'https://www.facebook.com/TectradeHQ',
+            'https://en-gb.facebook.com/wonderbill/' => 'https://www.facebook.com/wonderbill',
+            'https://business.facebook.com/TectradeHQ/?business_id=284925295380988&ref=bookmarks' => 'https://www.facebook.com/tectradehq',
             'https://web.facebook.com/dermexpert/' => 'https://www.facebook.com/dermexpert',
             'https://m.facebook.com/umadic1/' => 'https://www.facebook.com/umadic1',
             'https://p-upload.facebook.com/epicvue/' => 'https://www.facebook.com/epicvue',
-            'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333',
-            'https://en-gb.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333',
-            'https://www.facebook.com/KitVita-කියවීමේ-නිදහස්-විධිය-102446816592434/' => 'https://www.facebook.com/KitVita-කියවීමේ-නිදහස්-විධිය-102446816592434',
-            'https://www.facebook.com/pages/කියවීමේ-නිදහස්-විධිය/398754970290333' => 'https://www.facebook.com/pages/කියවීමේ-නිදහස්-විධිය/398754970290333',
-            'https://www.facebook.com/Пивотека-1383152971928719/' => 'https://www.facebook.com/Пивотека-1383152971928719',
+            'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/torrent-pharmaceuticals-limited/398754970290333',
+            'https://en-gb.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/torrent-pharmaceuticals-limited/398754970290333',
+//            'https://www.facebook.com/KitVita-කියවීමේ-නිදහස්-විධිය-102446816592434/' => 'https://www.facebook.com/KitVita-කියවීමේ-නිදහස්-විධිය-102446816592434',
+//            'https://www.facebook.com/pages/කියවීමේ-නිදහස්-විධිය/398754970290333' => 'https://www.facebook.com/pages/කියවීමේ-නිදහස්-විධිය/398754970290333',
+//            'https://www.facebook.com/Пивотека-1383152971928719/' => 'https://www.facebook.com/Пивотека-1383152971928719',
         ];
 
         foreach ($values as $source => $result) {
-            if (!$result) {
-                $this->expectException(NormalizeException::class);
-            }
             $this->assertEquals($result, $facebookPageNormalizer->normalize($source));
+        }
+    }
+
+    public function testFacebookPageNormalizerErrors(): void
+    {
+        $facebookPageNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PAGE);
+
+        $values = [
+            'http://www.facebook.com/home.php?tests#!/pages/dealmarket/157833714232772',
+        ];
+
+        $this->expectException(NormalizeException::class);
+        foreach ($values as $source) {
+            $facebookPageNormalizer->normalize($source);
         }
     }
 
@@ -107,9 +116,6 @@ class NormalizersTest extends TestCase
         ];
 
         foreach ($values as $source => $result) {
-            if (!$result) {
-                $this->expectException(NormalizeException::class);
-            }
             $this->assertEquals($result, $facebookProfileNormalizer->normalize($source));
         }
     }
