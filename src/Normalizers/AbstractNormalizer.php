@@ -12,4 +12,9 @@ abstract class AbstractNormalizer implements NormalizerInterface
 
         return $url;
     }
+
+    public function normalizeToId(string $url): string
+    {
+        return null;
+    }
 }

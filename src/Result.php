@@ -23,6 +23,11 @@ class Result
     private $normalizedUrl;
 
     /**
+     * @var string
+     */
+    private $id;
+
+    /**
      * @var NormalizerInterface
      */
     private $normalizer;
@@ -63,6 +68,14 @@ class Result
     public function getNormalizedUrl(): string
     {
         return $this->normalizedUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
     }
 
     /**
