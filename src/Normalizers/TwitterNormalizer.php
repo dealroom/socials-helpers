@@ -16,7 +16,7 @@ class TwitterNormalizer extends AbstractNormalizer
         return 'https://twitter.com/'.$matches[4];
     }
 
-    public function normalizeToId(string $url): string
+    public function normalizeToId(string $url)
     {
         $url = parent::normalize($url);
 

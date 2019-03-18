@@ -44,6 +44,7 @@ class Result
         $this->url = $url;
         $this->normalizer = $this->getNormalizer();
         $this->normalizedUrl = $this->normalizer ? $this->normalizer->normalize($this->url) : $this->url;
+        $this->id = $this->normalizer ? $this->normalizer->normalizeToId($this->url) : null;
     }
 
     /**
@@ -71,9 +72,9 @@ class Result
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getId(): string
+    public function getId()
     {
         return $this->id;
     }

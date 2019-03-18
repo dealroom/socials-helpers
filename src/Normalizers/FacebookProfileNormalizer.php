@@ -13,7 +13,7 @@ class FacebookProfileNormalizer extends AbstractNormalizer
         return 'https://www.facebook.com/'.$matches[4].$matches[5];
     }
 
-    public function normalizeToId(string $url): string
+    public function normalizeToId(string $url)
     {
         $matches = $this->match($url);
 

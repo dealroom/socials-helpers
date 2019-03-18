@@ -13,7 +13,7 @@ abstract class AbstractNormalizer implements NormalizerInterface
         return $url;
     }
 
-    public function normalizeToId(string $url): string
+    public function normalizeToId(string $url)
     {
         return null;
     }
