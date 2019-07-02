@@ -8,7 +8,7 @@ pipeline:
   test:
     image: dealroom/php:1.3-${PHP_VERSION}
     volumes:
-      - $CACHE_PWD:/root/.composer/cache
+      - ${CACHE_PWD}:/root/.composer/cache
     commands:
       - php -v
       - composer -V
@@ -19,7 +19,7 @@ pipeline:
   slack:
     image: plugins/slack
     channel: system
-    webhook: $SLACK_WEBHOOK
+    webhook: ${SLACK_WEBHOOK}
     when:
       status: [ success, failure ]
     secrets: [ slack_webhook ]
