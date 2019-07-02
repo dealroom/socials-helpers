@@ -8,19 +8,21 @@ pipeline:
   test:
     image: dealroom/php:1.3-${PHP_VERSION}
     volumes:
-    - /home/ubuntu/ci-data/composer-cache-sh:/root/.composer/cache
+      - $CACHE_PWD:/root/.composer/cache
     commands:
-    - php -v
-    - composer -V
-    - composer install --prefer-dist -n -q
-    - ./vendor/bin/phpunit
+      - php -v
+      - composer -V
+      - composer install --prefer-dist -n -q
+      - ./vendor/bin/phpunit
+    secrets: [ cache_pwd ]
 
   slack:
     image: plugins/slack
     channel: system
-    webhook: https://hooks.slack.com/services/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
+    webhook: $SLACK_WEBHOOK
     when:
       status: [ success, failure ]
+    secrets: [ slack_webhook ]
 
 matrix:
   PHP_VERSION:
