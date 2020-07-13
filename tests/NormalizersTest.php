@@ -6,6 +6,7 @@ use Dealroom\SocialsHelpers\Exceptions\NormalizeException;
 use Dealroom\SocialsHelpers\Normalizers\FacebookPageNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\FacebookProfileNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\Factory;
+use Dealroom\SocialsHelpers\Normalizers\LinkedinCompanyNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\NormalizerInterface;
 use Dealroom\SocialsHelpers\Normalizers\TwitterNormalizer;
 use Dealroom\SocialsHelpers\Parser;
@@ -18,13 +19,16 @@ class NormalizersTest extends TestCase
         $twitterNormalizer = Factory::getForPlatform(Parser::PLATFORM_TWITTER);
         $facebookPageNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PAGE);
         $facebookProfileNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PROFILE);
+        $linkedinCompanyProfileNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_COMPANY);
 
         $this->assertInstanceOf(TwitterNormalizer::class, $twitterNormalizer);
         $this->assertInstanceOf(FacebookPageNormalizer::class, $facebookPageNormalizer);
         $this->assertInstanceOf(FacebookProfileNormalizer::class, $facebookProfileNormalizer);
+        $this->assertInstanceOf(LinkedinCompanyNormalizer::class, $linkedinCompanyProfileNormalizer);
         $this->assertInstanceOf(NormalizerInterface::class, $twitterNormalizer);
         $this->assertInstanceOf(NormalizerInterface::class, $facebookPageNormalizer);
         $this->assertInstanceOf(NormalizerInterface::class, $facebookProfileNormalizer);
+        $this->assertInstanceOf(NormalizerInterface::class, $linkedinCompanyProfileNormalizer);
     }
 
     public function testTwitterNormalizer(): void
@@ -117,6 +121,24 @@ class NormalizersTest extends TestCase
 
         foreach ($values as $source => $result) {
             $this->assertEquals($result, $facebookProfileNormalizer->normalize($source));
+        }
+    }
+
+    public function testLinkedinCompanyNormalizer(): void
+    {
+        $linkedinCompanyProfileNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_COMPANY);
+
+        $values = [
+            'https://www.linkedin.com/company/dealroom/' => 'https://www.linkedin.com/company/dealroom/',
+            'https://www.linkedin.com/company/dealroom' => 'https://www.linkedin.com/company/dealroom/',
+            'http://www.linkedin.com/company/dealroom/' => 'https://www.linkedin.com/company/dealroom/',
+            'https://linkedin.com/company/dealroom/' => 'https://www.linkedin.com/company/dealroom/',
+            'https://www.linkedin.com/company/dealroom-co/' => 'https://www.linkedin.com/company/dealroom-co/',
+            'https://www.linkedin.com/company/dealroom-co/contacts' => 'https://www.linkedin.com/company/dealroom-co/',
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $linkedinCompanyProfileNormalizer->normalize($source));
         }
     }
 }

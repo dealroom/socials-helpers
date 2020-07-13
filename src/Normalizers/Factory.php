@@ -11,6 +11,7 @@ class Factory
         Parser::PLATFORM_FACEBOOK_PAGE => FacebookPageNormalizer::class,
         Parser::PLATFORM_FACEBOOK_PROFILE => FacebookProfileNormalizer::class,
         Parser::PLATFORM_TWITTER => TwitterNormalizer::class,
+        Parser::PLATFORM_LINKEDIN_COMPANY => LinkedinCompanyNormalizer::class,
     ];
 
     /**
