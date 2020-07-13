@@ -10,11 +10,13 @@ class Parser
     const PLATFORM_FACEBOOK_PAGE = 'facebook_page';
     const PLATFORM_FACEBOOK_PROFILE = 'facebook_profile';
     const PLATFORM_TWITTER = 'twitter';
+    const PLATFORM_LINKEDIN_COMPANY = 'linkedin_company';
 
     const SOCIAL_MEDIA_PATTERNS = [
         self::PLATFORM_FACEBOOK_PAGE => self::FACEBOOK_PAGE_URL_REGEX,
         self::PLATFORM_FACEBOOK_PROFILE => self::FACEBOOK_PROFILE_URL_REGEX,
         self::PLATFORM_TWITTER => self::TWITTER_URL_REGEX,
+        self::PLATFORM_LINKEDIN_COMPANY => self::LINKEDIN_COMPANY_REGEX,
     ];
 
     const FACEBOOK_PAGE_URL_REGEX = '/http(s)?:\/\/(www\.|m\.|mobile\.|business\.|web\.|p-upload\.|[a-z]{2}-[a-z]{2}\.)?(facebook|fb)\.com\/(?!sharer\/)(?!sharer.php)(?!share.php)(?!people\/_\/)(?!profile\.php)(pages\/)?([\p{L}0-9_\-\.\+]+)(\/\d+)?\/?/';
@@ -22,6 +24,8 @@ class Parser
     const FACEBOOK_PROFILE_URL_REGEX = '/http(s)?:\/\/(www\.)?(facebook|fb)\.com\/(people\/_\/|profile\.php\?id=)(\d+)\/?/';
 
     const TWITTER_URL_REGEX = '/http(s)?:\/\/(www\.)?twitter\.com\/@?(#!\/)?([A-z0-9_]+)\/?/';
+
+    const LINKEDIN_COMPANY_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/company\/?([A-z0-9-]+)\/?/';
 
     /**
      * @param string $url
