@@ -25,7 +25,7 @@ class LinkedinCompanyNormalizer extends AbstractNormalizer
     {
         $result = preg_match(
             Parser::LINKEDIN_COMPANY_REGEX,
-            $url,
+            rawurldecode($url),
             $matches
         );
 

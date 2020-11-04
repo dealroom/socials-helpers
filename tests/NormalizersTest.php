@@ -135,6 +135,10 @@ class NormalizersTest extends TestCase
             'https://linkedin.com/company/dealroom/' => 'https://www.linkedin.com/company/dealroom/',
             'https://www.linkedin.com/company/dealroom-co/' => 'https://www.linkedin.com/company/dealroom-co/',
             'https://www.linkedin.com/company/dealroom-co/contacts' => 'https://www.linkedin.com/company/dealroom-co/',
+            'https://www.linkedin.com/company/vanesp-ib%C3%A9rica-transit%C3%A1rios-s-a-' => 'https://www.linkedin.com/company/vanesp-ibérica-transitários-s-a-/',
+            'https://www.linkedin.com/company/novocomms%E8%AF%BA%E6%B2%83%E9%80%9A%E8%AE%AF%E7%A7%91%E6%8A%80/' => 'https://www.linkedin.com/company/novocomms诺沃通讯科技/',
+            'https://www.linkedin.com/company/upjers-gmbh-&-co.-kg' => 'https://www.linkedin.com/company/upjers-gmbh-&-co.-kg/',
+            "https://www.linkedin.com/company/trippin'-in" => "https://www.linkedin.com/company/trippin'-in/",
         ];
 
         foreach ($values as $source => $result) {
