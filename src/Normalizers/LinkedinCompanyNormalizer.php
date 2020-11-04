@@ -18,14 +18,14 @@ class LinkedinCompanyNormalizer extends AbstractNormalizer
     {
         $matches = $this->match($url);
 
-        return $matches[3];
+        return rawurldecode($matches[3]);
     }
 
     private function match(string $url): array
     {
         $result = preg_match(
             Parser::LINKEDIN_COMPANY_REGEX,
-            $url,
+            rawurldecode($url),
             $matches
         );
 
