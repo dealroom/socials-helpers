@@ -18,7 +18,7 @@ class LinkedinCompanyNormalizer extends AbstractNormalizer
     {
         $matches = $this->match($url);
 
-        return rawurldecode($matches[3]);
+        return $matches[3];
     }
 
     private function match(string $url): array
