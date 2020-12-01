@@ -145,4 +145,26 @@ class NormalizersTest extends TestCase
             $this->assertEquals($result, $linkedinCompanyProfileNormalizer->normalize($source));
         }
     }
+
+    public function testLinkedinShowcaseNormalizer(): void
+    {
+        $linkedinShowcaseNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_SHOWCASE);
+
+        $values = [
+            'https://www.linkedin.com/showcase/dealroom/' => 'https://www.linkedin.com/showcase/dealroom/',
+            'https://www.linkedin.com/showcase/dealroom' => 'https://www.linkedin.com/showcase/dealroom/',
+            'http://www.linkedin.com/showcase/dealroom/' => 'https://www.linkedin.com/showcase/dealroom/',
+            'https://linkedin.com/showcase/dealroom/' => 'https://www.linkedin.com/showcase/dealroom/',
+            'https://www.linkedin.com/showcase/dealroom-co/' => 'https://www.linkedin.com/showcase/dealroom-co/',
+            'https://www.linkedin.com/showcase/dealroom-co/contacts' => 'https://www.linkedin.com/showcase/dealroom-co/',
+            'https://www.linkedin.com/showcase/vanesp-ib%C3%A9rica-transit%C3%A1rios-s-a-' => 'https://www.linkedin.com/showcase/vanesp-ibérica-transitários-s-a-/',
+            'https://www.linkedin.com/showcase/novocomms%E8%AF%BA%E6%B2%83%E9%80%9A%E8%AE%AF%E7%A7%91%E6%8A%80/' => 'https://www.linkedin.com/showcase/novocomms诺沃通讯科技/',
+            'https://www.linkedin.com/showcase/upjers-gmbh-&-co.-kg' => 'https://www.linkedin.com/showcase/upjers-gmbh-&-co.-kg/',
+            "https://www.linkedin.com/showcase/trippin'-in" => "https://www.linkedin.com/showcase/trippin'-in/",
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $linkedinShowcaseNormalizer->normalize($source));
+        }
+    }
 }
