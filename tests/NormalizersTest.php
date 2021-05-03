@@ -167,4 +167,26 @@ class NormalizersTest extends TestCase
             $this->assertEquals($result, $linkedinShowcaseNormalizer->normalize($source));
         }
     }
+
+    public function testLinkedinSchoolNormalizer(): void
+    {
+        $linkedinSchoolNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_SCHOOL);
+
+        $values = [
+            'https://www.linkedin.com/school/dealroom/' => 'https://www.linkedin.com/school/dealroom/',
+            'https://www.linkedin.com/school/dealroom' => 'https://www.linkedin.com/school/dealroom/',
+            'http://www.linkedin.com/school/dealroom/' => 'https://www.linkedin.com/school/dealroom/',
+            'https://linkedin.com/school/dealroom/' => 'https://www.linkedin.com/school/dealroom/',
+            'https://www.linkedin.com/school/dealroom-co/' => 'https://www.linkedin.com/school/dealroom-co/',
+            'https://www.linkedin.com/school/dealroom-co/contacts' => 'https://www.linkedin.com/school/dealroom-co/',
+            'https://www.linkedin.com/school/vanesp-ib%C3%A9rica-transit%C3%A1rios-s-a-' => 'https://www.linkedin.com/school/vanesp-ibérica-transitários-s-a-/',
+            'https://www.linkedin.com/school/novocomms%E8%AF%BA%E6%B2%83%E9%80%9A%E8%AE%AF%E7%A7%91%E6%8A%80/' => 'https://www.linkedin.com/school/novocomms诺沃通讯科技/',
+            'https://www.linkedin.com/school/upjers-gmbh-&-co.-kg' => 'https://www.linkedin.com/school/upjers-gmbh-&-co.-kg/',
+            "https://www.linkedin.com/school/trippin'-in" => "https://www.linkedin.com/school/trippin'-in/",
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $linkedinSchoolNormalizer->normalize($source));
+        }
+    }
 }
