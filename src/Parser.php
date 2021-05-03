@@ -12,6 +12,7 @@ class Parser
     const PLATFORM_TWITTER = 'twitter';
     const PLATFORM_LINKEDIN_COMPANY = 'linkedin_company';
     const PLATFORM_LINKEDIN_SHOWCASE = 'linkedin_showcase';
+    const PLATFORM_LINKEDIN_SCHOOL = 'linkedin_school';
 
     const SOCIAL_MEDIA_PATTERNS = [
         self::PLATFORM_FACEBOOK_PAGE => self::FACEBOOK_PAGE_URL_REGEX,
@@ -19,6 +20,7 @@ class Parser
         self::PLATFORM_TWITTER => self::TWITTER_URL_REGEX,
         self::PLATFORM_LINKEDIN_COMPANY => self::LINKEDIN_COMPANY_REGEX,
         self::PLATFORM_LINKEDIN_SHOWCASE => self::LINKEDIN_SHOWCASE_REGEX,
+        self::PLATFORM_LINKEDIN_SCHOOL => self::LINKEDIN_SCHOOL_REGEX,
     ];
 
     const FACEBOOK_PAGE_URL_REGEX = '/http(s)?:\/\/(www\.|m\.|mobile\.|business\.|web\.|p-upload\.|[a-z]{2}-[a-z]{2}\.)?(facebook|fb)\.com\/(?!sharer\/)(?!sharer.php)(?!share.php)(?!people\/_\/)(?!profile\.php)(pages\/)?([\p{L}0-9_\-\.\+]+)(\/\d+)?\/?/';
@@ -30,6 +32,8 @@ class Parser
     const LINKEDIN_COMPANY_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/company\/?([\p{L}\d&\'.-]+)\/?/u';
 
     const LINKEDIN_SHOWCASE_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/showcase\/?([\p{L}\d&\'.-]+)\/?/u';
+
+    const LINKEDIN_SCHOOL_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/school\/?([\p{L}\d&\'.-]+)\/?/u';
 
     /**
      * @param string $url
