@@ -24,7 +24,7 @@ class LinkedinSchoolNormalizer extends AbstractNormalizer
     private function match(string $url): array
     {
         $result = preg_match(
-            Parser::LINKEDIN_SHOWCASE_REGEX,
+            Parser::LINKEDIN_SCHOOL_REGEX,
             rawurldecode($url),
             $matches
         );
