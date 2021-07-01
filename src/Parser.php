@@ -29,11 +29,11 @@ class Parser
 
     const TWITTER_URL_REGEX = '/http(s)?:\/\/(www\.)?twitter\.com\/@?(#!\/)?([A-z0-9_]+)\/?/';
 
-    const LINKEDIN_COMPANY_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/company\/?([\p{L}\d&\'.-]+)\/?/u';
+    const LINKEDIN_COMPANY_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/company\/?([\p{L}\d&\'.\-_]+)\/?/u';
 
-    const LINKEDIN_SHOWCASE_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/showcase\/?([\p{L}\d&\'.-]+)\/?/u';
+    const LINKEDIN_SHOWCASE_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/showcase\/?([\p{L}\d&\'.\-_]+)\/?/u';
 
-    const LINKEDIN_SCHOOL_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/school\/?([\p{L}\d&\'.-]+)\/?/u';
+    const LINKEDIN_SCHOOL_REGEX = '/http(s)?:\/\/(www\.)?linkedin\.com\/school\/?([\p{L}\d&\'.\-_]+)\/?/u';
 
     /**
      * @param string $url

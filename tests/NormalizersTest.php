@@ -139,6 +139,7 @@ class NormalizersTest extends TestCase
             'https://www.linkedin.com/company/novocomms%E8%AF%BA%E6%B2%83%E9%80%9A%E8%AE%AF%E7%A7%91%E6%8A%80/' => 'https://www.linkedin.com/company/novocomms诺沃通讯科技/',
             'https://www.linkedin.com/company/upjers-gmbh-&-co.-kg' => 'https://www.linkedin.com/company/upjers-gmbh-&-co.-kg/',
             "https://www.linkedin.com/company/trippin'-in" => "https://www.linkedin.com/company/trippin'-in/",
+            'https://www.linkedin.com/company/magis_official' => 'https://www.linkedin.com/company/magis_official/',
         ];
 
         foreach ($values as $source => $result) {
@@ -161,6 +162,7 @@ class NormalizersTest extends TestCase
             'https://www.linkedin.com/showcase/novocomms%E8%AF%BA%E6%B2%83%E9%80%9A%E8%AE%AF%E7%A7%91%E6%8A%80/' => 'https://www.linkedin.com/showcase/novocomms诺沃通讯科技/',
             'https://www.linkedin.com/showcase/upjers-gmbh-&-co.-kg' => 'https://www.linkedin.com/showcase/upjers-gmbh-&-co.-kg/',
             "https://www.linkedin.com/showcase/trippin'-in" => "https://www.linkedin.com/showcase/trippin'-in/",
+            'https://www.linkedin.com/showcase/gsscloud_vital%E9%9B%B2%E7%AB%AF%E6%9C%8D%E5%8B%99%E5%AE%B6%E6%97%8F/about/' => 'https://www.linkedin.com/showcase/gsscloud_vital雲端服務家族/',
         ];
 
         foreach ($values as $source => $result) {
@@ -183,6 +185,7 @@ class NormalizersTest extends TestCase
             'https://www.linkedin.com/school/novocomms%E8%AF%BA%E6%B2%83%E9%80%9A%E8%AE%AF%E7%A7%91%E6%8A%80/' => 'https://www.linkedin.com/school/novocomms诺沃通讯科技/',
             'https://www.linkedin.com/school/upjers-gmbh-&-co.-kg' => 'https://www.linkedin.com/school/upjers-gmbh-&-co.-kg/',
             "https://www.linkedin.com/school/trippin'-in" => "https://www.linkedin.com/school/trippin'-in/",
+            "https://www.linkedin.com/school/trippin'__in" => "https://www.linkedin.com/school/trippin'__in/",
         ];
 
         foreach ($values as $source => $result) {
