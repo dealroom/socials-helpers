@@ -140,6 +140,7 @@ class NormalizersTest extends TestCase
             'https://www.linkedin.com/company/upjers-gmbh-&-co.-kg' => 'https://www.linkedin.com/company/upjers-gmbh-&-co.-kg/',
             "https://www.linkedin.com/company/trippin'-in" => "https://www.linkedin.com/company/trippin'-in/",
             'https://www.linkedin.com/company/magis_official' => 'https://www.linkedin.com/company/magis_official/',
+            'https://www.linkedin.com/company/wonday%C2%AE/' => 'https://www.linkedin.com/company/wonday®/'
         ];
 
         foreach ($values as $source => $result) {
@@ -163,6 +164,7 @@ class NormalizersTest extends TestCase
             'https://www.linkedin.com/showcase/upjers-gmbh-&-co.-kg' => 'https://www.linkedin.com/showcase/upjers-gmbh-&-co.-kg/',
             "https://www.linkedin.com/showcase/trippin'-in" => "https://www.linkedin.com/showcase/trippin'-in/",
             'https://www.linkedin.com/showcase/gsscloud_vital%E9%9B%B2%E7%AB%AF%E6%9C%8D%E5%8B%99%E5%AE%B6%E6%97%8F/about/' => 'https://www.linkedin.com/showcase/gsscloud_vital雲端服務家族/',
+            'https://www.linkedin.com/showcase/wonday%C2%AE/' => 'https://www.linkedin.com/showcase/wonday®/'
         ];
 
         foreach ($values as $source => $result) {
@@ -186,6 +188,7 @@ class NormalizersTest extends TestCase
             'https://www.linkedin.com/school/upjers-gmbh-&-co.-kg' => 'https://www.linkedin.com/school/upjers-gmbh-&-co.-kg/',
             "https://www.linkedin.com/school/trippin'-in" => "https://www.linkedin.com/school/trippin'-in/",
             "https://www.linkedin.com/school/trippin'__in" => "https://www.linkedin.com/school/trippin'__in/",
+            'https://www.linkedin.com/school/wonday%C2%AE/' => 'https://www.linkedin.com/school/wonday®/'
         ];
 
         foreach ($values as $source => $result) {
