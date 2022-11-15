@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
@@ -10,11 +10,11 @@ class FacebookPageNormalizer extends AbstractNormalizer
     {
         $url = parent::normalize($url);
 
-        if (strpos($url, 'fb.com') !== false) {
+        if (str_contains($url, 'fb.com')) {
             $url = str_replace('fb.com', 'facebook.com', $url);
         }
 
-        if (strpos($url, '/pages/') !== false) {
+        if (str_contains($url, '/pages/')) {
             $result = preg_match(
                 '/(?:(?:http|https):\/\/)?(www\.|m\.|mobile\.|business\.|web\.|p-upload\.|[a-z]{2}-[a-z]{2}\.)?facebook.com\/pages\/(?:[\w\-\+\.\%\,\(\)]{1,})\/(?:[\d]{1,})/',
                 $url,
@@ -24,10 +24,10 @@ class FacebookPageNormalizer extends AbstractNormalizer
                 if (isset($matches[1])) {
                     $matches[0] = str_replace($matches[1], '', $matches[0]);
                 }
-                if (strpos($matches[0], 'http://') === 0) {
+                if (str_starts_with($matches[0], 'http://')) {
                     $matches[0] = str_replace('http://', 'https://', $matches[0]);
                 }
-                if (strpos($matches[0], 'www.facebook.com') === false) {
+                if (!str_contains($matches[0], 'www.facebook.com')) {
                     $matches[0] = str_replace('facebook.com', 'www.facebook.com', $matches[0]);
                 }
                 return $matches[0];
@@ -41,10 +41,10 @@ class FacebookPageNormalizer extends AbstractNormalizer
                     if (isset($matches[1])) {
                         $matches[0] = str_replace($matches[1], '', $matches[0]);
                     }
-                    if (strpos($matches[0], 'http://') === 0) {
+                    if (str_starts_with($matches[0], 'http://')) {
                         $matches[0] = str_replace('http://', 'https://', $matches[0]);
                     }
-                    if (strpos($matches[0], 'www.facebook.com') === false) {
+                    if (!str_contains($matches[0], 'www.facebook.com')) {
                         $matches[0] = str_replace('facebook.com', 'www.facebook.com', $matches[0]);
                     }
                     return $matches[0];
@@ -63,10 +63,10 @@ class FacebookPageNormalizer extends AbstractNormalizer
             if (isset($matches[1])) {
                 $matches[0] = str_replace($matches[1], '', $matches[0]);
             }
-            if (strpos($matches[0], 'http://') === 0) {
+            if (str_starts_with($matches[0], 'http://')) {
                 $matches[0] = str_replace('http://', 'https://', $matches[0]);
             }
-            if (strpos($matches[0], 'www.facebook.com') === false) {
+            if (!str_contains($matches[0], 'www.facebook.com')) {
                 $matches[0] = str_replace('facebook.com', 'www.facebook.com', $matches[0]);
             }
             return rtrim($matches[0], '/');

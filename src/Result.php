@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers;
 
@@ -7,30 +7,11 @@ use Dealroom\SocialsHelpers\Normalizers\NormalizerInterface;
 
 class Result
 {
-    /**
-     * @var string
-     */
-    private $platform;
-
-    /**
-     * @var string
-     */
-    private $url;
-
-    /**
-     * @var string
-     */
-    private $normalizedUrl;
-
-    /**
-     * @var string
-     */
-    private $id;
-
-    /**
-     * @var NormalizerInterface
-     */
-    private $normalizer;
+    private string $platform;
+    private string $url;
+    private string $normalizedUrl;
+    private string $id;
+    private NormalizerInterface $normalizer;
 
     /**
      * Result constructor.
@@ -43,8 +24,8 @@ class Result
         $this->platform = $platform;
         $this->url = $url;
         $this->normalizer = $this->getNormalizer();
-        $this->normalizedUrl = $this->normalizer ? $this->normalizer->normalize($this->url) : $this->url;
-        $this->id = $this->normalizer ? $this->normalizer->normalizeToId($this->url) : null;
+        $this->normalizedUrl = $this->normalizer->normalize($this->url);
+        $this->id = $this->normalizer->normalizeToId($this->url);
     }
 
     /**
@@ -72,9 +53,9 @@ class Result
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
@@ -7,7 +7,7 @@ use Dealroom\SocialsHelpers\Parser;
 
 class Factory
 {
-    public static $normalizers = [
+    public static array $normalizers = [
         Parser::PLATFORM_FACEBOOK_PAGE => FacebookPageNormalizer::class,
         Parser::PLATFORM_FACEBOOK_PROFILE => FacebookProfileNormalizer::class,
         Parser::PLATFORM_TWITTER => TwitterNormalizer::class,

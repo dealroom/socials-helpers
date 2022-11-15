@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
@@ -16,7 +16,7 @@ class TwitterNormalizer extends AbstractNormalizer
         return 'https://twitter.com/'.$matches[4];
     }
 
-    public function normalizeToId(string $url)
+    public function normalizeToId(string $url): string
     {
         $url = parent::normalize($url);
 

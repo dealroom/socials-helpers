@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Tests\Dealroom\SocialsHelpers;
 
@@ -193,6 +193,22 @@ class NormalizersTest extends TestCase
 
         foreach ($values as $source => $result) {
             $this->assertEquals($result, $linkedinSchoolNormalizer->normalize($source));
+        }
+    }
+
+    public function testNormalizerToId(): void
+    {
+        $values = [
+            'https://twitter.com/codeschool' => [Parser::PLATFORM_TWITTER, 'codeschool'],
+            'https://www.facebook.com/dizzain' => [Parser::PLATFORM_FACEBOOK_PAGE, ''],
+            'https://www.facebook.com/profile.php?id=1294422029' => [Parser::PLATFORM_FACEBOOK_PROFILE, '1294422029'],
+            'https://www.linkedin.com/company/dealroom/' => [Parser::PLATFORM_LINKEDIN_COMPANY, 'dealroom'],
+            'https://www.linkedin.com/showcase/dealroom/' => [Parser::PLATFORM_LINKEDIN_SHOWCASE, 'dealroom'],
+            'https://www.linkedin.com/school/dealroom//' => [Parser::PLATFORM_LINKEDIN_SCHOOL, 'dealroom'],
+        ];
+
+        foreach ($values as $url => $row) {
+            $this->assertEquals($row[1], Factory::getForPlatform($row[0])->normalizeToId($url));
         }
     }
 }
