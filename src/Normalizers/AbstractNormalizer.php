@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
@@ -8,13 +8,11 @@ abstract class AbstractNormalizer implements NormalizerInterface
 {
     public function normalize(string $url): string
     {
-        $url = Utils::cleanUrl($url);
-
-        return $url;
+        return Utils::cleanUrl($url);
     }
 
-    public function normalizeToId(string $url)
+    public function normalizeToId(string $url): string
     {
-        return null;
+        return '';
     }
 }

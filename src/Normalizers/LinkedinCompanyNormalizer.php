@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
@@ -14,7 +14,7 @@ class LinkedinCompanyNormalizer extends AbstractNormalizer
         return 'https://www.linkedin.com/company/'.$matches[3].'/';
     }
 
-    public function normalizeToId(string $url)
+    public function normalizeToId(string $url): string
     {
         $matches = $this->match($url);
 
