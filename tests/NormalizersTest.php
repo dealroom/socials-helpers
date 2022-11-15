@@ -196,6 +196,23 @@ class NormalizersTest extends TestCase
         }
     }
 
+    public function testLinkedinProfileNormalizer(): void
+    {
+        $linkedinSchoolNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_PROFILE);
+
+        $values = [
+            'https://www.linkedin.com/in/dealroom/' => 'https://www.linkedin.com/in/dealroom/',
+            'https://www.linkedin.com/in/dealroom' => 'https://www.linkedin.com/in/dealroom/',
+            'http://www.linkedin.com/in/dealroom/' => 'https://www.linkedin.com/in/dealroom/',
+            'http://de.linkedin.com/in/dealroom/' => 'https://www.linkedin.com/in/dealroom/',
+            'https://de.linkedin.com/in/peter-müller-81a8/' => 'https://www.linkedin.com/in/peter-müller-81a8/'
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $linkedinSchoolNormalizer->normalize($source));
+        }
+    }
+
     public function testNormalizerToId(): void
     {
         $values = [
@@ -205,6 +222,7 @@ class NormalizersTest extends TestCase
             'https://www.linkedin.com/company/dealroom/' => [Parser::PLATFORM_LINKEDIN_COMPANY, 'dealroom'],
             'https://www.linkedin.com/showcase/dealroom/' => [Parser::PLATFORM_LINKEDIN_SHOWCASE, 'dealroom'],
             'https://www.linkedin.com/school/dealroom//' => [Parser::PLATFORM_LINKEDIN_SCHOOL, 'dealroom'],
+            'https://www.linkedin.com/in/dealroom//' => [Parser::PLATFORM_LINKEDIN_PROFILE, 'dealroom'],
         ];
 
         foreach ($values as $url => $row) {

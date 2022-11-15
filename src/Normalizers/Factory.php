@@ -14,6 +14,7 @@ class Factory
         Parser::PLATFORM_LINKEDIN_COMPANY => LinkedinCompanyNormalizer::class,
         Parser::PLATFORM_LINKEDIN_SHOWCASE => LinkedinShowcaseNormalizer::class,
         Parser::PLATFORM_LINKEDIN_SCHOOL => LinkedinSchoolNormalizer::class,
+        Parser::PLATFORM_LINKEDIN_PROFILE => LinkedinProfileNormalizer::class,
     ];
 
     /**
