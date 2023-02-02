@@ -5,14 +5,14 @@
 
 # Social Helpers
 
-Helper package used for the validation of social links
+Helper package used for the validation of social links.
 
 ## Installation & Basic Usage
 
 This project requires PHP 8.1 or higher with the `mbstring` extension.  To install it via [Composer] simply run:
 
 ``` bash
-$ composer require dealroom/social-helpers
+$ composer require dealroom/socials-helpers
 ```
 
 The `Factory` class provides a simple wrapper for the validation functionality, for example to get normalized URL:
