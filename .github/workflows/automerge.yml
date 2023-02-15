@@ -1,0 +1,40 @@
+# Auto-synced file, managed by core-mothership
+# Do not edit by hand!
+
+name: Automerge
+on:
+  pull_request:
+    types: [ labeled, opened, synchronize, reopened ]
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    if: |
+      (
+        (
+          contains(github.event.pull_request.labels.*.name, 'dependencies')
+          &&
+          contains(github.event.pull_request.labels.*.name, 'update-minor-or-patch')
+        )
+        ||
+        contains(github.event.pull_request.labels.*.name, 'sync')
+      )
+      &&
+      (
+        github.event.pull_request.user.login == 'dependabot[bot]' ||
+        github.event.pull_request.user.login == 'dealroomba' ||
+        github.event.pull_request.user.login == 'renovate[bot]'
+      )
+    steps:
+      - name: Update branches
+        uses: brainly/action-autoupdate-branch@2.0.0
+      - uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          pull-request-number: ${{ github.event.pull_request.number }}
+      - uses: hmarr/auto-approve-action@v3
+        with:
+          review-message: "Auto approved"
