@@ -18,7 +18,7 @@ jobs:
         (
           contains(github.event.pull_request.labels.*.name, 'dependencies')
           &&
-          !contains(github.event.pull_request.labels.*.name, 'update-major')
+          contains(github.event.pull_request.labels.*.name, 'update-minor-or-patch')
         )
         ||
         contains(github.event.pull_request.labels.*.name, 'sync')
