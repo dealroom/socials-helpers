@@ -20,7 +20,7 @@ jobs:
       - name: Add a label for all production dependencies
         if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' }}
         run: |
-          gh label create update-major --R "$REPO_NAME"
+          gh label create update-major -R "$REPO_NAME"
           gh pr edit "$PR_URL" --add-label "update-major"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
