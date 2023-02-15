@@ -12,7 +12,6 @@ permissions:
 jobs:
   ensure-labels:
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     steps:
       - name: Force create a new labels
         run: |
