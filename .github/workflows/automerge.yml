@@ -31,7 +31,7 @@ jobs:
       )
     steps:
       - name: Update branches
-        uses: brainly/action-autoupdate-branch@2.0.0
+        uses: brainly/action-autoupdate-branch@2.1.1
       - uses: peter-evans/enable-pull-request-automerge@v2
         with:
           pull-request-number: ${{ github.event.pull_request.number }}
