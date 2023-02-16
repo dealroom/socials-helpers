@@ -21,7 +21,7 @@ jobs:
           gh label create update-major --force -R "$REPO_NAME" --color B60205
           gh label create update-minor-or-patch --force -R "$REPO_NAME" --color 0E8A16
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN_DEALROOMBA}}
           REPO_NAME: ${{ github.repository }}
 
   dependabot-auto-label:
@@ -38,7 +38,7 @@ jobs:
           gh pr edit "$PR_URL" --add-label "update-major"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN_DEALROOMBA}}
           REPO_NAME: ${{ github.repository }}
       - name: Add a label for a minor or patch update
         if: |
@@ -49,7 +49,7 @@ jobs:
           gh pr edit "$PR_URL" --add-label "update-minor-or-patch"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN_DEALROOMBA}}
           REPO_NAME: ${{ github.repository }}
 
   automerge:
@@ -85,3 +85,5 @@ jobs:
           contains(github.event.pull_request.labels.*.name, 'sync')
         with:
           review-message: "Auto approved"
+        env:
+          GITHUB_TOKEN: ${{secrets.GH_TOKEN_DEALROOMBA}}
