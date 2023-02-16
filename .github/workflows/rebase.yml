@@ -1,0 +1,16 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Do not edit by hand, your change will be automatically overwritten!
+
+name: Rebase Open PRs
+on:
+  schedule:
+    - cron:  '15 3 * * *'
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: peter-evans/rebase@v2
+        name: Rebase Sync PRs automatically
+        with:
+          include-labels: sync
+          token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
