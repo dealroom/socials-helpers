@@ -1,5 +1,5 @@
-# Auto-synced file, managed by core-mothership
-# Do not edit by hand!
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Do not edit by hand, your change will be automatically overwritten!
 
 name: Automerge
 on:
@@ -9,17 +9,59 @@ on:
 permissions:
   pull-requests: write
   contents: write
+  issues: write
+  repository-projects: write
 
 jobs:
+  ensure-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Force create a new labels
+        run: |
+          gh label create update-major --force -R "$REPO_NAME" --color B60205
+          gh label create update-minor-or-patch --force -R "$REPO_NAME" --color 0E8A16
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          REPO_NAME: ${{ github.repository }}
+
+  dependabot-auto-label:
+    needs: ensure-labels
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: dependabot-metadata
+        uses: dependabot/fetch-metadata@v1
+      - name: Add a label for a major update
+        if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' }}
+        run: |
+          gh pr edit "$PR_URL" --add-label "update-major"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          REPO_NAME: ${{ github.repository }}
+      - name: Add a label for a minor or patch update
+        if: |
+          steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
+          ||
+          steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
+        run: |
+          gh pr edit "$PR_URL" --add-label "update-minor-or-patch"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          REPO_NAME: ${{ github.repository }}
+
   automerge:
+    needs: dependabot-auto-label
     runs-on: ubuntu-latest
     if: |
+      !failure()
+      &&
+      !cancelled()
+      &&
       (
-        (
-          contains(github.event.pull_request.labels.*.name, 'dependencies')
-          &&
-          contains(github.event.pull_request.labels.*.name, 'update-minor-or-patch')
-        )
+        contains(github.event.pull_request.labels.*.name, 'dependencies')
         ||
         contains(github.event.pull_request.labels.*.name, 'sync')
       )
@@ -30,11 +72,16 @@ jobs:
         github.event.pull_request.user.login == 'renovate[bot]'
       )
     steps:
-      - name: Update branches
-        uses: brainly/action-autoupdate-branch@2.0.0
-      - uses: peter-evans/enable-pull-request-automerge@v2
+      - name: Enable automerge
+        uses: peter-evans/enable-pull-request-automerge@v2
         with:
           pull-request-number: ${{ github.event.pull_request.number }}
+          token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
       - uses: hmarr/auto-approve-action@v3
+        name: Auto approve low risk changes
+        if: |
+          contains(github.event.pull_request.labels.*.name, 'update-minor-or-patch')
+          ||
+          contains(github.event.pull_request.labels.*.name, 'sync')
         with:
           review-message: "Auto approved"
