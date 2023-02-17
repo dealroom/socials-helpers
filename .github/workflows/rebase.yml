@@ -4,7 +4,7 @@
 name: Rebase Open PRs
 on:
   schedule:
-    - cron: '15 3 * * *'
+    - cron: '15 3 * * 1'
 jobs:
   rebase:
     runs-on: ubuntu-latest
