@@ -77,13 +77,14 @@ jobs:
         with:
           pull-request-number: ${{ github.event.pull_request.number }}
           token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+      - name: Get PR labels
+        id: pr-labels
+        uses: joerick/pr-labels-action@v1.0.7
       - uses: hmarr/auto-approve-action@v3
         name: Auto approve low risk changes
         if: |
-          contains(github.event.pull_request.labels.*.name, 'update-minor-or-patch')
+          contains(steps.pr-labels.outputs.labels, 'update-minor-or-patch')
           ||
-          contains(github.event.pull_request.labels.*.name, 'sync')
+          contains(steps.pr-labels.outputs.labels, 'sync')
         with:
-          review-message: "Auto approved"
-        env:
-          GITHUB_TOKEN: ${{secrets.GH_TOKEN_DEALROOMBA}}
+          review-message: "Auto approved (low risk update)! :+1: :rocket:"
