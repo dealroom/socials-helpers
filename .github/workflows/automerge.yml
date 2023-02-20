@@ -21,12 +21,14 @@ jobs:
           gh label create update-major --force -R "$REPO_NAME" --color B60205
           gh label create update-minor-or-patch --force -R "$REPO_NAME" --color 0E8A16
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_NAME: ${{ github.repository }}
 
   dependabot-auto-label:
     needs: ensure-labels
     runs-on: ubuntu-latest
+    outputs:
+      force_auto_approve: ${{ steps.dependabot-label.outputs.force_auto_approve }}
     if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
@@ -37,19 +39,21 @@ jobs:
         run: |
           gh pr edit "$PR_URL" --add-label "update-major"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_NAME: ${{ github.repository }}
       - name: Add a label for a minor or patch update
+        id: dependabot-label
         if: |
           steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
           ||
           steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
         run: |
           gh pr edit "$PR_URL" --add-label "update-minor-or-patch"
+          echo "force_auto_approve=1" >> "$GITHUB_OUTPUT"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_NAME: ${{ github.repository }}
 
   automerge:
@@ -81,10 +85,17 @@ jobs:
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.7
       - uses: hmarr/auto-approve-action@v3
+        id: auto-approve
         name: Auto approve low risk changes
         if: |
           contains(steps.pr-labels.outputs.labels, 'update-minor-or-patch')
           ||
           contains(steps.pr-labels.outputs.labels, 'sync')
+          ||
+          contains(steps.pr-labels.outputs.labels, 'low-risk')
+          ||
+          env.FORCE_AUTO_APPROVE == '1'
+        env:
+          FORCE_AUTO_APPROVE: ${{ needs.dependabot-auto-label.outputs.force_auto_approve }}
         with:
           review-message: "Auto approved (low risk update)! :+1: :rocket:"
