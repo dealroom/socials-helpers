@@ -1,14 +1,12 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
-# Do not edit by hand, your change will be automatically overwritten!
+# Do not edit by hand, your change will be automatically overwritten on the next sync.
 
 version: 2
 updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "06:00"
+      interval: "monthly"
 
   - package-ecosystem: "composer"
     directory: "/"
@@ -16,3 +14,4 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "06:00"
+      timezone: "Europe/Amsterdam"
