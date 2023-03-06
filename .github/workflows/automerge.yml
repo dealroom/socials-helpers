@@ -1,5 +1,5 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
-# Do not edit by hand, your change will be automatically overwritten!
+# Do not edit by hand, your change will be automatically overwritten on the next sync.
 
 name: Automerge
 on:
@@ -16,9 +16,11 @@ jobs:
   ensure-labels:
     runs-on: ubuntu-latest
     steps:
-      - name: Force create a new labels
+      - name: Create needed labels
         run: |
           gh label create update-major --force -R "$REPO_NAME" --color B60205
+          gh label create update-minor --force -R "$REPO_NAME" --color FFA96A
+          gh label create update-patch --force -R "$REPO_NAME" --color 0E8A16
           gh label create update-minor-or-patch --force -R "$REPO_NAME" --color 0E8A16
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -28,7 +30,7 @@ jobs:
     needs: ensure-labels
     runs-on: ubuntu-latest
     outputs:
-      force_auto_approve: ${{ steps.dependabot-label.outputs.force_auto_approve }}
+      FORCE_AUTO_APPROVE: ${{ steps.dependabot-label-minor.outputs.FORCE_AUTO_APPROVE || steps.dependabot-label-patch.outputs.FORCE_AUTO_APPROVE }}
     if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
@@ -42,15 +44,18 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_NAME: ${{ github.repository }}
-      - name: Add a label for a minor or patch update
-        id: dependabot-label
-        if: |
-          steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
-          ||
-          steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
+      - name: Add a label for a minor update
+        id: dependabot-label-minor
+        if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
         run: |
-          gh pr edit "$PR_URL" --add-label "update-minor-or-patch"
-          echo "force_auto_approve=1" >> "$GITHUB_OUTPUT"
+          gh pr edit "$PR_URL" --add-label "update-minor-or-patch,update-minor"
+          echo "FORCE_AUTO_APPROVE=1" >> "$GITHUB_OUTPUT"
+      - name: Add a label for a patch update
+        id: dependabot-label-patch
+        if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
+        run: |
+          gh pr edit "$PR_URL" --add-label "update-minor-or-patch,update-patch"
+          echo "FORCE_AUTO_APPROVE=1" >> "$GITHUB_OUTPUT"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -96,6 +101,6 @@ jobs:
           ||
           env.FORCE_AUTO_APPROVE == '1'
         env:
-          FORCE_AUTO_APPROVE: ${{ needs.dependabot-auto-label.outputs.force_auto_approve }}
+          FORCE_AUTO_APPROVE: ${{ needs.dependabot-auto-label.outputs.FORCE_AUTO_APPROVE }}
         with:
           review-message: "Auto approved (low risk update)! :+1: :rocket:"
