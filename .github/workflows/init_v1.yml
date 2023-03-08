@@ -1,0 +1,32 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Do not edit by hand, your change will be automatically overwritten on the next sync.
+
+name: Init Config (v1)
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  actions: write
+  repository-projects: write
+
+jobs:
+  # WARNING: Following jobs will be executed exactly 1 time (per repo).
+  # Workflow is automatically disabled in the last step.
+  create-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create needed labels
+        run: |
+          gh label create update-major --force -R "$REPO_NAME" --color B60205
+          gh label create update-minor --force -R "$REPO_NAME" --color FFA96A
+          gh label create update-patch --force -R "$REPO_NAME" --color 0E8A16
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          REPO_NAME: ${{ github.repository }}
+      - name: Self-destruct (disable this workflow)
+        run: |
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${{ github.workflow }}"
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

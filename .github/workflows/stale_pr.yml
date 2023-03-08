@@ -2,9 +2,12 @@
 # Do not edit by hand, your change will be automatically overwritten on the next sync.
 
 name: Close stale issues and PRs
+
 on:
   schedule:
+    # At 04:47 on Monday.
     - cron: '47 4 * * 1'
+
 jobs:
   stale:
     runs-on: ubuntu-latest
@@ -14,3 +17,4 @@ jobs:
           stale-issue-message: This issue is stale because it has been open 30 days with no activity. It will be closed in 5 days unless you remove stale label or add a new comment."
           days-before-stale: 30
           days-before-close: 5
+          repo-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}

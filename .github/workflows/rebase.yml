@@ -2,9 +2,12 @@
 # Do not edit by hand, your change will be automatically overwritten on the next sync.
 
 name: Rebase Open Sync PRs
+
 on:
   schedule:
+    # At 03:23 on Monday.
     - cron: '23 3 * * 1'
+
 jobs:
   rebase:
     runs-on: ubuntu-latest
