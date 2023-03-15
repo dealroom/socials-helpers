@@ -27,12 +27,14 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO_NAME: ${{ github.repository }}
       - name: Add a label for a minor update
         id: dependabot-label-minor
         if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
         run: |
           gh pr edit "$PR_URL" --add-label "update-minor"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Add a label for a patch update
         id: dependabot-label-patch
         if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
@@ -41,7 +43,6 @@ jobs:
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO_NAME: ${{ github.repository }}
 
   automerge:
     runs-on: ubuntu-latest
