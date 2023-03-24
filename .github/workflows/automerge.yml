@@ -64,7 +64,7 @@ jobs:
       )
     steps:
       - name: Enable automerge
-        uses: peter-evans/enable-pull-request-automerge@v2
+        uses: peter-evans/enable-pull-request-automerge@v3
         continue-on-error: true
         with:
           pull-request-number: ${{ github.event.pull_request.number }}
