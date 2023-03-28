@@ -14,7 +14,8 @@ jobs:
     steps:
       - uses: actions/stale@v8
         with:
-          stale-issue-message: This issue is stale because it has been open 30 days with no activity. It will be closed in 5 days unless you remove stale label or add a new comment."
+          stale-pr-message: This PR is stale because it has been open 30 days with no activity. It will be closed in 5 days unless you remove stale label or add a new comment.
+          close-pr-message: "Automatically closing stale PR to keep things tidy :broom:"
           days-before-stale: 30
           days-before-close: 5
           repo-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
