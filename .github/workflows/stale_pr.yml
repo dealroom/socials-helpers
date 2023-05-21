@@ -12,7 +12,7 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v8
+      - uses: actions/stale@v8.0.0
         with:
           stale-pr-message: This PR is stale because it has been open 30 days with no activity. It will be closed in 5 days unless you remove stale label or add a new comment.
           close-pr-message: "Automatically closing stale PR to keep things tidy :broom:"
