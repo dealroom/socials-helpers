@@ -1,0 +1,27 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Do not edit by hand, your change will be automatically overwritten on the next sync.
+
+name: Cleanup stale git refs (branches and tags)
+
+on:
+  schedule:
+    # At 04:20 on day-of-month 7.
+    - cron: '20 4 7 * *'
+
+jobs:
+  housekeeping:
+    name: Cleanup old branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Delete stale git refs
+        uses: beatlabs/delete-old-branches-action@v0.0.10
+        with:
+          repo_token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          date: '3 months ago'
+          dry_run: false
+          delete_tags: true
+          minimum_tags: 1
+          extra_protected_tag_regex: '^v.*'
+          exclude_open_pr_branches: true
