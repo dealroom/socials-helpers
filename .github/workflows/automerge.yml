@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Dependabot metadata
         id: dependabot-metadata
-        uses: dependabot/fetch-metadata@v1
+        uses: dependabot/fetch-metadata@v1.4.0
       - name: Add a label for a major update
         if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' }}
         run: |
@@ -68,17 +68,19 @@ jobs:
         github.event.pull_request.user.login == 'renovate[bot]'
       )
     steps:
-      - name: Enable automerge
-        uses: peter-evans/enable-pull-request-automerge@v3
-        continue-on-error: true
-        with:
-          pull-request-number: ${{ github.event.pull_request.number }}
-          token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
-          merge-method: squash
+      - name: Enable Pull Request Automerge
+        run: |
+          gh pr merge --auto \
+            --squash \
+            -R ${{ github.repository }} \
+            -d \
+            ${{ github.event.pull_request.number }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.9
-      - uses: hmarr/auto-approve-action@v3
+      - uses: hmarr/auto-approve-action@v3.2.1
         id: auto-approve
         name: Auto approve low risk changes
         if: |
