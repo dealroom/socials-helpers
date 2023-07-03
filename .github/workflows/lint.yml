@@ -1,0 +1,38 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Do not edit by hand, your change will be automatically overwritten on the next sync.
+
+name: Lint
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint:
+    # Only run if the PR does not have the dependencies label or
+    # the sync label because it's pointless to run the linter
+    # on a PR that is only updating dependencies or syncing files
+    if: |
+      (
+        !contains(github.event.pull_request.labels.*.name, 'dependencies')
+        &&
+        !contains(github.event.pull_request.labels.*.name, 'sync')
+      )
+      &&
+      (
+        github.event.pull_request.user.login != 'dependabot[bot]' &&
+        github.event.pull_request.user.login != 'dealroomba' &&
+        github.event.pull_request.user.login != 'renovate[bot]'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3.5.3
+        with:
+          fetch-depth: 0
+      - name: Lint Codebase
+        uses: super-linter/super-linter/slim@v5.1.0
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
