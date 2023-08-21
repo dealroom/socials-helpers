@@ -31,7 +31,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@v5.2.0
+        uses: super-linter/super-linter/slim@v5.2.1
         env:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
