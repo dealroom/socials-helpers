@@ -5,7 +5,7 @@ name: Cleanup stale git refs (branches and tags)
 
 on:
   schedule:
-    # At 04:20 on day-of-month 7.
+    # At 04:20 on Sunday.
     - cron: '20 4 * * 0'
 
 jobs:
