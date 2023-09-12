@@ -13,8 +13,8 @@ jobs:
     name: Cleanup old branches
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3.6.0
+      - name: Checkout Repository
+        uses: actions/checkout@v4.0.0
       - name: Delete stale git refs
         uses: beatlabs/delete-old-branches-action@v0.0.10
         with:
