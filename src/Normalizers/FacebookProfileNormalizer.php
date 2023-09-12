@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
@@ -10,7 +12,7 @@ class FacebookProfileNormalizer extends AbstractNormalizer
     {
         $matches = $this->match($url);
 
-        return 'https://www.facebook.com/'.$matches[4].$matches[5];
+        return 'https://www.facebook.com/' . $matches[4] . $matches[5];
     }
 
     public function normalizeToId(string $url): string
@@ -22,11 +24,7 @@ class FacebookProfileNormalizer extends AbstractNormalizer
 
     private function match(string $url): array
     {
-        preg_match(
-            Parser::FACEBOOK_PROFILE_URL_REGEX,
-            $url,
-            $matches
-        );
+        preg_match(Parser::FACEBOOK_PROFILE_URL_REGEX, $url, $matches);
 
         return $matches;
     }

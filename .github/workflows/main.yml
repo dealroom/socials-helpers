@@ -1,4 +1,4 @@
-name: Tests
+name: Test & Release
 
 on: [push, pull_request]
 
@@ -8,68 +8,51 @@ permissions:
   statuses: write
 
 jobs:
-  run:
+  tests:
+    name: Run Tests (PHP ${{ matrix.php-versions }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         php-versions: ['8.1', '8.2']
-    env:
-      extensions: mbstring
-      key: ext-cache-1
-    name: PHP ${{ matrix.php-versions }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup cache environment
-        id: extcache
-        uses: shivammathur/cache-extensions@v1
+      - name: Checkout Repository
+        uses: actions/checkout@v4.0.0
+      - name: Setup Environment
+        uses: ./.github/actions/setup
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: ${{ env.extensions }}
-          key: ${{ env.key }}
-
-      - name: Cache extensions
-        uses: actions/cache@v3
+          extensions: ${{ vars.EXTENSIONS }}
+          github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+      - name: Test
+        uses: ./.github/actions/test
         with:
-          path: ${{ steps.extcache.outputs.dir }}
-          key: ${{ steps.extcache.outputs.key }}
-          restore-keys: ${{ steps.extcache.outputs.key }}
+          cc-reporter-id: ${{ secrets.CC_REPORTER_ID }}
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+  test-results:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Test Final Results
+    needs: [tests]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4.0.0
+      - name: Aggregate Test Results
+        uses: ./.github/actions/test-results
         with:
-          php-version: ${{ matrix.php-versions }}
-          extensions: ${{ env.extensions }}
-          coverage: xdebug
-          tools: phpunit
+          needs: ${{ toJson(needs) }}
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache composer dependencies
-        uses: actions/cache@v3
+  release:
+    runs-on: ubuntu-latest
+    needs: test-results
+    name: Release
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4.0.0
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
-
-      - name: Setup Code Climate Reporter
-        run: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-
-      - name: Test with phpunit
-        run: vendor/bin/phpunit --coverage-clover clover.xml
-
-      - name: Upload coverage
-        if: ${{ success() }}
-        run: ./cc-test-reporter after-build --coverage-input-type clover
-        env:
-          CC_TEST_REPORTER_ID: ${{secrets.CC_REPORTER_ID}}
+          fetch-depth: '0'
+      - name: Release
+        uses: ./.github/actions/release
+        with:
+          github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}

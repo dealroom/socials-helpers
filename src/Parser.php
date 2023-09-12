@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers;
 
@@ -25,8 +27,10 @@ class Parser
         self::PLATFORM_LINKEDIN_PROFILE => self::LINKEDIN_PROFILE_REGEX,
     ];
 
+    // phpcs:ignore Generic.Files.LineLength.TooLong
     public const FACEBOOK_PAGE_URL_REGEX = '/http(s)?:\/\/(www\.|m\.|mobile\.|business\.|web\.|p-upload\.|[a-z]{2}-[a-z]{2}\.)?(facebook|fb)\.com\/(?!sharer\/)(?!sharer.php)(?!share.php)(?!people\/_\/)(?!profile\.php)(pages\/)?([\p{L}0-9_\-\.\+]+)(\/\d+)?\/?/';
 
+    // phpcs:ignore Generic.Files.LineLength.TooLong
     public const FACEBOOK_PROFILE_URL_REGEX = '/http(s)?:\/\/(www\.)?(facebook|fb)\.com\/(people\/_\/|profile\.php\?id=)(\d+)\/?/';
 
     public const TWITTER_URL_REGEX = '/http(s)?:\/\/(www\.)?twitter\.com\/@?(#!\/)?([A-z0-9_]+)\/?/';

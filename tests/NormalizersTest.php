@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Tests\Dealroom\SocialsHelpers;
 
@@ -12,6 +14,7 @@ use Dealroom\SocialsHelpers\Normalizers\TwitterNormalizer;
 use Dealroom\SocialsHelpers\Parser;
 use PHPUnit\Framework\TestCase;
 
+// phpcs:disable Generic.Files.LineLength.TooLong
 class NormalizersTest extends TestCase
 {
     public function testNormalizersFactory(): void
@@ -61,6 +64,7 @@ class NormalizersTest extends TestCase
     {
         $facebookPageNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PAGE);
 
+
         $values = [
             'https://www.facebook.com/dizzain/?pnref=lhc' => 'https://www.facebook.com/dizzain',
             'http://www.facebook.com/dizzain?pnref=lhc' => 'https://www.facebook.com/dizzain',
@@ -83,9 +87,6 @@ class NormalizersTest extends TestCase
             'https://p-upload.facebook.com/epicvue/' => 'https://www.facebook.com/epicvue',
             'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/torrent-pharmaceuticals-limited/398754970290333',
             'https://en-gb.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/torrent-pharmaceuticals-limited/398754970290333',
-//            'https://www.facebook.com/KitVita-කියවීමේ-නිදහස්-විධිය-102446816592434/' => 'https://www.facebook.com/KitVita-කියවීමේ-නිදහස්-විධිය-102446816592434',
-//            'https://www.facebook.com/pages/කියවීමේ-නිදහස්-විධිය/398754970290333' => 'https://www.facebook.com/pages/කියවීමේ-නිදහස්-විධිය/398754970290333',
-//            'https://www.facebook.com/Пивотека-1383152971928719/' => 'https://www.facebook.com/Пивотека-1383152971928719',
         ];
 
         foreach ($values as $source => $result) {

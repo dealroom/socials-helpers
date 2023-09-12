@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
@@ -11,7 +13,7 @@ class LinkedinProfileNormalizer extends AbstractNormalizer
     {
         $matches = $this->match($url);
 
-        return 'https://www.linkedin.com/in/'.$matches[1].'/';
+        return 'https://www.linkedin.com/in/' . $matches[1] . '/';
     }
 
     public function normalizeToId(string $url): string
@@ -30,7 +32,9 @@ class LinkedinProfileNormalizer extends AbstractNormalizer
         );
 
         if (!$result) {
-            throw new NormalizeException(sprintf('Linkedin profile pattern didn\'t match for %s', $url));
+            throw new NormalizeException(
+                sprintf('Linkedin profile pattern didn\'t match for %s', $url)
+            );
         }
 
         return $matches;
