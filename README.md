@@ -12,7 +12,7 @@ Helper package used for the validation of social links.
 This project requires PHP 8.1 or higher with the `mbstring` extension.  To install it via [Composer] simply run:
 
 ``` bash
-$ composer require dealroom/socials-helpers
+composer require dealroom/socials-helpers
 ```
 
 The `Factory` class provides a simple wrapper for the validation functionality, for example to get normalized URL:
@@ -48,3 +48,8 @@ PHPUnit is used for testing, just run:
 ```bash
 vendor/bin/phpunit
 ```
+
+## Releases and CI/CD
+
+The release is done automatically using GitHub actions on every push to the `main` branch.
+After the release is done, a new tag is created and pushed to GitHub which triggers a new release in [packagist](https://packagist.org/).
