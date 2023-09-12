@@ -13,7 +13,7 @@ class LinkedinShowcaseNormalizer extends AbstractNormalizer
     {
         $matches = $this->match($url);
 
-        return 'https://www.linkedin.com/showcase/'.$matches[3].'/';
+        return 'https://www.linkedin.com/showcase/' . $matches[3] . '/';
     }
 
     public function normalizeToId(string $url): string
@@ -32,7 +32,9 @@ class LinkedinShowcaseNormalizer extends AbstractNormalizer
         );
 
         if (!$result) {
-            throw new NormalizeException(sprintf('Linkedin showcase pattern didn\'t match for %s', $url));
+            throw new NormalizeException(
+                sprintf('Linkedin showcase pattern didn\'t match for %s', $url)
+            );
         }
 
         return $matches;

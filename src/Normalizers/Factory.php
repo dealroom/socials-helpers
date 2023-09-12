@@ -21,6 +21,7 @@ class Factory
 
     /**
      * @param string $platform
+     *
      * @return NormalizerInterface
      */
     public static function getForPlatform(string $platform): NormalizerInterface
@@ -29,6 +30,6 @@ class Factory
             throw new NormalizeException(sprintf('No normalizer found for platform %s', $platform));
         }
 
-        return new self::$normalizers[$platform];
+        return new self::$normalizers[$platform]();
     }
 }

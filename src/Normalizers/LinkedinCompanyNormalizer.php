@@ -13,7 +13,7 @@ class LinkedinCompanyNormalizer extends AbstractNormalizer
     {
         $matches = $this->match($url);
 
-        return 'https://www.linkedin.com/company/'.$matches[3].'/';
+        return 'https://www.linkedin.com/company/' . $matches[3] . '/';
     }
 
     public function normalizeToId(string $url): string
@@ -25,14 +25,12 @@ class LinkedinCompanyNormalizer extends AbstractNormalizer
 
     private function match(string $url): array
     {
-        $result = preg_match(
-            Parser::LINKEDIN_COMPANY_REGEX,
-            rawurldecode($url),
-            $matches
-        );
+        $result = preg_match(Parser::LINKEDIN_COMPANY_REGEX, rawurldecode($url), $matches);
 
         if (!$result) {
-            throw new NormalizeException(sprintf('Linkedin company pattern didn\'t match for %s', $url));
+            throw new NormalizeException(
+                sprintf('Linkedin company pattern didn\'t match for %s', $url)
+            );
         }
 
         return $matches;
