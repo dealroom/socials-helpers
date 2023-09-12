@@ -27,12 +27,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v4.0.0
         with:
           fetch-depth: 0
+      - name: Check if "custom" setup action exists
+        id: check_files
+        uses: andstor/file-existence-action@v2.0.0
+        with:
+          files: ./.github/actions/setup/action.yml
+      - name: Setup environment
+        uses: ./.github/actions/setup
+        if: steps.check_files.outputs.files_exists == 'true'
+        with:
+          github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          extensions: ${{ vars.EXTENSIONS }}
       - name: Lint Codebase
         uses: super-linter/super-linter/slim@v5.2.1
         env:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_PHP_PSALM: false

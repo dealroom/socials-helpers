@@ -1,0 +1,24 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Do not edit by hand, your change will be automatically overwritten on the next sync.
+
+name: Release
+description: Create a new GitHub release (and git tag)
+inputs:
+  github-token:
+    description: GitHub token to use for creating the release
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Create new GitHub tag
+      id: version-bump
+      uses: anothrNick/github-tag-action@1
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        WITH_V: true
+    - name: Create a new GitHub release
+      uses: ncipollo/release-action@v1
+      with:
+        generateReleaseNotes: true
+        token: ${{ inputs.github-token }}
+        tag: ${{ steps.version-bump.outputs.new_tag }}

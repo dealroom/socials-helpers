@@ -1,0 +1,58 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Do not edit by hand, your change will be automatically overwritten on the next sync.
+
+name: Setup PHP
+description: Setup PHP, with composer and extensions
+inputs:
+  php-version:
+    description: PHP version to setup
+    required: true
+    default: 8.2
+  extensions:
+    description: PHP extensions to install
+    required: true
+    default: ""
+  key:
+    description: Cache key to use for extensions
+    required: true
+    default: ext-cache-1
+  github-token:
+    description: GitHub token to use for composer
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Setup cache environment
+      id: extcache
+      uses: shivammathur/cache-extensions@v1
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        key: ${{ inputs.key }}
+    - name: Cache extensions
+      uses: actions/cache@v3.2.2
+      with:
+        path: ${{ steps.extcache.outputs.dir }}
+        key: ${{ steps.extcache.outputs.key }}
+        restore-keys: ${{ steps.extcache.outputs.key }}
+    - name: Setup PHP, with composer and extensions
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        coverage: xdebug
+      env:
+        COMPOSER_TOKEN: ${{ inputs.github-token }}
+    - name: Get composer cache directory
+      id: composer-cache
+      shell: bash
+      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+    - name: Cache composer dependencies
+      uses: actions/cache@v3.2.2
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+    - name: Install Composer dependencies
+      shell: bash
+      run: composer install --no-progress --prefer-dist --optimize-autoloader

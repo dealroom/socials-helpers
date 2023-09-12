@@ -1,0 +1,19 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Do not edit by hand, your change will be automatically overwritten on the next sync.
+
+name: Test Final Results
+description: Aggregate all test results and fail if any of them failed
+inputs:
+  # See https://docs.github.com/en/actions/learn-github-actions/contexts#needs-context
+  # Example: `toJson(needs)`
+  needs:
+    description: The needs context (JSON)
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - run: exit 1
+      shell: bash
+      # see https://stackoverflow.com/a/67532120/4907315
+      if: >-
+        ${{ contains(fromJson(inputs.needs).*.result, 'failure') || contains(fromJson(inputs.needs).*.result, 'cancelled') }}
