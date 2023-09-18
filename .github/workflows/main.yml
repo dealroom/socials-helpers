@@ -28,6 +28,7 @@ jobs:
         uses: ./.github/actions/test
         with:
           cc-reporter-id: ${{ secrets.CC_REPORTER_ID }}
+          cc-coverage-location: ${{ github.workspace }}
 
   test-results:
     if: ${{ always() }}
