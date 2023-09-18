@@ -40,7 +40,7 @@ jobs:
         if: steps.check_files.outputs.files_exists == 'true'
         with:
           github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
-          extensions: ${{ vars.EXTENSIONS }}
+          extensions: ${{ vars.EXTENSIONS || 'none' }}
       - name: Lint Codebase
         uses: super-linter/super-linter/slim@v5.3.0
         env:
