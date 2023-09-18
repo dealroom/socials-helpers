@@ -10,14 +10,12 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Create new GitHub tag
-      id: version-bump
+    - id: version-bump
       uses: anothrNick/github-tag-action@1.67.0
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         WITH_V: "true"
-    - name: Create a new GitHub release
-      uses: ncipollo/release-action@v1.13.0
+    - uses: ncipollo/release-action@v1.13.0
       with:
         generateReleaseNotes: true
         token: ${{ inputs.github-token }}
