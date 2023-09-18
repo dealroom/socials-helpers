@@ -9,10 +9,10 @@ inputs:
     required: false
     default: "false"
   cc-reporter-id:
-    description: "Code Climate reporter ID (required if `skip-cc` input is false)"
+    description: "Code Climate reporter ID (required if `cc-skip` input is false)"
     required: false
   cc-coverage-location:
-    description: "Test coverage location to upload to Code Climate (required if `skip-cc` input is false)"
+    description: "Test coverage location to upload to Code Climate (required if `cc-skip` input is false)"
     required: false
 runs:
   using: "composite"
