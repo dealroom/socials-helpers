@@ -4,24 +4,26 @@
 name: PHP Test
 description: Test the codebase and upload coverage to Code Climate
 inputs:
+  cc-skip:
+    description: Skip Code Climate upload
+    required: false
+    default: "false"
   cc-reporter-id:
-    description: Code Climate reporter ID
-    required: true
+    description: "Code Climate reporter ID (required if `skip-cc` input is false)"
+    required: false
+  cc-coverage-location:
+    description: "Test coverage location to upload to Code Climate (required if `skip-cc` input is false)"
+    required: false
 runs:
   using: "composite"
   steps:
-    - name: Setup Code Climate Reporter
-      shell: bash
-      run: |
-        curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-        chmod +x ./cc-test-reporter
-        ./cc-test-reporter before-build
-    - name: Test with phpunit
-      shell: bash
-      run: vendor/bin/phpunit --coverage-clover clover.xml
-    - name: Upload coverage
-      if: ${{ success() }}
-      shell: bash
-      run: ./cc-test-reporter after-build --coverage-input-type clover
+    - shell: bash
+      if: ${{ fromJson(inputs.cc-skip) }}
+      run: vendor/bin/phpunit
+    - if: ${{ !fromJson(inputs.cc-skip) }}
+      uses: paambaati/codeclimate-action@v5.0.0
       env:
         CC_TEST_REPORTER_ID: ${{ inputs.cc-reporter-id }}
+      with:
+        coverageLocations: ${{ inputs.cc-coverage-location }}/clover.xml:clover
+        coverageCommand: vendor/bin/phpunit --coverage-clover clover.xml
