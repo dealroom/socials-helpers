@@ -24,7 +24,7 @@ runs:
   steps:
     - name: Setup cache environment
       id: extcache
-      uses: shivammathur/cache-extensions@v1
+      uses: shivammathur/cache-extensions@1.10.0
       with:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
@@ -36,7 +36,7 @@ runs:
         key: ${{ steps.extcache.outputs.key }}
         restore-keys: ${{ steps.extcache.outputs.key }}
     - name: Setup PHP, with composer and extensions
-      uses: shivammathur/setup-php@v2
+      uses: shivammathur/setup-php@2.26.0
       with:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
