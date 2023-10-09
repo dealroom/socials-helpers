@@ -17,7 +17,7 @@ jobs:
         php-versions: ['8.1', '8.2']
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.0.0
+        uses: actions/checkout@v4.1.0
       - name: Setup Environment
         uses: ./.github/actions/setup
         with:
@@ -37,7 +37,7 @@ jobs:
     needs: [tests]
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.0.0
+        uses: actions/checkout@v4.1.0
       - name: Aggregate Test Results
         uses: ./.github/actions/test-results
         with:
@@ -50,7 +50,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.0.0
+        uses: actions/checkout@v4.1.0
         with:
           fetch-depth: '0'
       - name: Release
