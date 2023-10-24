@@ -1,4 +1,4 @@
-![Tests](https://github.com/dealroom/socials-helpers/actions/workflows/main.yml/badge.svg)
+[![Test & Release](https://github.com/dealroom/socials-helpers/actions/workflows/main.yml/badge.svg)](https://github.com/dealroom/socials-helpers/actions/workflows/main.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dealroom_socials-helpers&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dealroom_socials-helpers)
 [![Maintainability](https://api.codeclimate.com/v1/badges/5a5141b6860d07672bba/maintainability)](https://codeclimate.com/github/dealroom/socials-helpers/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/5a5141b6860d07672bba/test_coverage)](https://codeclimate.com/github/dealroom/socials-helpers/test_coverage)
