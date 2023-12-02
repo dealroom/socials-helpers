@@ -42,7 +42,7 @@ jobs:
           github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@v5.7.0
+        uses: super-linter/super-linter/slim@v5.7.1
         env:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
