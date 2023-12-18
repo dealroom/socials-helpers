@@ -1,6 +1,7 @@
 {
     "name": "dealroom/socials-helpers",
     "description": "Helper package used for the validation of social links",
+    "type": "library",
     "license": "MIT",
     "keywords": ["social", "linkedin", "facebook", "twitter"],
     "require": {

@@ -3,17 +3,23 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/5a5141b6860d07672bba/maintainability)](https://codeclimate.com/github/dealroom/socials-helpers/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/5a5141b6860d07672bba/test_coverage)](https://codeclimate.com/github/dealroom/socials-helpers/test_coverage)
 
-# Social Helpers
+# Socials Helpers
 
 Helper package used for the validation of social links.
 
-## Installation & Basic Usage
+## Requirements
 
-This project requires PHP 8.1 or higher with the `mbstring` extension.  To install it via [Composer] simply run:
+This project requires PHP 8.1 or higher with the `mbstring` extension installed.
+
+## Installation
+
+Install via [composer], simply run:
 
 ``` bash
 composer require dealroom/socials-helpers
 ```
+
+## Usage
 
 The `Factory` class provides a simple wrapper for the validation functionality, for example to get normalized URL:
 
@@ -46,7 +52,7 @@ echo $data;
 PHPUnit is used for testing, just run:
 
 ```bash
-vendor/bin/phpunit
+./vendor/bin/phpunit
 ```
 
 ## Releases and CI/CD
