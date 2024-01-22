@@ -6,7 +6,7 @@ name: Cleanup stale git refs (branches and tags)
 on:
   schedule:
     # At 04:20 on Sunday.
-    - cron: '20 4 * * 0'
+    - cron: "20 4 * * 0"
 
 jobs:
   housekeeping:
@@ -19,9 +19,9 @@ jobs:
         uses: beatlabs/delete-old-branches-action@v0.0.10
         with:
           repo_token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
-          date: '1 months ago'
+          date: 1 months ago
           dry_run: false
           delete_tags: true
           minimum_tags: 0
-          extra_protected_tag_regex: '^v.*'
+          extra_protected_tag_regex: "^v.*"
           exclude_open_pr_branches: true

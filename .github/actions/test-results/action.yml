@@ -10,7 +10,7 @@ inputs:
     description: The needs context (JSON)
     required: true
 runs:
-  using: "composite"
+  using: composite
   steps:
     - run: exit 1
       shell: bash
