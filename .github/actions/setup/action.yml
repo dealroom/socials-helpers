@@ -20,7 +20,7 @@ inputs:
     description: GitHub token to use for composer
     required: true
 runs:
-  using: "composite"
+  using: composite
   steps:
     - id: extcache
       uses: shivammathur/cache-extensions@1.10.0

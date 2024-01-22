@@ -15,7 +15,7 @@ inputs:
     description: "Test coverage location to upload to Code Climate (required if `cc-skip` input is false)"
     required: false
 runs:
-  using: "composite"
+  using: composite
   steps:
     - shell: bash
       if: ${{ fromJson(inputs.cc-skip) }}

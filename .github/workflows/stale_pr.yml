@@ -6,7 +6,7 @@ name: Close stale issues and PRs
 on:
   schedule:
     # At 04:47 on Monday.
-    - cron: '47 4 * * 1'
+    - cron: "47 4 * * 1"
 
 jobs:
   stale:
