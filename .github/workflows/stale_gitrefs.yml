@@ -8,17 +8,20 @@ on:
     # At 04:20 on Sunday.
     - cron: "20 4 * * 0"
 
+permissions: read-all
+
 jobs:
   housekeeping:
     name: Cleanup old branches
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4.1.1
       - name: Delete stale git refs
         uses: beatlabs/delete-old-branches-action@v0.0.10
         with:
-          repo_token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           date: 1 months ago
           dry_run: false
           delete_tags: true

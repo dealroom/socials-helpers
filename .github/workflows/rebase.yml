@@ -8,12 +8,16 @@ on:
     # At 03:23 on Monday.
     - cron: '23 3 * * 1'
 
+permissions: read-all
+
 jobs:
   rebase:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      actions: write
     steps:
       - uses: peter-evans/rebase@v3.0.0
         name: Rebase Open Sync PRs
         with:
           include-labels: sync
-          token: ${{ secrets.GH_TOKEN_DEALROOMBA }}

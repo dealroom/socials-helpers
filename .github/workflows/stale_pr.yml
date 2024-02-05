@@ -8,9 +8,15 @@ on:
     # At 04:47 on Monday.
     - cron: "47 4 * * 1"
 
+permissions: read-all
+
 jobs:
   stale:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - uses: actions/stale@v9.0.0
         with:
@@ -18,4 +24,3 @@ jobs:
           close-pr-message: "Automatically closing stale PR to keep things tidy :broom:"
           days-before-stale: 30
           days-before-close: 5
-          repo-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
