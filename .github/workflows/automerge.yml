@@ -27,7 +27,7 @@ jobs:
           gh pr edit "$PR_URL" --add-label "update-major"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
-          GH: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
       - name: Add a label for a minor update
         id: dependabot-label-minor
         if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
