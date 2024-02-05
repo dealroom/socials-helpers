@@ -7,15 +7,16 @@ on:
   pull_request:
     types: [opened]
 
-permissions:
-  actions: write
-  repository-projects: write
+permissions: read-all
 
 jobs:
-  # WARNING: Following jobs will be executed exactly 1 time (per repo).
-  # Workflow is automatically disabled in the last step.
+  # WARNING: The following job will be executed exactly 1 time (per repository).
+  # The workflow is automatically disabled in the last step.
   create-labels:
     runs-on: ubuntu-latest
+    permissions:
+      repository-projects: write
+      actions: write
     steps:
       - name: Create needed labels
         run: |
@@ -23,10 +24,10 @@ jobs:
           gh label create update-minor --force -R "$REPO_NAME" --color FFA96A
           gh label create update-patch --force -R "$REPO_NAME" --color 0E8A16
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          GH_TOKEN: ${{ github.token }}
           REPO_NAME: ${{ github.repository }}
       - name: Self-destruct (disable this workflow)
         run: |
           gh workflow disable -R "$GITHUB_REPOSITORY" "${{ github.workflow }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
