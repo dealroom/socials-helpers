@@ -80,7 +80,7 @@ jobs:
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.9
-      - uses: hmarr/auto-approve-action@v3.2.1
+      - uses: hmarr/auto-approve-action@v4.0.0
         id: auto-approve
         name: Auto approve low risk changes
         if: |
