@@ -79,7 +79,9 @@ jobs:
             -d \
             ${{ github.event.pull_request.number }}
         env:
-          GH_TOKEN: ${{ github.token }}
+          # Cannot use default GITHUB_TOKEN because other workflows will be not triggered
+          # @see https://github.com/orgs/community/discussions/55906#discussioncomment-5946239
+          GH_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@v1.0.9
