@@ -27,7 +27,7 @@ indent_size = 4
 [Dockerfile]
 indent_size = 4
 
-[{*.php,composer.json,composer.lock,*.neon,*xml}]
+[{*.php,composer.json,composer.lock,*.neon}]
 indent_size = 4
 
 [*.neon]

@@ -9,12 +9,17 @@ on:
 
 permissions: read-all
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     # Run only if:
-    # - the PR does not have the `dependencies` label
-    # - the `sync` label is NOT present OR `force-lint` label is present
-    # - the PR is NOT created by dependabot or renovate
+    # - the `force-lint` label is present
+    # - the `dependencies` is not present
+    # - the `sync` label is NOT present
+    # - the PR is NOT created by dependabot or renovate bots
     if: |
       contains(github.event.pull_request.labels.*.name, 'force-lint')
       ||
@@ -28,9 +33,6 @@ jobs:
         github.event.pull_request.user.login != 'renovate[bot]'
       )
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-      cancel-in-progress: true
     permissions:
       contents: read
       packages: read
