@@ -1,7 +1,7 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
-name: Migrate (v1)
+name: Migrate (v2)
 
 on:
   push:
@@ -27,29 +27,19 @@ jobs:
           fetch-depth: 0
       - name: Delete unnecessary files and folders
         run: |
-          rm -dfr ./.github/actions/terraform
-          rm -f ./.github/workflows/init_v1.yml
-          rm -f ./.github/pull_request_template.md
-      - name: Create needed labels
+          rm -dfr ./.github/actions/release
+      - name: Replace usage of non-existing actions
         run: |
-          gh label create update-major --force -R "$REPO_NAME" --color B60205 --description "Major version dependency update"
-          gh label create update-minor --force -R "$REPO_NAME" --color FFA96A --description "Minor version dependency update"
-          gh label create update-patch --force -R "$REPO_NAME" --color 0E8A16 --description "Patch version dependency update"
-          gh label create force-lint --force -R "$REPO_NAME" --color ECD214 --description "Force linter checks on PR regardless of other labels"
-          gh label create low-risk --force -R "$REPO_NAME" --color 6E5494 --description "Majar dependency update which is considered a low risk"
-          gh label create sync --force -R "$REPO_NAME" --color EAD433 --description "Indicates that the PR is synchronizing"
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
-          REPO_NAME: ${{ github.repository }}
+          find ./.github/ -type f -exec sed -i 's/.\/.github\/actions\/release/.\/.github\/actions\/github-release/g' {} \;
       - name: Create Migration PR
         uses: peter-evans/create-pull-request@v6.0.0
         with:
-          commit-message: "DEV: Repository migration"
-          title: "DEV: Workflow repository migration"
+          commit-message: "DEV: Repository migration (v2)"
+          title: "DEV: Workflow repository migration (v2)"
           body: |
             :robot: This is an auto-generated PR to migrate the repository.
           token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
-          branch: feature/DEV/repository-migration
+          branch: feature/DEV/repository-migration-v2
           delete-branch: true
           labels: |
             sync
