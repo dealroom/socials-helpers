@@ -16,7 +16,9 @@ jobs:
       FORCE_AUTO_APPROVE: ${{ steps.dependabot-label-minor.outputs.FORCE_AUTO_APPROVE || steps.dependabot-label-patch.outputs.FORCE_AUTO_APPROVE }}
     if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     permissions:
+      contents: write
       pull-requests: write
+      repository-projects: write
     steps:
       - name: Dependabot metadata
         id: dependabot-metadata
