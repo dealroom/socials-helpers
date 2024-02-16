@@ -60,7 +60,7 @@ jobs:
         uses: ./.github/actions/setup
         if: steps.check_files.outputs.files_exists == 'true'
         with:
-          github-token: ${{ github.token }}
+          github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
       - name: Lint Codebase
         uses: super-linter/super-linter/slim@v6.1.1

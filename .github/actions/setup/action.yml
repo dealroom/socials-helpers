@@ -33,13 +33,13 @@ runs:
         path: ${{ steps.extcache.outputs.dir }}
         key: ${{ steps.extcache.outputs.key }}
         restore-keys: ${{ steps.extcache.outputs.key }}
-    - uses: shivammathur/setup-php@2.26.0
+    - uses: shivammathur/setup-php@2.29.0
       with:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
         coverage: xdebug
       env:
-        COMPOSER_TOKEN: ${{ inputs.github-token }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
     - id: composer-cache
       shell: bash
       run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
