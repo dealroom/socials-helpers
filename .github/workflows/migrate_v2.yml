@@ -27,7 +27,7 @@ jobs:
           fetch-depth: 0
       - name: Delete unnecessary files and folders
         run: |
-          rm -dfr ./.github/actions/release
+          rm -dfr ./.github/actions/github-release
       - name: Replace usage of non-existing actions
         run: |
           find ./.github/ -type f -exec sed -i 's/.\/.github\/actions\/release/.\/.github\/actions\/github-release/g' {} \;
