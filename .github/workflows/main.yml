@@ -9,19 +9,22 @@ permissions:
 
 jobs:
   tests:
-    name: Run Tests (PHP ${{ matrix.php-versions }})
+    name: Run Tests (PHP ${{ matrix.php-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['8.2', '8.3']
+        php-version: ['8.2', '8.3']
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ matrix.php-version }}
+      cancel-in-progress: true
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4.1.1
       - name: Setup Environment
         uses: ./.github/actions/setup
         with:
-          php-version: ${{ matrix.php-versions }}
+          php-version: ${{ matrix.php-version }}
           extensions: ${{ vars.EXTENSIONS }}
           github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
       - name: Test
@@ -48,6 +51,9 @@ jobs:
     needs: test-results
     name: Release
     if: github.ref == 'refs/heads/main'
+    concurrency:
+      group: ${{ github.workflow }}
+      cancel-in-progress: true
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4.1.1
