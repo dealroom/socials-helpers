@@ -1,0 +1,15 @@
+title = "gitleaks config"
+
+[extend]
+# useDefault will extend the base configuration with the default gitleaks config:
+# https://github.com/zricethezav/gitleaks/blob/master/config/gitleaks.toml
+useDefault = true
+
+[allowlist]
+    description = "ignore these lines as they are used for naming conventions"
+    regexes = [
+        '''prod_secrets''',
+        '''project_id_secrets''',
+        '''key_temp_file''',
+    ]
+    regexTarget = "line"

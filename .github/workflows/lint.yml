@@ -11,22 +11,26 @@ permissions: read-all
 
 jobs:
   lint:
-    # Only run if the PR does not have the dependencies label or
-    # the sync label because it's pointless to run the linter
-    # on a PR that is only updating dependencies or syncing files
+    # Run only if:
+    # - the PR does not have the `dependencies` label
+    # - the `sync` label is NOT present OR `force-lint` label is present
+    # - the PR is NOT created by dependabot or renovate
     if: |
+      contains(github.event.pull_request.labels.*.name, 'force-lint')
+      ||
       (
         !contains(github.event.pull_request.labels.*.name, 'dependencies')
         &&
         !contains(github.event.pull_request.labels.*.name, 'sync')
-      )
-      &&
-      (
-        github.event.pull_request.user.login != 'dependabot[bot]' &&
-        github.event.pull_request.user.login != 'dealroomba' &&
+        &&
+        github.event.pull_request.user.login != 'dependabot[bot]'
+        &&
         github.event.pull_request.user.login != 'renovate[bot]'
       )
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
     permissions:
       contents: read
       packages: read
@@ -37,22 +41,27 @@ jobs:
         uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
-      - name: Check if "custom" setup action exists
+      - name: Check that "do not merge" label is not present
+        if: contains(github.event.pull_request.labels.*.name, 'do not merge')
+        run: |
+          echo 'The "do not merge" label is present on this PR. Please remove it before continuing.'
+          exit 1
+        shell: bash
+      - name: Check if a setup action exists
         id: check_files
         uses: andstor/file-existence-action@v3.0.0
         with:
           files: ./.github/actions/setup/action.yml
-      - name: Setup environment
+      - name: Load super-linter configuration
+        run: grep -o '^[^#]*' .github/super-linter.env >> "$GITHUB_ENV"
+      - name: Setup application
         uses: ./.github/actions/setup
         if: steps.check_files.outputs.files_exists == 'true'
         with:
           github-token: ${{ github.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@v6.0.0
+        uses: super-linter/super-linter/slim@v6.1.1
+        # For a full list of environment variables see `.github/super-linter.env`
         env:
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ github.token }}
-          VALIDATE_PHP_PSALM: false
-          KUBERNETES_KUBECONFORM_OPTIONS: --ignore-missing-schemas
