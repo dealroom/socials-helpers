@@ -28,7 +28,7 @@ jobs:
       - name: Delete unnecessary files and folders
         run: |
           rm -dfr ./.github/actions/github
-          rm -dfr ./.github/actions/terraform
+          rm -dfr ./.github/actions/terraform-all
           rm -f ./.github/workflows/init_v1.yml
           rm -f ./.github/pull_request_template.md
       - name: Replace usage of non-existing actions

@@ -54,6 +54,6 @@ jobs:
         with:
           fetch-depth: '0'
       - name: Release
-        uses: ./.github/actions/release
+        uses: ./.github/actions/github-release
         with:
           github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
