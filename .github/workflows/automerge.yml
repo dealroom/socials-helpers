@@ -77,10 +77,12 @@ jobs:
         github.event.pull_request.user.login == 'renovate[bot]'
       )
     steps:
+      # We will enable automerge using the "merge commit" strategy
+      # --squash is also supported however not all projects allow squashing
       - name: Enable Pull Request Automerge
         run: |
           gh pr merge --auto \
-            --squash \
+            --merge \
             -R ${{ github.repository }} \
             -d \
             ${{ github.event.pull_request.number }}
