@@ -32,7 +32,7 @@ jobs:
         run: |
           find ./.github/ -type f -exec sed -i 's/.\/.github\/actions\/release/.\/.github\/actions\/github-release/g' {} \;
       - name: Create Migration PR
-        uses: peter-evans/create-pull-request@v6.0.0
+        uses: peter-evans/create-pull-request@v6.0.1
         with:
           commit-message: "DEV: Repository migration (v2)"
           title: "DEV: Workflow repository migration (v2)"
