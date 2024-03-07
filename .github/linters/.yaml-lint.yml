@@ -17,7 +17,7 @@ rules:
     level: error
     min-spaces-inside: 0
     max-spaces-inside: 0
-    min-spaces-inside-empty: 1
+    min-spaces-inside-empty: 0
     max-spaces-inside-empty: 5
   colons:
     level: error
