@@ -1,32 +1,37 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+extends: default
+
+# Temporary fix until we have a better way to handle this
+ignore: |
+  charts/
 
 rules:
   braces:
-    level: warning
+    level: error
     min-spaces-inside: 0
-    max-spaces-inside: 0
+    max-spaces-inside: 1
     min-spaces-inside-empty: 0
     max-spaces-inside-empty: 5
   brackets:
-    level: warning
+    level: error
     min-spaces-inside: 0
     max-spaces-inside: 0
-    min-spaces-inside-empty: 0
+    min-spaces-inside-empty: 1
     max-spaces-inside-empty: 5
   colons:
-    level: warning
+    level: error
     max-spaces-before: 0
     max-spaces-after: 1
   commas:
-    level: warning
+    level: error
     max-spaces-before: 0
     min-spaces-after: 1
     max-spaces-after: 1
   comments: disable
   comments-indentation: disable
   document-end: disable
-  document-start: false
+  document-start: disable
   empty-lines:
     level: warning
     max: 2
@@ -36,7 +41,7 @@ rules:
     level: warning
     max-spaces-after: 1
   indentation:
-    level: warning
+    level: error
     spaces: consistent
     indent-sequences: true
     check-multi-line-strings: false
