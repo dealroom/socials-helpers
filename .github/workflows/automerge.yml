@@ -5,7 +5,7 @@ name: Automerge
 
 on:
   pull_request:
-    types: [labeled, synchronize, reopened]
+    types: [labeled, unlabeled, synchronize, reopened]
 
 permissions: read-all
 
