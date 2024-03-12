@@ -10,7 +10,7 @@ on:
 permissions: read-all
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
 jobs:
@@ -67,3 +67,4 @@ jobs:
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          VALIDATE_ALL_CODEBASE: ${{ vars.LINT_VALIDATE_ALL_CODEBASE || 'true' }}
