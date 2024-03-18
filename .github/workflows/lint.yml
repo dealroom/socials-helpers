@@ -40,7 +40,7 @@ jobs:
       statuses: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.2
         with:
           fetch-depth: 0
       - name: Check that "do not merge" label is not present
