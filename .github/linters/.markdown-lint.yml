@@ -6,6 +6,7 @@ MD007:
   indent: 2                   # Unordered list indentation
 MD013:
   line_length: 400            # Line length 80 is far too short
+  tables: false               # Include tables
 MD026:
   punctuation: ".,;:!。，；:"  # List of not allowed
 MD029: false                  # Ordered list item prefix
