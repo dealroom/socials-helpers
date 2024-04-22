@@ -18,7 +18,7 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/stale@v9.0.0
+      - uses: actions/stale@28ca1036281a5e5922ead5184a1bbf96e5fc984e # v9.0.0
         with:
           stale-pr-message: This PR is stale because it has been open 30 days with no activity. It will be closed in 5 days unless you remove stale label or add a new comment.
           close-pr-message: "Automatically closing stale PR to keep things tidy :broom:"

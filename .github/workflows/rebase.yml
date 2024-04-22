@@ -17,7 +17,7 @@ jobs:
       pull-requests: write
       actions: write
     steps:
-      - uses: peter-evans/rebase@v3.0.0
+      - uses: peter-evans/rebase@52289ddc070ea10c8e2530c0740972ff39ac8769 # v3.0.0
         name: Rebase Open Sync PRs
         with:
           include-labels: sync
