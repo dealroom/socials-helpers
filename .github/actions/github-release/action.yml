@@ -11,11 +11,11 @@ runs:
   using: composite
   steps:
     - id: version-bump
-      uses: anothrNick/github-tag-action@1.67.0
+      uses: anothrNick/github-tag-action@a2c70ae13a881faf2b4953baaa9e49731997ab36 # 1.67.0
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         WITH_V: "true"
-    - uses: ncipollo/release-action@v1.13.0
+    - uses: ncipollo/release-action@6c75be85e571768fa31b40abf38de58ba0397db5 # v1.13.0
       with:
         generateReleaseNotes: true
         token: ${{ inputs.github-token }}
