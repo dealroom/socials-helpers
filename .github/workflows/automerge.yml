@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Dependabot metadata
         id: dependabot-metadata
-        uses: dependabot/fetch-metadata@v2.0.0
+        uses: dependabot/fetch-metadata@0fb21704c18a42ce5aa8d720ea4b912f5e6babef # v2.0.0
       - name: Add a label for a major update
         if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' }}
         run: |
@@ -92,8 +92,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
       - name: Get PR labels
         id: pr-labels
-        uses: joerick/pr-labels-action@v1.0.9
-      - uses: hmarr/auto-approve-action@v4.0.0
+        uses: joerick/pr-labels-action@0543b277721e852d821c6738d449f2f4dea03d5f # v1.0.9
+      - uses: hmarr/auto-approve-action@f0939ea97e9205ef24d872e76833fa908a770363 # v4.0.0
         id: auto-approve
         name: Auto approve low risk changes
         if: |
