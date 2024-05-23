@@ -60,6 +60,32 @@ class NormalizersTest extends TestCase
         $twitterNormalizer->normalize('https://twitter.com/share');
     }
 
+    public function testXNormalizer(): void
+    {
+        $twitterNormalizer = Factory::getForPlatform(Parser::PLATFORM_X);
+
+        $values = [
+            'http://www.x.com/codeschool/dasd?dsadasd' => 'https://x.com/codeschool',
+            'https://www.x.com/codeschool?dasdad' => 'https://x.com/codeschool',
+            'https://www.x.com/Codeschool?dasdad' => 'https://x.com/codeschool',
+            'http://x.com/codeschool/dasd?dsadasd' => 'https://x.com/codeschool',
+            'https://x.com/codeschool?dasdad' => 'https://x.com/codeschool',
+            'https://x.com/#!/codeschool?dasdad' => 'https://x.com/codeschool',
+            'https://x.com/@codeschool?dasdad' => 'https://x.com/codeschool',
+            'https://x.com/code-school' => 'https://x.com/code',
+            'https://x.com/code_school' => 'https://x.com/code_school',
+            'https://x.com/greentextbooks#' => 'https://x.com/greentextbooks',
+            'https://x.com/shopbop#cs=ov=73421773243,os=1,link=footerconnecttwitterlink\',' => 'https://x.com/shopbop',
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $twitterNormalizer->normalize($source));
+        }
+
+        $this->expectException(NormalizeException::class);
+        $twitterNormalizer->normalize('https://x.com/share');
+    }
+
     public function testFacebookPageNormalizer(): void
     {
         $facebookPageNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PAGE);
