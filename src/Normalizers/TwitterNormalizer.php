@@ -26,7 +26,7 @@ class TwitterNormalizer extends AbstractNormalizer
 
         $matches = $this->match($url);
 
-        return 'https://'.$this->getDomain().'.com/' . $matches[4];
+        return 'https://' . $this->getDomain() . '.com/' . $matches[4];
     }
 
     public function normalizeToId(string $url): string
