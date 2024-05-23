@@ -9,6 +9,16 @@ use Dealroom\SocialsHelpers\Parser;
 
 class TwitterNormalizer extends AbstractNormalizer
 {
+    protected function getDomain(): string
+    {
+        return 'twitter';
+    }
+
+    protected function getPattern(): string
+    {
+        return Parser::TWITTER_URL_REGEX;
+    }
+
     public function normalize(string $url): string
     {
 
@@ -16,7 +26,7 @@ class TwitterNormalizer extends AbstractNormalizer
 
         $matches = $this->match($url);
 
-        return 'https://twitter.com/' . $matches[4];
+        return 'https://' . $this->getDomain() . '.com/' . $matches[4];
     }
 
     public function normalizeToId(string $url): string
@@ -35,21 +45,23 @@ class TwitterNormalizer extends AbstractNormalizer
      */
     private function match(string $url): array
     {
-        $result = preg_match(Parser::TWITTER_URL_REGEX, $url, $matches);
+        $result = preg_match($this->getPattern(), $url, $matches);
 
         if (!$result) {
             throw new NormalizeException(
-                sprintf('Twitter pattern didn\'t match for %s', $url)
+                sprintf('%s pattern didn\'t match for %s', ucfirst($this->getDomain()), $url)
             );
         }
 
         if ($matches[4] === 'share') {
-            throw new NormalizeException('Twitter name can not be equal to share');
+            throw new NormalizeException(
+                sprintf('%s name can not be equal to share', ucfirst($this->getDomain()))
+            );
         }
 
         if (strlen($matches[4]) > 15) {
             throw new NormalizeException(
-                sprintf('Twitter name can not be longer than 15 chars: %s', $matches[4])
+                sprintf('%s name can not be longer than 15 chars: %s', ucfirst($this->getDomain()), $matches[4])
             );
         }
 
