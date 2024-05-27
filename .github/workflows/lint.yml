@@ -65,7 +65,7 @@ jobs:
           github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@56576d491db07c7236b445ab09991ca49d12b0c6 # v6.5.0
+        uses: super-linter/super-linter/slim@5b638caee6ba65e25e07143887b669a1233847a0 # v6.5.1
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
