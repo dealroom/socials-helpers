@@ -78,7 +78,7 @@ jobs:
       )
     steps:
       # We will enable automerge using the "merge commit" strategy
-      # --squash is also supported however not all projects allow squashing
+      # Squash is also supported, however, not all projects allow squashing
       - name: Enable Pull Request Automerge
         run: |
           gh pr merge --auto \
