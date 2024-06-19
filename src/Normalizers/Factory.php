@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace Dealroom\SocialsHelpers\Normalizers;
 
 use Dealroom\SocialsHelpers\Exceptions\NormalizeException;
-use Dealroom\SocialsHelpers\Parser;
 
 class Factory
 {
     public static array $normalizers = [
-        Parser::PLATFORM_FACEBOOK_PAGE => FacebookPageNormalizer::class,
-        Parser::PLATFORM_FACEBOOK_PROFILE => FacebookProfileNormalizer::class,
+        FacebookPageNormalizer::PLATFORM => FacebookPageNormalizer::class,
+        FacebookProfileNormalizer::PLATFORM => FacebookProfileNormalizer::class,
         Parser::PLATFORM_TWITTER => TwitterNormalizer::class,
         Parser::PLATFORM_X => XNormalizer::class,
-        Parser::PLATFORM_LINKEDIN_COMPANY => LinkedinCompanyNormalizer::class,
-        Parser::PLATFORM_LINKEDIN_SHOWCASE => LinkedinShowcaseNormalizer::class,
-        Parser::PLATFORM_LINKEDIN_SCHOOL => LinkedinSchoolNormalizer::class,
-        Parser::PLATFORM_LINKEDIN_PROFILE => LinkedinProfileNormalizer::class,
+        TwitterNormalizer::PLATFORM  => TwitterNormalizer::class,
+        XNormalizer::PLATFORM => XNormalizer::class,
+        LinkedinCompanyNormalizer::PLATFORM => LinkedinCompanyNormalizer::class,
+        LinkedinShowcaseNormalizer::PLATFORM => LinkedinShowcaseNormalizer::class,
+        LinkedinSchoolNormalizer::PLATFORM => LinkedinSchoolNormalizer::class,
+        LinkedinProfileNormalizer::PLATFORM => LinkedinProfileNormalizer::class,
     ];
 
     /**
@@ -32,5 +33,13 @@ class Factory
         }
 
         return new self::$normalizers[$platform]();
+    }
+
+    public static function registerNormalizer($normalizer): void
+    {
+        if (!is_a($normalizer, NormalizerInterface::class, true)) {
+            throw new NormalizeException(sprintf('Normalizer %s must implement NormalizerInterface', $normalizer));
+        }
+        self::$normalizers[$normalizer::PLATFORM] = $normalizer::class;
     }
 }

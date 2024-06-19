@@ -9,9 +9,12 @@ use Dealroom\SocialsHelpers\Normalizers\FacebookPageNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\FacebookProfileNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\Factory;
 use Dealroom\SocialsHelpers\Normalizers\LinkedinCompanyNormalizer;
+use Dealroom\SocialsHelpers\Normalizers\LinkedinProfileNormalizer;
+use Dealroom\SocialsHelpers\Normalizers\LinkedinSchoolNormalizer;
+use Dealroom\SocialsHelpers\Normalizers\LinkedinShowcaseNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\NormalizerInterface;
 use Dealroom\SocialsHelpers\Normalizers\TwitterNormalizer;
-use Dealroom\SocialsHelpers\Parser;
+use Dealroom\SocialsHelpers\Normalizers\XNormalizer;
 use PHPUnit\Framework\TestCase;
 
 // phpcs:disable Generic.Files.LineLength.TooLong
@@ -19,10 +22,10 @@ class NormalizersTest extends TestCase
 {
     public function testNormalizersFactory(): void
     {
-        $twitterNormalizer = Factory::getForPlatform(Parser::PLATFORM_TWITTER);
-        $facebookPageNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PAGE);
-        $facebookProfileNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PROFILE);
-        $linkedinCompanyProfileNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_COMPANY);
+        $twitterNormalizer = Factory::getForPlatform(TwitterNormalizer::PLATFORM);
+        $facebookPageNormalizer = Factory::getForPlatform(FacebookPageNormalizer::PLATFORM);
+        $facebookProfileNormalizer = Factory::getForPlatform(FacebookProfileNormalizer::PLATFORM);
+        $linkedinCompanyProfileNormalizer = Factory::getForPlatform(LinkedinCompanyNormalizer::PLATFORM);
 
         $this->assertInstanceOf(TwitterNormalizer::class, $twitterNormalizer);
         $this->assertInstanceOf(FacebookPageNormalizer::class, $facebookPageNormalizer);
@@ -36,7 +39,7 @@ class NormalizersTest extends TestCase
 
     public function testTwitterNormalizer(): void
     {
-        $twitterNormalizer = Factory::getForPlatform(Parser::PLATFORM_TWITTER);
+        $twitterNormalizer = Factory::getForPlatform(TwitterNormalizer::PLATFORM);
 
         $values = [
             'http://www.twitter.com/codeschool/dasd?dsadasd' => 'https://twitter.com/codeschool',
@@ -62,7 +65,7 @@ class NormalizersTest extends TestCase
 
     public function testXNormalizer(): void
     {
-        $twitterNormalizer = Factory::getForPlatform(Parser::PLATFORM_X);
+        $twitterNormalizer = Factory::getForPlatform(XNormalizer::PLATFORM);
 
         $values = [
             'http://www.x.com/codeschool/dasd?dsadasd' => 'https://x.com/codeschool',
@@ -88,7 +91,7 @@ class NormalizersTest extends TestCase
 
     public function testFacebookPageNormalizer(): void
     {
-        $facebookPageNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PAGE);
+        $facebookPageNormalizer = Factory::getForPlatform(FacebookPageNormalizer::PLATFORM);
 
 
         $values = [
@@ -97,22 +100,22 @@ class NormalizersTest extends TestCase
             'http://facebook.com/dizzain?pnref=lhc' => 'https://www.facebook.com/dizzain',
             'https://facebook.com/dizzain?pnref=lhc' => 'https://www.facebook.com/dizzain',
             'https://facebook.com/Dizzain?pnref=lhc' => 'https://www.facebook.com/dizzain',
-            'https://www.facebook.com/pages/fasdfadsfasdfsadf/126287147568059?pnref=lhc' => 'https://www.facebook.com/pages/fasdfadsfasdfsadf/126287147568059',
+            'https://www.facebook.com/pages/fasdfadsfasdfsadf/126287147568059?pnref=lhc' => 'https://www.facebook.com/126287147568059',
             'https://www.facebook.com/PHPtoday-1025912177431644/?fref=ts' => 'https://www.facebook.com/phptoday-1025912177431644',
-            'http://www.facebook.com/pages/The-bloomtrigger-project/125218650866978/fasdfas?asdas' => 'https://www.facebook.com/pages/the-bloomtrigger-project/125218650866978',
-            'http://www.facebook.com/pages/DealMarket/157833714232772' => 'https://www.facebook.com/pages/dealmarket/157833714232772',
-            'http://www.facebook.com/#!/pages/dealmarket/157833714232772' => 'https://www.facebook.com/pages/dealmarket/157833714232772',
-            'http://www.facebook.com/pages/san-diego-ca/layer3-security-services/207635209271099' => 'https://www.facebook.com/pages/san-diego-ca/layer3-security-services/207635209271099',
-            'http://www.facebook.com/pages/agility+inc./114838698562760' => 'https://www.facebook.com/pages/agility+inc./114838698562760',
-            'http://www.facebook.com/pages/karen-mali-m%c3%bc%c5%9favirlik-logo-muhasebe/194296120603783' => 'https://www.facebook.com/pages/karen-mali-m%c3%bc%c5%9favirlik-logo-muhasebe/194296120603783',
-            'http://www.facebook.com//pages/custom-case-guy/1445342082363874' => 'https://www.facebook.com/pages/custom-case-guy/1445342082363874',
+            'http://www.facebook.com/pages/The-bloomtrigger-project/125218650866978/fasdfas?asdas' => 'https://www.facebook.com/125218650866978',
+            'http://www.facebook.com/pages/DealMarket/157833714232772' => 'https://www.facebook.com/157833714232772',
+            'http://www.facebook.com/#!/pages/dealmarket/157833714232772' => 'https://www.facebook.com/157833714232772',
+            'http://www.facebook.com/pages/san-diego-ca/layer3-security-services/207635209271099' => 'https://www.facebook.com/207635209271099',
+            'http://www.facebook.com/pages/agility+inc./114838698562760' => 'https://www.facebook.com/114838698562760',
+            'http://www.facebook.com/pages/karen-mali-m%c3%bc%c5%9favirlik-logo-muhasebe/194296120603783' => 'https://www.facebook.com/194296120603783',
+            'http://www.facebook.com//pages/custom-case-guy/1445342082363874' => 'https://www.facebook.com/1445342082363874',
             'https://en-gb.facebook.com/wonderbill/' => 'https://www.facebook.com/wonderbill',
             'https://business.facebook.com/TectradeHQ/?business_id=284925295380988&ref=bookmarks' => 'https://www.facebook.com/tectradehq',
             'https://web.facebook.com/dermexpert/' => 'https://www.facebook.com/dermexpert',
             'https://m.facebook.com/umadic1/' => 'https://www.facebook.com/umadic1',
             'https://p-upload.facebook.com/epicvue/' => 'https://www.facebook.com/epicvue',
-            'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/torrent-pharmaceuticals-limited/398754970290333',
-            'https://en-gb.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/pages/torrent-pharmaceuticals-limited/398754970290333',
+            'https://www.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/398754970290333',
+            'https://en-gb.facebook.com/pages/Torrent-Pharmaceuticals-Limited/398754970290333' => 'https://www.facebook.com/398754970290333',
         ];
 
         foreach ($values as $source => $result) {
@@ -122,7 +125,7 @@ class NormalizersTest extends TestCase
 
     public function testFacebookPageNormalizerErrors(): void
     {
-        $facebookPageNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PAGE);
+        $facebookPageNormalizer = Factory::getForPlatform(FacebookPageNormalizer::PLATFORM);
 
         $values = [
             'http://www.facebook.com/home.php?tests#!/pages/dealmarket/157833714232772',
@@ -136,10 +139,10 @@ class NormalizersTest extends TestCase
 
     public function testFacebookProfileNormalizer(): void
     {
-        $facebookProfileNormalizer = Factory::getForPlatform(Parser::PLATFORM_FACEBOOK_PROFILE);
+        $facebookProfileNormalizer = Factory::getForPlatform(FacebookProfileNormalizer::PLATFORM);
 
         $values = [
-            'http://www.facebook.com/people/_/100000049946330' => 'https://www.facebook.com/people/_/100000049946330',
+            'http://www.facebook.com/people/_/100000049946330' => 'https://www.facebook.com/profile.php?id=100000049946330',
             'http://www.facebook.com/profile.php?id=1294422029' => 'https://www.facebook.com/profile.php?id=1294422029',
             'http://www.facebook.com/profile.php?id=1294422029/' => 'https://www.facebook.com/profile.php?id=1294422029',
             'http://facebook.com/profile.php?id=1294422029' => 'https://www.facebook.com/profile.php?id=1294422029',
@@ -153,7 +156,7 @@ class NormalizersTest extends TestCase
 
     public function testLinkedinCompanyNormalizer(): void
     {
-        $linkedinCompanyProfileNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_COMPANY);
+        $linkedinCompanyProfileNormalizer = Factory::getForPlatform(LinkedinCompanyNormalizer::PLATFORM);
 
         $values = [
             'https://www.linkedin.com/company/dealroom/' => 'https://www.linkedin.com/company/dealroom/',
@@ -178,7 +181,7 @@ class NormalizersTest extends TestCase
 
     public function testLinkedinShowcaseNormalizer(): void
     {
-        $linkedinShowcaseNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_SHOWCASE);
+        $linkedinShowcaseNormalizer = Factory::getForPlatform(LinkedinShowcaseNormalizer::PLATFORM);
 
         $values = [
             'https://www.linkedin.com/showcase/dealroom/' => 'https://www.linkedin.com/showcase/dealroom/',
@@ -203,7 +206,7 @@ class NormalizersTest extends TestCase
 
     public function testLinkedinSchoolNormalizer(): void
     {
-        $linkedinSchoolNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_SCHOOL);
+        $linkedinSchoolNormalizer = Factory::getForPlatform(LinkedinSchoolNormalizer::PLATFORM);
 
         $values = [
             'https://www.linkedin.com/school/dealroom/' => 'https://www.linkedin.com/school/dealroom/',
@@ -228,7 +231,7 @@ class NormalizersTest extends TestCase
 
     public function testLinkedinProfileNormalizer(): void
     {
-        $linkedinSchoolNormalizer = Factory::getForPlatform(Parser::PLATFORM_LINKEDIN_PROFILE);
+        $linkedinSchoolNormalizer = Factory::getForPlatform(LinkedinProfileNormalizer::PLATFORM);
 
         $values = [
             'https://www.linkedin.com/in/dealroom/' => 'https://www.linkedin.com/in/dealroom/',
@@ -246,13 +249,13 @@ class NormalizersTest extends TestCase
     public function testNormalizerToId(): void
     {
         $values = [
-            'https://twitter.com/codeschool' => [Parser::PLATFORM_TWITTER, 'codeschool'],
-            'https://www.facebook.com/dizzain' => [Parser::PLATFORM_FACEBOOK_PAGE, ''],
-            'https://www.facebook.com/profile.php?id=1294422029' => [Parser::PLATFORM_FACEBOOK_PROFILE, '1294422029'],
-            'https://www.linkedin.com/company/dealroom/' => [Parser::PLATFORM_LINKEDIN_COMPANY, 'dealroom'],
-            'https://www.linkedin.com/showcase/dealroom/' => [Parser::PLATFORM_LINKEDIN_SHOWCASE, 'dealroom'],
-            'https://www.linkedin.com/school/dealroom//' => [Parser::PLATFORM_LINKEDIN_SCHOOL, 'dealroom'],
-            'https://www.linkedin.com/in/dealroom//' => [Parser::PLATFORM_LINKEDIN_PROFILE, 'dealroom'],
+            'https://twitter.com/codeschool' => [TwitterNormalizer::PLATFORM, 'codeschool'],
+            'https://www.facebook.com/dizzain' => [FacebookPageNormalizer::PLATFORM, 'dizzain'],
+            'https://www.facebook.com/profile.php?id=1294422029' => [FacebookProfileNormalizer::PLATFORM, '1294422029'],
+            'https://www.linkedin.com/company/dealroom/' => [LinkedinCompanyNormalizer::PLATFORM, 'dealroom'],
+            'https://www.linkedin.com/showcase/dealroom/' => [LinkedinShowcaseNormalizer::PLATFORM, 'dealroom'],
+            'https://www.linkedin.com/school/dealroom//' => [LinkedinSchoolNormalizer::PLATFORM, 'dealroom'],
+            'https://www.linkedin.com/in/dealroom//' => [LinkedinProfileNormalizer::PLATFORM, 'dealroom'],
         ];
 
         foreach ($values as $url => $row) {

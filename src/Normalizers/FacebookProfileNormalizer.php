@@ -4,28 +4,15 @@ declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
-use Dealroom\SocialsHelpers\Parser;
-
 class FacebookProfileNormalizer extends AbstractNormalizer
 {
-    public function normalize(string $url): string
-    {
-        $matches = $this->match($url);
+    public const PLATFORM = 'facebook_profile';
 
-        return 'https://www.facebook.com/' . $matches[4] . $matches[5];
-    }
+    public const PLATFORM_NAME = 'Facebook Profile';
 
-    public function normalizeToId(string $url): string
-    {
-        $matches = $this->match($url);
+    protected string $pattern = '/http(s)?:\/\/(www\.)?(facebook|fb)\.com\/(people\/_\/|profile\.php\?id=)(\d+)\/?/';
 
-        return $matches[5];
-    }
+    protected string $normalizedUrl = 'https://www.facebook.com/profile.php?id=%s';
 
-    private function match(string $url): array
-    {
-        preg_match(Parser::FACEBOOK_PROFILE_URL_REGEX, $url, $matches);
-
-        return $matches;
-    }
+    protected array|int $idPosition = 5;
 }

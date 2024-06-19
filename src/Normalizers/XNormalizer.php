@@ -4,18 +4,13 @@ declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
-use Dealroom\SocialsHelpers\Exceptions\NormalizeException;
-use Dealroom\SocialsHelpers\Parser;
-
 class XNormalizer extends TwitterNormalizer
 {
-    protected function getDomain(): string
-    {
-        return 'x';
-    }
+    public const PLATFORM = 'x';
 
-    protected function getPattern(): string
-    {
-        return Parser::X_URL_REGEX;
-    }
+    public const PLATFORM_NAME = 'X';
+
+    protected string $pattern = '/https?:\/\/(?:www\.)?x\.com\/@?(?:#!\/)?([A-z0-9_]+)\/?/';
+
+    protected string $normalizedUrl = 'https://x.com/%s';
 }

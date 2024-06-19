@@ -4,39 +4,15 @@ declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
-use Dealroom\SocialsHelpers\Exceptions\NormalizeException;
-use Dealroom\SocialsHelpers\Parser;
-
 class LinkedinShowcaseNormalizer extends AbstractNormalizer
 {
-    public function normalize(string $url): string
-    {
-        $matches = $this->match($url);
+    public const PLATFORM = 'linkedin_showcase';
 
-        return 'https://www.linkedin.com/showcase/' . $matches[3] . '/';
-    }
+    public const PLATFORM_NAME = 'Linkedin Showcase';
 
-    public function normalizeToId(string $url): string
-    {
-        $matches = $this->match($url);
+    protected string $pattern = '/http(s)?:\/\/(www\.)?linkedin\.com\/showcase\/?([\p{L}\d&\'.\-–_®]+)\/?/u';
 
-        return $matches[3];
-    }
+    protected string $normalizedUrl = 'https://www.linkedin.com/showcase/%s/';
 
-    private function match(string $url): array
-    {
-        $result = preg_match(
-            Parser::LINKEDIN_SHOWCASE_REGEX,
-            rawurldecode($url),
-            $matches
-        );
-
-        if (!$result) {
-            throw new NormalizeException(
-                sprintf('Linkedin showcase pattern didn\'t match for %s', $url)
-            );
-        }
-
-        return $matches;
-    }
+    protected array|int $idPosition = 3;
 }
