@@ -21,7 +21,7 @@ runs:
       if: ${{ fromJson(inputs.cc-skip) }}
       run: vendor/bin/phpunit
     - if: ${{ !fromJson(inputs.cc-skip) }}
-      uses: paambaati/codeclimate-action@b74bb25d2074a4bc16bd06fffc1b299c07b1f886 # v6.0.0
+      uses: paambaati/codeclimate-action@7c100bd1ed15de0bdee476b38ca759d8c94207b5 # v8.0.0
       env:
         CC_TEST_REPORTER_ID: ${{ inputs.cc-reporter-id }}
       with:
