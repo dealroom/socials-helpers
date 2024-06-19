@@ -24,12 +24,7 @@ abstract class AbstractNormalizer implements NormalizerInterface
     {
         $settings = array_merge($this->cleanUrlSettings, $settings);
 
-//        print_r($url);
-//        print_r($settings);
-
         $url = Utils::cleanUrl($url, $settings);
-
-//        print_r($url);
 
         $matches = $this->match($url);
 
