@@ -11,14 +11,18 @@ class Factory
     public static array $normalizers = [
         FacebookPageNormalizer::PLATFORM => FacebookPageNormalizer::class,
         FacebookProfileNormalizer::PLATFORM => FacebookProfileNormalizer::class,
-        Parser::PLATFORM_TWITTER => TwitterNormalizer::class,
-        Parser::PLATFORM_X => XNormalizer::class,
+        InstagramNormalizer::PLATFORM => InstagramNormalizer::class,
+        TikTokNormalizer::PLATFORM => TikTokNormalizer::class,
         TwitterNormalizer::PLATFORM  => TwitterNormalizer::class,
         XNormalizer::PLATFORM => XNormalizer::class,
         LinkedinCompanyNormalizer::PLATFORM => LinkedinCompanyNormalizer::class,
         LinkedinShowcaseNormalizer::PLATFORM => LinkedinShowcaseNormalizer::class,
         LinkedinSchoolNormalizer::PLATFORM => LinkedinSchoolNormalizer::class,
         LinkedinProfileNormalizer::PLATFORM => LinkedinProfileNormalizer::class,
+        AppleMusicNormalizer::PLATFORM => AppleMusicNormalizer::class,
+        SoundcloudNormalizer::PLATFORM => SoundcloudNormalizer::class,
+        SpotifyArtistNormalizer::PLATFORM => SpotifyArtistNormalizer::class,
+        YoutubeNormalizer::PLATFORM => YoutubeNormalizer::class,
     ];
 
     /**

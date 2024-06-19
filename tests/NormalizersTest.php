@@ -5,16 +5,22 @@ declare(strict_types=1);
 namespace Tests\Dealroom\SocialsHelpers;
 
 use Dealroom\SocialsHelpers\Exceptions\NormalizeException;
+use Dealroom\SocialsHelpers\Normalizers\AppleMusicNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\FacebookPageNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\FacebookProfileNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\Factory;
+use Dealroom\SocialsHelpers\Normalizers\InstagramNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\LinkedinCompanyNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\LinkedinProfileNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\LinkedinSchoolNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\LinkedinShowcaseNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\NormalizerInterface;
+use Dealroom\SocialsHelpers\Normalizers\SoundcloudNormalizer;
+use Dealroom\SocialsHelpers\Normalizers\SpotifyArtistNormalizer;
+use Dealroom\SocialsHelpers\Normalizers\TikTokNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\TwitterNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\XNormalizer;
+use Dealroom\SocialsHelpers\Normalizers\YoutubeNormalizer;
 use PHPUnit\Framework\TestCase;
 
 // phpcs:disable Generic.Files.LineLength.TooLong
@@ -154,6 +160,23 @@ class NormalizersTest extends TestCase
         }
     }
 
+    //InstagramNormalizer
+    public function testInstagramNormalizer(): void
+    {
+        $instagramNormalizer = Factory::getForPlatform(InstagramNormalizer::PLATFORM);
+
+        $values = [
+            'https://www.instagram.com/kevin' => 'https://www.instagram.com/kevin',
+            'https://www.instagram.com/kevin/' => 'https://www.instagram.com/kevin',
+            'https://instagram.com/kevin' => 'https://www.instagram.com/kevin',
+            'http://www.instagram.com/kevin' => 'https://www.instagram.com/kevin',
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $instagramNormalizer->normalize($source));
+        }
+    }
+
     public function testLinkedinCompanyNormalizer(): void
     {
         $linkedinCompanyProfileNormalizer = Factory::getForPlatform(LinkedinCompanyNormalizer::PLATFORM);
@@ -243,6 +266,94 @@ class NormalizersTest extends TestCase
 
         foreach ($values as $source => $result) {
             $this->assertEquals($result, $linkedinSchoolNormalizer->normalize($source));
+        }
+    }
+
+    public function testTikTokNormalizer(): void
+    {
+        $tikTokNormalizer = Factory::getForPlatform(TikTokNormalizer::PLATFORM);
+
+        $values = [
+            'https://www.tiktok.com/@khaby.lame' => 'https://www.tiktok.com/@khaby.lame',
+            'https://www.tiktok.com/@charlidamelio' => 'https://www.tiktok.com/@charlidamelio',
+            'https://www.tiktok.com/@bts_official_bighit' => 'https://www.tiktok.com/@bts_official_bighit',
+            'https://tiktok.com/@tiktok' => 'https://www.tiktok.com/@tiktok',
+            'http://www.tiktok.com/@tiktok' => 'https://www.tiktok.com/@tiktok',
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $tikTokNormalizer->normalize($source));
+        }
+    }
+
+    public function testAppleMusicNormalizer(): void
+    {
+        $appleMusicNormalizer = Factory::getForPlatform(AppleMusicNormalizer::PLATFORM);
+
+        $values = [
+            'https://music.apple.com/us/artist/the-beatles/136975' => 'https://music.apple.com/artist/136975',
+            'https://music.apple.com/us/artist/beatles/136975' => 'https://music.apple.com/artist/136975',
+            'https://music.apple.com/artist/beatles/136975' => 'https://music.apple.com/artist/136975',
+            'https://music.apple.com/artist/136975' => 'https://music.apple.com/artist/136975',
+            'https://itunes.apple.com/us/artist/id136975' => 'https://music.apple.com/artist/136975',
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $appleMusicNormalizer->normalize($source));
+        }
+    }
+
+    public function testSoundcloudNormalizer(): void
+    {
+        $soundcloudNormalizer = Factory::getForPlatform(SoundcloudNormalizer::PLATFORM);
+
+        $values = [
+            'https://soundcloud.com/kx5-music' => 'https://soundcloud.com/kx5-music',
+            'https://soundcloud.com/kx5official' => 'https://soundcloud.com/kx5official',
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $soundcloudNormalizer->normalize($source));
+        }
+    }
+
+    public function testSpotifyArtistNormalizer(): void
+    {
+        $spotifyArtistNormalizer = Factory::getForPlatform(SpotifyArtistNormalizer::PLATFORM);
+
+        $values = [
+            'https://open.spotify.com/artist/3WrFJ7ztbogyGnTHbHJFl2' => 'https://open.spotify.com/artist/3WrFJ7ztbogyGnTHbHJFl2',
+            'spotify:artist:3WrFJ7ztbogyGnTHbHJFl2' => 'https://open.spotify.com/artist/3WrFJ7ztbogyGnTHbHJFl2',
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $spotifyArtistNormalizer->normalize($source));
+        }
+    }
+
+    public function testYoutubeNormalizer(): void
+    {
+        $youtubeNormalizer = Factory::getForPlatform(YoutubeNormalizer::PLATFORM);
+
+        $values = [
+            'https://www.youtube.com/channel/UCJow9j3zvZ4vK2ZjUwZc6Fw' => 'https://www.youtube.com/channel/UCJow9j3zvZ4vK2ZjUwZc6Fw',
+            'https://www.youtube.com/user/Google' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/c/Google' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/Google' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/Google/' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/Google/about' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/Google/videos' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/Google/playlists' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/Google/community' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/Google/channels' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/Google/featured' => 'https://www.youtube.com/Google',
+            'https://www.youtube.com/Google/live' => 'https://www.youtube.com/Google',
+            'https://youtube.com/Google' => 'https://www.youtube.com/Google',
+            'http://www.youtube.com/Google' => 'https://www.youtube.com/Google',
+        ];
+
+        foreach ($values as $source => $result) {
+            $this->assertEquals($result, $youtubeNormalizer->normalize($source));
         }
     }
 
