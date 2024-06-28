@@ -45,11 +45,6 @@ abstract class AbstractNormalizer implements NormalizerInterface
         return $this->pattern;
     }
 
-    public function setPattern(string $pattern): void
-    {
-        $this->pattern = $pattern;
-    }
-
     protected function match(string $url): array
     {
         $result = preg_match(

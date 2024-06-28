@@ -61,11 +61,6 @@ class NormalizerFactoryTest extends TestCase
             {
                 return '/foo/';
             }
-
-            public function setPattern(string $pattern): void
-            {
-                // Do nothing
-            }
         };
 
         Factory::addNormalizer($fakeNormalizer);
