@@ -1,7 +1,7 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
-name: Migrate (20 March 2024)
+name: Migrate (20 June 2024)
 
 on:
   push:
@@ -25,22 +25,11 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           fetch-depth: 0
-      - name: Delete unnecessary files and folders
+      # see https://forums.docker.com/t/docker-compose-yml-version-is-obsolete/141313
+      - name: Remove version parameter from all docker-compose* yml files recursively
         run: |
-          rm -f ./.github/workflows/migrate_v1.yml
-          rm -f ./.github/workflows/migrate_v2.yml
-      - name: Create needed labels
-        run: |
-          gh label create update-major --force -R "$REPO_NAME" --color B60205 --description "Major version dependency update"
-          gh label create update-minor --force -R "$REPO_NAME" --color FFA96A --description "Minor version dependency update"
-          gh label create update-patch --force -R "$REPO_NAME" --color BDECB6 --description "Patch version dependency update"
-          gh label create update-digest --force -R "$REPO_NAME" --color 0E8A16 --description "Digest version dependency update"
-          gh label create force-lint --force -R "$REPO_NAME" --color ECD214 --description "Force linter checks on PR regardless of other labels"
-          gh label create low-risk --force -R "$REPO_NAME" --color 6E5494 --description "Majar dependency update which is considered a low risk"
-          gh label create sync --force -R "$REPO_NAME" --color EAD433 --description "Indicates that the PR is synchronizing"
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
-          REPO_NAME: ${{ github.repository }}
+          find . -type f -name "docker-compose*.yml" -exec sed -i '/version:/d' {} \;
+          find . -type f -name "docker-compose*.yml" -exec sed -i '/./,$!d' {} \;
       - name: Create Migration PR
         uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
         with:
