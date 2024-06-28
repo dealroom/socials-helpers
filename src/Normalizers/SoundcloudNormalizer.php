@@ -6,9 +6,10 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class SoundcloudNormalizer extends AbstractNormalizer
 {
-    public const PLATFORM = 'soundcloud';
-
-    public const PLATFORM_NAME = 'Soundcloud Profile';
+    public static function getPlatform(): string
+    {
+        return 'soundcloud';
+    }
 
     protected string $pattern = '/https?:\/\/soundcloud\.com\/([\pL\d\-\_]+)/';
 

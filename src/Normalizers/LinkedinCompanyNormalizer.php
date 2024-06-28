@@ -6,9 +6,10 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class LinkedinCompanyNormalizer extends AbstractNormalizer
 {
-    public const PLATFORM = 'linkedin_company';
-
-    public const PLATFORM_NAME = 'Linkedin Company';
+    public static function getPlatform(): string
+    {
+        return 'linkedin_company';
+    }
 
     protected string $pattern = '/http(s)?:\/\/(www\.)?linkedin\.com\/company\/?([\p{L}\d&\'.\-–_®]+)\/?/u';
 

@@ -6,9 +6,10 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class XNormalizer extends TwitterNormalizer
 {
-    public const PLATFORM = 'x';
-
-    public const PLATFORM_NAME = 'X';
+    public static function getPlatform(): string
+    {
+        return 'x';
+    }
 
     protected string $pattern = '/https?:\/\/(?:www\.)?x\.com\/@?(?:#!\/)?([A-z0-9_]+)\/?/';
 

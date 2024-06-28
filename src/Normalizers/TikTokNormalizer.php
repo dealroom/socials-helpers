@@ -6,9 +6,10 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class TikTokNormalizer extends AbstractNormalizer
 {
-    public const PLATFORM = 'tiktok';
-
-    public const PLATFORM_NAME = 'TikTok Profile';
+    public static function getPlatform(): string
+    {
+        return 'tiktok';
+    }
 
     protected string $pattern = '/https?:\/\/(?:www\.)?tiktok\.com\/(@[\pL\d\_\.]{1,24})/';
 

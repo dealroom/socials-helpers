@@ -9,7 +9,7 @@ Helper package used for the validation of social links.
 
 ## Requirements
 
-This project requires PHP 8.1 or higher with the `mbstring` extension installed.
+This project requires PHP 8.2 or higher with the `mbstring` extension installed.
 
 ## Installation
 
@@ -21,7 +21,7 @@ composer require dealroom/socials-helpers
 
 ## Usage
 
-The `Factory` class provides a simple wrapper for the validation functionality, for example to get normalized URL:
+The `Factory` class provides a simple wrapper for the validation functionality, for example, to get normalized URL:
 
 ```php
 use Dealroom\SocialsHelpers\Factory;
@@ -47,9 +47,54 @@ echo $data;
 // "dealroom"
 ```
 
+## Supported Platforms
+
+The following platforms are supported by default:
+
+- Apple Music
+- Facebook
+- Instagram
+- LinkedIn
+- Twitter
+- YouTube
+- TikTok
+- SoundCloud
+- X
+- Spotify
+
+### Registering new platforms
+
+To register a new normalizer, you need to create a new class that implements
+the `NormalizerInterface` interface and add it to the `Factory` class.
+
+```php
+use Dealroom\SocialsHelpers\Normalizers\NormalizerInterface;
+
+class CustomNormalizer implements NormalizerInterface
+{
+    // Implement the interface methods
+}
+```
+
+Then add it to the `Factory` class
+
+```php
+use Dealroom\SocialsHelpers\Normalizers\Factory;
+
+Factory::addNormalizer(CustomNormalizer::class);
+```
+
+And now, you can use it
+
+```php
+use Dealroom\SocialsHelpers\Factory;
+
+$data = Factory::parseUrl('https://custom.com/Dealroom', [Parser::PLATFORM_CUSTOM])->getNormalizedUrl();
+```
+
 ## Testing
 
-PHPUnit is used for testing, just run:
+PHPUnit is used for testing, run:
 
 ```bash
 ./vendor/bin/phpunit
@@ -58,4 +103,5 @@ PHPUnit is used for testing, just run:
 ## Releases and CI/CD
 
 The release is done automatically using GitHub actions on every push to the `main` branch.
-After the release is done, a new tag is created and pushed to GitHub which triggers a new release in [packagist](https://packagist.org/).
+After the release is done, a new tag is created and pushed to GitHub,
+which triggers a new release in [packagist](https://packagist.org/).

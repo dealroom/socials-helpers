@@ -6,9 +6,10 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class LinkedinShowcaseNormalizer extends AbstractNormalizer
 {
-    public const PLATFORM = 'linkedin_showcase';
-
-    public const PLATFORM_NAME = 'Linkedin Showcase';
+    public static function getPlatform(): string
+    {
+        return 'linkedin_showcase';
+    }
 
     protected string $pattern = '/http(s)?:\/\/(www\.)?linkedin\.com\/showcase\/?([\p{L}\d&\'.\-–_®]+)\/?/u';
 

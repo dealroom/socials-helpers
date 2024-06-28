@@ -30,7 +30,7 @@ abstract class AbstractNormalizer implements NormalizerInterface
 
         if (is_array($this->idPosition)) {
             foreach ($this->idPosition as $position) {
-                if(isset($matches[$position])) {
+                if (isset($matches[$position])) {
                     return $matches[$position];
                 }
             }
@@ -60,7 +60,7 @@ abstract class AbstractNormalizer implements NormalizerInterface
 
         if (!$result) {
             throw new NormalizeException(
-                sprintf("%s pattern didn't match for %s", static::PLATFORM_NAME, $url)
+                sprintf("%s pattern didn't match for '%s'", static::getPlatform(), $url)
             );
         }
 

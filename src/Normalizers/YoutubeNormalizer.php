@@ -6,11 +6,14 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class YoutubeNormalizer extends AbstractNormalizer
 {
-    public const PLATFORM = 'youtube';
+    public static function getPlatform(): string
+    {
+        return 'youtube';
+    }
 
-    public const PLATFORM_NAME = 'Youtube Channel';
-
+    // phpcs:disable Generic.Files.LineLength.TooLong
     protected string $pattern = '/https?:\/\/(?:www\.)?youtube.com\/(?:c\/|user\/)?((?:channel\/UC)?[\pL\d_\-\+\.\%\@]+)/u';
+    // phpcs:enable Generic.Files.LineLength.TooLong
 
     protected string $normalizedUrl = 'https://www.youtube.com/%s';
 

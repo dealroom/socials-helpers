@@ -6,9 +6,10 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class LinkedinProfileNormalizer extends AbstractNormalizer
 {
-    public const PLATFORM = 'linkedin_profile';
-
-    public const PLATFORM_NAME = 'Linkedin Profile';
+    public static function getPlatform(): string
+    {
+        return 'linkedin_profile';
+    }
 
     protected string $pattern = '/(?:https?:)?\/\/(?:[\w]+\.)?linkedin\.com\/in\/([\w\-\_À-ÿ%]+)\/?/u';
 

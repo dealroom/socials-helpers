@@ -6,9 +6,10 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class InstagramNormalizer extends AbstractNormalizer
 {
-    public const PLATFORM = 'instagram';
-
-    public const PLATFORM_NAME = 'Instagram Profile';
+    public static function getPlatform(): string
+    {
+        return 'instagram';
+    }
 
     protected string $pattern = '/https?:\/\/(?:www\.)?instagram\.com\/(?!about|legal|explore|web)([\pL\d\_\.]{1,30})/';
 

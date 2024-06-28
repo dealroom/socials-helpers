@@ -6,9 +6,10 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class SpotifyArtistNormalizer extends AbstractNormalizer
 {
-    public const PLATFORM = 'spotify_artist';
-
-    public const PLATFORM_NAME = 'Spotify Artist';
+    public static function getPlatform(): string
+    {
+        return 'spotify_artist';
+    }
 
     protected string $pattern = '/(?:https?:\/\/open.spotify.com\/artist\/|spotify:artist:)([a-zA-Z0-9]+)/';
 

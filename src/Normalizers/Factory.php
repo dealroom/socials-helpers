@@ -8,42 +8,41 @@ use Dealroom\SocialsHelpers\Exceptions\NormalizeException;
 
 class Factory
 {
-    public static array $normalizers = [
-        FacebookPageNormalizer::PLATFORM => FacebookPageNormalizer::class,
-        FacebookProfileNormalizer::PLATFORM => FacebookProfileNormalizer::class,
-        InstagramNormalizer::PLATFORM => InstagramNormalizer::class,
-        TikTokNormalizer::PLATFORM => TikTokNormalizer::class,
-        TwitterNormalizer::PLATFORM  => TwitterNormalizer::class,
-        XNormalizer::PLATFORM => XNormalizer::class,
-        LinkedinCompanyNormalizer::PLATFORM => LinkedinCompanyNormalizer::class,
-        LinkedinShowcaseNormalizer::PLATFORM => LinkedinShowcaseNormalizer::class,
-        LinkedinSchoolNormalizer::PLATFORM => LinkedinSchoolNormalizer::class,
-        LinkedinProfileNormalizer::PLATFORM => LinkedinProfileNormalizer::class,
-        AppleMusicNormalizer::PLATFORM => AppleMusicNormalizer::class,
-        SoundcloudNormalizer::PLATFORM => SoundcloudNormalizer::class,
-        SpotifyArtistNormalizer::PLATFORM => SpotifyArtistNormalizer::class,
-        YoutubeNormalizer::PLATFORM => YoutubeNormalizer::class,
+    private static array $normalizers = [
+        AppleMusicNormalizer::class,
+        FacebookPageNormalizer::class,
+        FacebookProfileNormalizer::class,
+        InstagramNormalizer::class,
+        LinkedinCompanyNormalizer::class,
+        LinkedinProfileNormalizer::class,
+        LinkedinSchoolNormalizer::class,
+        LinkedinShowcaseNormalizer::class,
+        SoundcloudNormalizer::class,
+        SpotifyArtistNormalizer::class,
+        TikTokNormalizer::class,
+        TwitterNormalizer::class,
+        XNormalizer::class,
+        YoutubeNormalizer::class,
     ];
 
-    /**
-     * @param string $platform
-     *
-     * @return NormalizerInterface
-     */
     public static function getForPlatform(string $platform): NormalizerInterface
     {
-        if (!isset(self::$normalizers[$platform])) {
-            throw new NormalizeException(sprintf('No normalizer found for platform %s', $platform));
+        foreach (self::$normalizers as $normalizer) {
+            if ($normalizer::getPlatform() === $platform) {
+                return new $normalizer();
+            }
         }
 
-        return new self::$normalizers[$platform]();
+        throw new NormalizeException(sprintf('No normalizer found for platform %s', $platform));
     }
 
-    public static function registerNormalizer($normalizer): void
+    public static function addNormalizer(NormalizerInterface $normalizer): void
     {
-        if (!is_a($normalizer, NormalizerInterface::class, true)) {
-            throw new NormalizeException(sprintf('Normalizer %s must implement NormalizerInterface', $normalizer));
-        }
-        self::$normalizers[$normalizer::PLATFORM] = $normalizer::class;
+        self::$normalizers[] = $normalizer::class;
+    }
+
+    public static function getNormalizers(): array
+    {
+        return self::$normalizers;
     }
 }

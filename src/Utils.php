@@ -6,10 +6,6 @@ namespace Dealroom\SocialsHelpers;
 
 class Utils
 {
-    /**
-     * @param string $url
-     * @return string
-     */
     public static function cleanUrl(string $url, array $settings = []): string
     {
         $settings = array_merge([
@@ -28,7 +24,7 @@ class Utils
         // Clean usages of #!
         $url = str_replace('#!/', '/', $url);
 
-        // Clean weird double slashes //
+        // Clean double slashes //
         if (strlen($url) > 7) {
             while (strpos($url, '//', 7) !== false) {
                 $url = substr_replace($url, '', strpos($url, '//', 7), 1);

@@ -14,7 +14,6 @@ use Dealroom\SocialsHelpers\Normalizers\LinkedinCompanyNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\LinkedinProfileNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\LinkedinSchoolNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\LinkedinShowcaseNormalizer;
-use Dealroom\SocialsHelpers\Normalizers\NormalizerInterface;
 use Dealroom\SocialsHelpers\Normalizers\SoundcloudNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\SpotifyArtistNormalizer;
 use Dealroom\SocialsHelpers\Normalizers\TikTokNormalizer;
@@ -26,26 +25,9 @@ use PHPUnit\Framework\TestCase;
 // phpcs:disable Generic.Files.LineLength.TooLong
 class NormalizersTest extends TestCase
 {
-    public function testNormalizersFactory(): void
-    {
-        $twitterNormalizer = Factory::getForPlatform(TwitterNormalizer::PLATFORM);
-        $facebookPageNormalizer = Factory::getForPlatform(FacebookPageNormalizer::PLATFORM);
-        $facebookProfileNormalizer = Factory::getForPlatform(FacebookProfileNormalizer::PLATFORM);
-        $linkedinCompanyProfileNormalizer = Factory::getForPlatform(LinkedinCompanyNormalizer::PLATFORM);
-
-        $this->assertInstanceOf(TwitterNormalizer::class, $twitterNormalizer);
-        $this->assertInstanceOf(FacebookPageNormalizer::class, $facebookPageNormalizer);
-        $this->assertInstanceOf(FacebookProfileNormalizer::class, $facebookProfileNormalizer);
-        $this->assertInstanceOf(LinkedinCompanyNormalizer::class, $linkedinCompanyProfileNormalizer);
-        $this->assertInstanceOf(NormalizerInterface::class, $twitterNormalizer);
-        $this->assertInstanceOf(NormalizerInterface::class, $facebookPageNormalizer);
-        $this->assertInstanceOf(NormalizerInterface::class, $facebookProfileNormalizer);
-        $this->assertInstanceOf(NormalizerInterface::class, $linkedinCompanyProfileNormalizer);
-    }
-
     public function testTwitterNormalizer(): void
     {
-        $twitterNormalizer = Factory::getForPlatform(TwitterNormalizer::PLATFORM);
+        $twitterNormalizer = Factory::getForPlatform(TwitterNormalizer::getPlatform());
 
         $values = [
             'http://www.twitter.com/codeschool/dasd?dsadasd' => 'https://twitter.com/codeschool',
@@ -71,7 +53,7 @@ class NormalizersTest extends TestCase
 
     public function testXNormalizer(): void
     {
-        $twitterNormalizer = Factory::getForPlatform(XNormalizer::PLATFORM);
+        $twitterNormalizer = Factory::getForPlatform(XNormalizer::getPlatform());
 
         $values = [
             'http://www.x.com/codeschool/dasd?dsadasd' => 'https://x.com/codeschool',
@@ -97,7 +79,7 @@ class NormalizersTest extends TestCase
 
     public function testFacebookPageNormalizer(): void
     {
-        $facebookPageNormalizer = Factory::getForPlatform(FacebookPageNormalizer::PLATFORM);
+        $facebookPageNormalizer = Factory::getForPlatform(FacebookPageNormalizer::getPlatform());
 
 
         $values = [
@@ -131,7 +113,7 @@ class NormalizersTest extends TestCase
 
     public function testFacebookPageNormalizerErrors(): void
     {
-        $facebookPageNormalizer = Factory::getForPlatform(FacebookPageNormalizer::PLATFORM);
+        $facebookPageNormalizer = Factory::getForPlatform(FacebookPageNormalizer::getPlatform());
 
         $values = [
             'http://www.facebook.com/home.php?tests#!/pages/dealmarket/157833714232772',
@@ -145,7 +127,7 @@ class NormalizersTest extends TestCase
 
     public function testFacebookProfileNormalizer(): void
     {
-        $facebookProfileNormalizer = Factory::getForPlatform(FacebookProfileNormalizer::PLATFORM);
+        $facebookProfileNormalizer = Factory::getForPlatform(FacebookProfileNormalizer::getPlatform());
 
         $values = [
             'http://www.facebook.com/people/_/100000049946330' => 'https://www.facebook.com/profile.php?id=100000049946330',
@@ -163,7 +145,7 @@ class NormalizersTest extends TestCase
     //InstagramNormalizer
     public function testInstagramNormalizer(): void
     {
-        $instagramNormalizer = Factory::getForPlatform(InstagramNormalizer::PLATFORM);
+        $instagramNormalizer = Factory::getForPlatform(InstagramNormalizer::getPlatform());
 
         $values = [
             'https://www.instagram.com/kevin' => 'https://www.instagram.com/kevin',
@@ -179,7 +161,7 @@ class NormalizersTest extends TestCase
 
     public function testLinkedinCompanyNormalizer(): void
     {
-        $linkedinCompanyProfileNormalizer = Factory::getForPlatform(LinkedinCompanyNormalizer::PLATFORM);
+        $linkedinCompanyProfileNormalizer = Factory::getForPlatform(LinkedinCompanyNormalizer::getPlatform());
 
         $values = [
             'https://www.linkedin.com/company/dealroom/' => 'https://www.linkedin.com/company/dealroom/',
@@ -204,7 +186,7 @@ class NormalizersTest extends TestCase
 
     public function testLinkedinShowcaseNormalizer(): void
     {
-        $linkedinShowcaseNormalizer = Factory::getForPlatform(LinkedinShowcaseNormalizer::PLATFORM);
+        $linkedinShowcaseNormalizer = Factory::getForPlatform(LinkedinShowcaseNormalizer::getPlatform());
 
         $values = [
             'https://www.linkedin.com/showcase/dealroom/' => 'https://www.linkedin.com/showcase/dealroom/',
@@ -229,7 +211,7 @@ class NormalizersTest extends TestCase
 
     public function testLinkedinSchoolNormalizer(): void
     {
-        $linkedinSchoolNormalizer = Factory::getForPlatform(LinkedinSchoolNormalizer::PLATFORM);
+        $linkedinSchoolNormalizer = Factory::getForPlatform(LinkedinSchoolNormalizer::getPlatform());
 
         $values = [
             'https://www.linkedin.com/school/dealroom/' => 'https://www.linkedin.com/school/dealroom/',
@@ -254,7 +236,7 @@ class NormalizersTest extends TestCase
 
     public function testLinkedinProfileNormalizer(): void
     {
-        $linkedinSchoolNormalizer = Factory::getForPlatform(LinkedinProfileNormalizer::PLATFORM);
+        $linkedinProfileNormalizer = Factory::getForPlatform(LinkedinProfileNormalizer::getPlatform());
 
         $values = [
             'https://www.linkedin.com/in/dealroom/' => 'https://www.linkedin.com/in/dealroom/',
@@ -265,13 +247,13 @@ class NormalizersTest extends TestCase
         ];
 
         foreach ($values as $source => $result) {
-            $this->assertEquals($result, $linkedinSchoolNormalizer->normalize($source));
+            $this->assertEquals($result, $linkedinProfileNormalizer->normalize($source));
         }
     }
 
     public function testTikTokNormalizer(): void
     {
-        $tikTokNormalizer = Factory::getForPlatform(TikTokNormalizer::PLATFORM);
+        $tikTokNormalizer = Factory::getForPlatform(TikTokNormalizer::getPlatform());
 
         $values = [
             'https://www.tiktok.com/@khaby.lame' => 'https://www.tiktok.com/@khaby.lame',
@@ -288,7 +270,7 @@ class NormalizersTest extends TestCase
 
     public function testAppleMusicNormalizer(): void
     {
-        $appleMusicNormalizer = Factory::getForPlatform(AppleMusicNormalizer::PLATFORM);
+        $appleMusicNormalizer = Factory::getForPlatform(AppleMusicNormalizer::getPlatform());
 
         $values = [
             'https://music.apple.com/us/artist/the-beatles/136975' => 'https://music.apple.com/artist/136975',
@@ -305,7 +287,7 @@ class NormalizersTest extends TestCase
 
     public function testSoundcloudNormalizer(): void
     {
-        $soundcloudNormalizer = Factory::getForPlatform(SoundcloudNormalizer::PLATFORM);
+        $soundcloudNormalizer = Factory::getForPlatform(SoundcloudNormalizer::getPlatform());
 
         $values = [
             'https://soundcloud.com/kx5-music' => 'https://soundcloud.com/kx5-music',
@@ -319,7 +301,7 @@ class NormalizersTest extends TestCase
 
     public function testSpotifyArtistNormalizer(): void
     {
-        $spotifyArtistNormalizer = Factory::getForPlatform(SpotifyArtistNormalizer::PLATFORM);
+        $spotifyArtistNormalizer = Factory::getForPlatform(SpotifyArtistNormalizer::getPlatform());
 
         $values = [
             'https://open.spotify.com/artist/3WrFJ7ztbogyGnTHbHJFl2' => 'https://open.spotify.com/artist/3WrFJ7ztbogyGnTHbHJFl2',
@@ -333,7 +315,7 @@ class NormalizersTest extends TestCase
 
     public function testYoutubeNormalizer(): void
     {
-        $youtubeNormalizer = Factory::getForPlatform(YoutubeNormalizer::PLATFORM);
+        $youtubeNormalizer = Factory::getForPlatform(YoutubeNormalizer::getPlatform());
 
         $values = [
             'https://www.youtube.com/channel/UCJow9j3zvZ4vK2ZjUwZc6Fw' => 'https://www.youtube.com/channel/UCJow9j3zvZ4vK2ZjUwZc6Fw',
@@ -360,13 +342,13 @@ class NormalizersTest extends TestCase
     public function testNormalizerToId(): void
     {
         $values = [
-            'https://twitter.com/codeschool' => [TwitterNormalizer::PLATFORM, 'codeschool'],
-            'https://www.facebook.com/dizzain' => [FacebookPageNormalizer::PLATFORM, 'dizzain'],
-            'https://www.facebook.com/profile.php?id=1294422029' => [FacebookProfileNormalizer::PLATFORM, '1294422029'],
-            'https://www.linkedin.com/company/dealroom/' => [LinkedinCompanyNormalizer::PLATFORM, 'dealroom'],
-            'https://www.linkedin.com/showcase/dealroom/' => [LinkedinShowcaseNormalizer::PLATFORM, 'dealroom'],
-            'https://www.linkedin.com/school/dealroom//' => [LinkedinSchoolNormalizer::PLATFORM, 'dealroom'],
-            'https://www.linkedin.com/in/dealroom//' => [LinkedinProfileNormalizer::PLATFORM, 'dealroom'],
+            'https://twitter.com/codeschool' => [TwitterNormalizer::getPlatform(), 'codeschool'],
+            'https://www.facebook.com/dizzain' => [FacebookPageNormalizer::getPlatform(), 'dizzain'],
+            'https://www.facebook.com/profile.php?id=1294422029' => [FacebookProfileNormalizer::getPlatform(), '1294422029'],
+            'https://www.linkedin.com/company/dealroom/' => [LinkedinCompanyNormalizer::getPlatform(), 'dealroom'],
+            'https://www.linkedin.com/showcase/dealroom/' => [LinkedinShowcaseNormalizer::getPlatform(), 'dealroom'],
+            'https://www.linkedin.com/school/dealroom//' => [LinkedinSchoolNormalizer::getPlatform(), 'dealroom'],
+            'https://www.linkedin.com/in/dealroom//' => [LinkedinProfileNormalizer::getPlatform(), 'dealroom'],
         ];
 
         foreach ($values as $url => $row) {

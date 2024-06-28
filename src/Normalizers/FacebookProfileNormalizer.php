@@ -6,9 +6,10 @@ namespace Dealroom\SocialsHelpers\Normalizers;
 
 class FacebookProfileNormalizer extends AbstractNormalizer
 {
-    public const PLATFORM = 'facebook_profile';
-
-    public const PLATFORM_NAME = 'Facebook Profile';
+    public static function getPlatform(): string
+    {
+        return 'facebook_profile';
+    }
 
     protected string $pattern = '/http(s)?:\/\/(www\.)?(facebook|fb)\.com\/(people\/_\/|profile\.php\?id=)(\d+)\/?/';
 
