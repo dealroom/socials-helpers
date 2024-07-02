@@ -5,63 +5,39 @@ declare(strict_types=1);
 namespace Dealroom\SocialsHelpers\Normalizers;
 
 use Dealroom\SocialsHelpers\Exceptions\NormalizeException;
-use Dealroom\SocialsHelpers\Parser;
 
 class TwitterNormalizer extends AbstractNormalizer
 {
-    protected function getDomain(): string
+    public static function getPlatform(): string
     {
         return 'twitter';
     }
 
-    protected function getPattern(): string
-    {
-        return Parser::TWITTER_URL_REGEX;
-    }
+    protected string $pattern = '/https?:\/\/(?:www\.)?twitter\.com\/@?(?:#!\/)?([A-z0-9_]+)\/?/';
 
-    public function normalize(string $url): string
-    {
+    protected string $normalizedUrl = 'https://twitter.com/%s';
 
-        $url = parent::normalize($url);
+    protected array|int $idPosition = 1;
 
-        $matches = $this->match($url);
-
-        return 'https://' . $this->getDomain() . '.com/' . $matches[4];
-    }
-
-    public function normalizeToId(string $url): string
-    {
-        $url = parent::normalize($url);
-
-        $matches = $this->match($url);
-
-        return $matches[4];
-    }
-
-    /**
-     * @param string $url
-     *
-     * @return array
-     */
-    private function match(string $url): array
+    protected function match(string $url): array
     {
         $result = preg_match($this->getPattern(), $url, $matches);
 
         if (!$result) {
             throw new NormalizeException(
-                sprintf('%s pattern didn\'t match for %s', ucfirst($this->getDomain()), $url)
+                sprintf("%s pattern didn't match for %s", static::getPlatform(), $url)
             );
         }
 
-        if ($matches[4] === 'share') {
+        if ($matches[1] === 'share') {
             throw new NormalizeException(
-                sprintf('%s name can not be equal to share', ucfirst($this->getDomain()))
+                sprintf('%s name can not be equal to share', static::getPlatform())
             );
         }
 
-        if (strlen($matches[4]) > 15) {
+        if (strlen($matches[1]) > 15) {
             throw new NormalizeException(
-                sprintf('%s name can not be longer than 15 chars: %s', ucfirst($this->getDomain()), $matches[4])
+                sprintf('%s name can not be longer than 15 chars: %s', static::getPlatform(), $matches[4])
             );
         }
 

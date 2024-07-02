@@ -4,35 +4,16 @@ declare(strict_types=1);
 
 namespace Dealroom\SocialsHelpers\Normalizers;
 
-use Dealroom\SocialsHelpers\Exceptions\NormalizeException;
-use Dealroom\SocialsHelpers\Parser;
-
 class LinkedinCompanyNormalizer extends AbstractNormalizer
 {
-    public function normalize(string $url): string
+    public static function getPlatform(): string
     {
-        $matches = $this->match($url);
-
-        return 'https://www.linkedin.com/company/' . $matches[3] . '/';
+        return 'linkedin_company';
     }
 
-    public function normalizeToId(string $url): string
-    {
-        $matches = $this->match($url);
+    protected string $pattern = '/http(s)?:\/\/(www\.)?linkedin\.com\/company\/?([\p{L}\d&\'.\-–_®]+)\/?/u';
 
-        return $matches[3];
-    }
+    protected string $normalizedUrl = 'https://www.linkedin.com/company/%s/';
 
-    private function match(string $url): array
-    {
-        $result = preg_match(Parser::LINKEDIN_COMPANY_REGEX, rawurldecode($url), $matches);
-
-        if (!$result) {
-            throw new NormalizeException(
-                sprintf('Linkedin company pattern didn\'t match for %s', $url)
-            );
-        }
-
-        return $matches;
-    }
+    protected array|int $idPosition = 3;
 }
