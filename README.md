@@ -25,9 +25,9 @@ The `Factory` class provides a simple wrapper for the validation functionality, 
 
 ```php
 use Dealroom\SocialsHelpers\Factory;
-use Dealroom\SocialsHelpers\Parser;
+use Dealroom\SocialsHelpers\Normalizers\TwitterNormalizer;
 
-$data = Factory::parseUrl('http://twitter.com/Dealroom', [Parser::PLATFORM_TWITTER])->getNormalizedUrl();
+$data = Factory::parseUrl('http://twitter.com/Dealroom', [TwitterNormalizer::getPlatform()])->getNormalizedUrl();
 
 echo $data;
 
@@ -38,9 +38,9 @@ Or if you want to extract social network ID (handle):
 
 ```php
 use Dealroom\SocialsHelpers\Factory;
-use Dealroom\SocialsHelpers\Parser;
+use Dealroom\SocialsHelpers\Normalizers\TwitterNormalizer;
 
-$data = Factory::parseUrl('https://twitter.com/dealroom', [Parser::PLATFORM_TWITTER])->getId();
+$data = Factory::parseUrl('https://twitter.com/dealroom', [TwitterNormalizer::getPlatform()])->getId();
 
 echo $data;
 
@@ -65,31 +65,22 @@ The following platforms are supported by default:
 ### Registering new platforms
 
 To register a new normalizer, you need to create a new class that implements
-the `NormalizerInterface` interface and add it to the `Factory` class.
+the `NormalizerInterface` interface (for example, by extending the `AbstractNormalizer` class).
+After that, you need to register the new normalizer in the `Factory` class.
 
 ```php
-use Dealroom\SocialsHelpers\Normalizers\NormalizerInterface;
+use Dealroom\SocialsHelpers\Normalizers\AbstractNormalizer;
+use Dealroom\SocialsHelpers\Normalizers\Factory;
+use Dealroom\SocialsHelpers\Factory;
 
-class CustomNormalizer implements NormalizerInterface
+class CustomNormalizer extends AbstractNormalizer
 {
     // Implement the interface methods
 }
-```
-
-Then add it to the `Factory` class
-
-```php
-use Dealroom\SocialsHelpers\Normalizers\Factory;
 
 Factory::addNormalizer(CustomNormalizer::class);
-```
 
-And now, you can use it
-
-```php
-use Dealroom\SocialsHelpers\Factory;
-
-$data = Factory::parseUrl('https://custom.com/Dealroom', [Parser::PLATFORM_CUSTOM])->getNormalizedUrl();
+$data = Factory::parseUrl('https://custom.com/Dealroom', [CustomNormalizer::getPlatform()])->getNormalizedUrl();
 ```
 
 ## Testing

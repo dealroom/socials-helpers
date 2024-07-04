@@ -7,18 +7,14 @@ namespace Dealroom\SocialsHelpers;
 use Dealroom\SocialsHelpers\Normalizers\Factory as NormalizerFactory;
 use Dealroom\SocialsHelpers\Normalizers\NormalizerInterface;
 
-class Result
+readonly class Result
 {
-    private string $platform;
-    private string $url;
     private string $normalizedUrl;
     private string $id;
     private NormalizerInterface $normalizer;
 
-    public function __construct(string $platform, string $url)
+    public function __construct(private string $platform, private string $url)
     {
-        $this->platform = $platform;
-        $this->url = $url;
         $this->normalizer = $this->getNormalizer();
         $this->normalizedUrl = $this->normalizer->normalize($this->url);
         $this->id = $this->normalizer->normalizeToId($this->url);
