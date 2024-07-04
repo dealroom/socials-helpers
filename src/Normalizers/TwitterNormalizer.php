@@ -37,7 +37,7 @@ class TwitterNormalizer extends AbstractNormalizer
 
         if (strlen($matches[1]) > 15) {
             throw new NormalizeException(
-                sprintf('%s name can not be longer than 15 chars: %s', static::getPlatform(), $matches[4])
+                sprintf('%s name can not be longer than 15 chars: %s', static::getPlatform(), $matches[1])
             );
         }
 

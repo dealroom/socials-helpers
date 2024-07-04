@@ -19,5 +19,5 @@ class YoutubeNormalizer extends AbstractNormalizer
 
     protected array|int $idPosition = 1;
 
-    protected array $cleanUrlSettings = [ 'forceLowerCase' => false ];
+    protected array $cleanUrlSettings = ['forceLowerCase' => false];
 }
