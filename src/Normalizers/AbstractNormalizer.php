@@ -12,7 +12,6 @@ abstract class AbstractNormalizer implements NormalizerInterface
     protected string $pattern;
     protected string $normalizedUrl;
     protected int|array $idPosition;
-
     protected array $cleanUrlSettings = ['forceHTTPS' => true, 'forceLowerCase' => true];
 
     public function normalize(string $url): string
