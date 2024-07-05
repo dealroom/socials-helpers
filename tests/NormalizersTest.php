@@ -40,6 +40,7 @@ class NormalizersTest extends TestCase
             'https://twitter.com/code-school' => 'https://twitter.com/code',
             'https://twitter.com/code_school' => 'https://twitter.com/code_school',
             'https://twitter.com/greentextbooks#' => 'https://twitter.com/greentextbooks',
+            'https://twitter.com/grEEntextbooks' => 'https://twitter.com/greentextbooks',
             'https://twitter.com/shopbop#cs=ov=73421773243,os=1,link=footerconnecttwitterlink\',' => 'https://twitter.com/shopbop',
         ];
 
@@ -49,6 +50,33 @@ class NormalizersTest extends TestCase
 
         $this->expectException(NormalizeException::class);
         $twitterNormalizer->normalize('https://twitter.com/share');
+    }
+
+    public function testTwitterUrlPatternMismatchThrowsNormalizeException(): void
+    {
+        $twitterNormalizer = Factory::getForPlatform(TwitterNormalizer::getPlatform());
+
+        $this->expectException(NormalizeException::class);
+        $this->expectExceptionMessage("twitter pattern didn't match for https://invalidtwitter.com");
+        $twitterNormalizer->normalize('https://invalidtwitter.com');
+    }
+
+    public function testTwitterNameEqualToShareThrowsNormalizeException(): void
+    {
+        $twitterNormalizer = Factory::getForPlatform(TwitterNormalizer::getPlatform());
+
+        $this->expectException(NormalizeException::class);
+        $this->expectExceptionMessage("twitter name can not be equal to share");
+        $twitterNormalizer->normalize('https://twitter.com/share');
+    }
+
+    public function testTwitterNameLongerThan15CharsThrowsNormalizeException(): void
+    {
+        $twitterNormalizer = Factory::getForPlatform(TwitterNormalizer::getPlatform());
+
+        $this->expectException(NormalizeException::class);
+        $this->expectExceptionMessage("twitter name can not be longer than 15 chars: thisiswaytoolongusername");
+        $twitterNormalizer->normalize('https://twitter.com/thisiswaytoolongusername');
     }
 
     public function testXNormalizer(): void
