@@ -2,8 +2,8 @@
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
 ignored:
-  - DL3003
-  - DL3008
-  - DL3018
-  - DL3029
-  - DL4006
+  - DL3003 # Use WORKDIR to switch to a directory
+  - DL3008 # Pin versions in apt get install
+  - DL3018 # Pin versions in pip
+  - DL3029 # Use COPY instead of ADD for files and directories
+  - DL4006 # Set the SHELL option -o pipefail explicitly

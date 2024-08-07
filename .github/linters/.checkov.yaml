@@ -1,0 +1,32 @@
+---
+# Don't report passed checks in output
+quiet: true
+
+# Download external modules
+download-external-modules: true
+
+# Ignore checks for helm deps as they are mostly impossible to fix without upstream changes
+skip-path:
+  - charts/[^/]+/charts/
+
+# Skip certain checks globally
+skip-check:
+  # "Ensure Terraform module sources use a commit hash"
+  # We will not do that just, because Renovate bot is not able to update the commit hashes in the module sources
+  # @see https://github.com/renovatebot/renovate/issues/23248
+  - CKV_TF_1
+
+  # Disable some checks for GKE which are not needed
+  - CKV_GCP_22 # We do not use Shielded Nodes
+  - CKV_GCP_61 # We do not require VPC Flow Logs
+  - CKV_GCP_68 # We do not use Shielded Nodes
+  - CKV_GCP_69 # GKE Metadata server is enabled
+  - CKV_GCP_72 # We do not use Shielded Nodes
+  - CKV2_GCP_5 # False positives @see https://github.com/bridgecrewio/checkov/issues/4729
+
+  # Disable specific kubernetes checks
+  - CKV_K8S_9  # Do not require configuraiton of readiness probes for all containers as it's not always needed
+  - CKV_K8S_11 # We do not want to set CPU limits because it's considered a bad practice
+  - CKV_K8S_15 # We do not want to set imagePullPolicy to Always as it's not efficient
+  - CKV_K8S_21 # False positives for the kubernetes namespace in helm charts @see https://github.com/bridgecrewio/checkov/issues/3910
+...
