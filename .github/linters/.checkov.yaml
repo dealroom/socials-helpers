@@ -5,9 +5,12 @@ quiet: true
 # Download external modules
 download-external-modules: true
 
-# Ignore checks for helm deps as they are mostly impossible to fix without upstream changes
+
 skip-path:
+  # Ignore checks for helm deps as they are mostly impossible to fix without upstream changes
   - charts/[^/]+/charts/
+  # Ignore PHP vendor directory
+  - vendor/
 
 # Skip certain checks globally
 skip-check:

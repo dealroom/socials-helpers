@@ -93,6 +93,6 @@ PHPUnit is used for testing, run:
 
 ## Releases and CI/CD
 
-The release is done automatically using GitHub actions on every push to the `main` branch.
+The release is done automatically using GitHub Actions on every push to the `main` branch.
 After the release is done, a new tag is created and pushed to GitHub,
 which triggers a new release in [packagist](https://packagist.org/).
