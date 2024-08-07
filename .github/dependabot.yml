@@ -7,6 +7,9 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    ignore:
+      # Disable all updates to super-linter to prevent BCs happening outside of core-mothership control
+      - dependency-name: "super-linter/super-linter"
 
   - package-ecosystem: "composer"
     directory: "/"
