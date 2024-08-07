@@ -8,7 +8,10 @@
     "**/node_modules/**",
     "**/dist/**",
     "**/build/**",
-    "**/vendor/**"
+    "**/vendor/**",
+    "**/.external_modules/**",
+    "**/.terraform/**",
+    "**/README.md"
   ],
   "absolute": true
 }

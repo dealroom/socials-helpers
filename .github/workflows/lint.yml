@@ -45,10 +45,10 @@ jobs:
           fetch-depth: 0
       - name: Ensure SHA pinned actions
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@b88cd0aad2c36a63e42c71f81cb1958fed95ac87 # v3.0.10
-      - name: Check that "do not merge" label is not present
-        if: contains(github.event.pull_request.labels.*.name, 'do not merge')
+      - name: Check that "do not merge" or "do-not-merge" label is not present
+        if: contains(github.event.pull_request.labels.*.name, 'do not merge') || contains(github.event.pull_request.labels.*.name, 'do-not-merge')
         run: |
-          echo 'The "do not merge" label is present on this PR. Please remove it before continuing.'
+          echo 'The "do not merge" or "do-not-merge" label is present. Please remove it before merging.'
           exit 1
         shell: bash
       - name: Check if a setup action exists
@@ -65,8 +65,10 @@ jobs:
           github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@88ea3923a7e1f89dd485d079f6eb5f5e8f937589 # v6.6.0
+        uses: super-linter/super-linter/slim@b4515bd4ad9d0aa4681960e053916ab991bdbe96 # v6.8.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
+          # Required for checkov pulling external modules from private repositories
+          GITHUB_PAT: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           VALIDATE_ALL_CODEBASE: ${{ vars.LINT_VALIDATE_ALL_CODEBASE || 'true' }}

@@ -1,7 +1,11 @@
 {
   "rules": {
     "terminology": {
-      "exclude": ["web[- ]?site(s)?", "site$1"]
+      "exclude": [
+        "web[- ]?site(s)?",
+        "site$1",
+        "Git"
+      ]
     }
   }
 }
