@@ -5,7 +5,6 @@ quiet: true
 # Download external modules
 download-external-modules: true
 
-
 skip-path:
   # Ignore checks for helm deps as they are mostly impossible to fix without upstream changes
   - charts/[^/]+/charts/
@@ -32,4 +31,5 @@ skip-check:
   - CKV_K8S_11 # We do not want to set CPU limits because it's considered a bad practice
   - CKV_K8S_15 # We do not want to set imagePullPolicy to Always as it's not efficient
   - CKV_K8S_21 # False positives for the kubernetes namespace in helm charts @see https://github.com/bridgecrewio/checkov/issues/3910
+  - CKV_K8S_35 # For now, we are using secrets in the environment variables
 ...
