@@ -25,7 +25,6 @@ jobs:
           repo_token: ${{ github.token }}
           date: 1 months ago
           dry_run: false
-          delete_tags: true
+          delete_tags: false
           minimum_tags: 0
-          extra_protected_tag_regex: "^v.*"
           exclude_open_pr_branches: true
