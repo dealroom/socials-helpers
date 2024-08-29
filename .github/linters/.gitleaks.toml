@@ -12,5 +12,6 @@ useDefault = true
         '''project_id_secrets''',
         '''key_temp_file''',
         '''client_id''',
+        '''CLIENT_ID''',
     ]
     regexTarget = "line"
