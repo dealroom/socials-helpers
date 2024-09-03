@@ -24,6 +24,7 @@ skip-check:
   - CKV_GCP_68 # We do not use Shielded Nodes
   - CKV_GCP_69 # GKE Metadata server is enabled
   - CKV_GCP_72 # We do not use Shielded Nodes
+  - CKV_GCP_6  # Outdated @see https://github.com/bridgecrewio/checkov/issues/6102
   - CKV2_GCP_5 # False positives @see https://github.com/bridgecrewio/checkov/issues/4729
 
   # Disable specific kubernetes checks
