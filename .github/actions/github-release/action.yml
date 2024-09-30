@@ -11,7 +11,7 @@ runs:
   using: composite
   steps:
     - id: version-bump
-      uses: anothrNick/github-tag-action@777684df761b882a3f4f70db16ac70d8cc78d0ea # 1.70.0
+      uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         WITH_V: "true"
