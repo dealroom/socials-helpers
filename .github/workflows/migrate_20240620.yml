@@ -32,7 +32,7 @@ jobs:
           find . -type f -name "docker-compose*.yml" -exec sed -i '/version:/d' {} \;
           find . -type f -name "docker-compose*.yml" -exec sed -i '/./,$!d' {} \;
       - name: Create Migration PR
-        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
         with:
           commit-message: "DEV: Repository migration"
           title: "DEV: Workflow repository migration"
