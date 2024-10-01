@@ -23,7 +23,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
           fetch-depth: 0
       # see https://forums.docker.com/t/docker-compose-yml-version-is-obsolete/141313
@@ -32,7 +32,7 @@ jobs:
           find . -type f -name "docker-compose*.yml" -exec sed -i '/version:/d' {} \;
           find . -type f -name "docker-compose*.yml" -exec sed -i '/./,$!d' {} \;
       - name: Create Migration PR
-        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
         with:
           commit-message: "DEV: Repository migration"
           title: "DEV: Workflow repository migration"
