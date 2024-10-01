@@ -14,48 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  dependabot-auto-label:
-    runs-on: ubuntu-latest
-    outputs:
-      FORCE_AUTO_APPROVE: ${{ steps.dependabot-label-minor.outputs.FORCE_AUTO_APPROVE || steps.dependabot-label-patch.outputs.FORCE_AUTO_APPROVE }}
-    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
-    steps:
-      - name: Dependabot metadata
-        id: dependabot-metadata
-        uses: dependabot/fetch-metadata@dbb049abf0d677abbd7f7eee0375145b417fdd34 # v2.2.0
-      - name: Add a label for a major update
-        if: ${{ steps.dependabot-metadata.outputs.update-type == 'version-update:semver-major' }}
-        run: |
-          gh pr edit "$PR_URL" --add-label "update-major"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ github.token }}
-      - name: Add a label for a minor update
-        id: dependabot-label-minor
-        if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
-        run: |
-          gh pr edit "$PR_URL" --add-label "update-minor"
-          echo "FORCE_AUTO_APPROVE=1" >> "$GITHUB_OUTPUT"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ github.token }}
-      - name: Add a label for a patch update
-        id: dependabot-label-patch
-        if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
-        run: |
-          gh pr edit "$PR_URL" --add-label "update-patch"
-          echo "FORCE_AUTO_APPROVE=1" >> "$GITHUB_OUTPUT"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ github.token }}
-
   automerge:
     runs-on: ubuntu-latest
-    needs: dependabot-auto-label
     permissions:
       contents: write
       pull-requests: write
@@ -104,9 +64,5 @@ jobs:
           contains(steps.pr-labels.outputs.labels, 'sync')
           ||
           contains(steps.pr-labels.outputs.labels, 'low-risk')
-          ||
-          env.FORCE_AUTO_APPROVE == '1'
-        env:
-          FORCE_AUTO_APPROVE: ${{ needs.dependabot-auto-label.outputs.FORCE_AUTO_APPROVE }}
         with:
           review-message: "Auto approved (low risk update)! :+1: :rocket:"

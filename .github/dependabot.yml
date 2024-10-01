@@ -8,8 +8,9 @@ updates:
     schedule:
       interval: "monthly"
     ignore:
-      # Disable all updates to super-linter to prevent BCs happening outside of core-mothership control
+      # Disable all updates to specific actions to force updates in core-mothership only
       - dependency-name: "super-linter/super-linter"
+      - dependency-name: "gosalvez/github-actions-ensure-sha-pinned-actions"
 
   - package-ecosystem: "composer"
     directory: "/"

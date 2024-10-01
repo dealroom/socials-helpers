@@ -10,23 +10,37 @@ on:
 permissions: read-all
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event.action }}-${{ github.event.label.name }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event.action }}
   cancel-in-progress: true
 
 jobs:
+  pr-labels:
+    runs-on: ubuntu-latest
+    outputs:
+      labels: ${{ steps.pr-labels.outputs.labels }}
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Get PR labels
+        id: pr-labels
+        uses: joerick/pr-labels-action@0543b277721e852d821c6738d449f2f4dea03d5f # v1.0.9
+
   lint:
+    needs: pr-labels
     # Run only if:
     # - the `force-lint` label is present
+    # OR
     # - the `dependencies` is not present
-    # - the `sync` label is NOT present
-    # - the PR is NOT created by dependabot or renovate bots
+    #  AND the `sync` label is NOT present
+    #  AND the PR is NOT created by dependabot or renovate bots
     if: |
-      contains(github.event.pull_request.labels.*.name, 'force-lint')
+      contains(needs.pr-labels.outputs.labels, 'force-lint')
       ||
       (
-        !contains(github.event.pull_request.labels.*.name, 'dependencies')
+        !contains(needs.pr-labels.outputs.labels, 'dependencies')
         &&
-        !contains(github.event.pull_request.labels.*.name, 'sync')
+        !contains(needs.pr-labels.outputs.labels, 'sync')
         &&
         github.event.pull_request.user.login != 'dependabot[bot]'
         &&
@@ -40,13 +54,18 @@ jobs:
       statuses: write
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
         with:
           fetch-depth: 0
       - name: Ensure SHA pinned actions
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@b88cd0aad2c36a63e42c71f81cb1958fed95ac87 # v3.0.10
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@0901cf7b71c7ea6261ec69a3dc2bd3f9264f893e # v3.0.12
       - name: Check that "do not merge" or "do-not-merge" label is not present
-        if: contains(github.event.pull_request.labels.*.name, 'do not merge') || contains(github.event.pull_request.labels.*.name, 'do-not-merge')
+        if: |
+          (
+            contains(needs.pr-labels.outputs.labels, 'do not merge')
+            ||
+            contains(needs.pr-labels.outputs.labels, 'do-not-merge')
+          )
         run: |
           echo 'The "do not merge" or "do-not-merge" label is present. Please remove it before merging.'
           exit 1
