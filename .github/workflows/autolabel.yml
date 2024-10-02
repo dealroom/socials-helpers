@@ -5,12 +5,12 @@ name: Autolabel
 
 on:
   pull_request:
-    types: [labeled, unlabeled, synchronize, reopened]
+    types: [synchronize, reopened]
 
 permissions: read-all
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -53,3 +53,4 @@ jobs:
           gh pr edit "$PR_URL" --add-label "force-lint"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
+
