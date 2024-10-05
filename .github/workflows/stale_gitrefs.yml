@@ -1,12 +1,12 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
-name: Cleanup stale git refs (branches and tags)
+name: Cleanup stale branches
 
 on:
   schedule:
-    # At 04:20 on Sunday.
-    - cron: "20 4 * * 0"
+    # At 04:20 on Monday.
+    - cron: "20 4 * * 1"
 
 permissions: read-all
 
@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-      - name: Delete stale git refs
+      - name: Delete stale branches
         uses: beatlabs/delete-old-branches-action@6e94df089372a619c01ae2c2f666bf474f890911 # v0.0.10
         with:
           repo_token: ${{ github.token }}
