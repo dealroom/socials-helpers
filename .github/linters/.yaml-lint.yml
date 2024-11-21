@@ -5,6 +5,7 @@ extends: default
 # Temporary fix until we have a better way to handle this
 ignore: |
   charts/
+  app-of-charts/dealroom-charts/
 
 rules:
   braces:
