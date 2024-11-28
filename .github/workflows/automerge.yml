@@ -42,7 +42,7 @@ jobs:
       - name: Enable Pull Request Automerge
         run: |
           gh pr merge --auto \
-            --merge \
+            --squash \
             -R ${{ github.repository }} \
             -d \
             ${{ github.event.pull_request.number }}
