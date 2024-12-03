@@ -8,5 +8,4 @@
 
 - [ ] My code follows the style guidelines of this project
 - [ ] I have made corresponding changes to the documentation
-- [ ] I have added sufficient automated tests that prove my fix is effective or
-      that my feature works
+- [ ] I have added sufficient automated tests that prove my fix is effective or that my feature works
