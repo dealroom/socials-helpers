@@ -1,4 +1,7 @@
 ---
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
 # Don't report passed checks in output
 quiet: true
 
@@ -18,19 +21,18 @@ skip-check:
   # @see https://github.com/renovatebot/renovate/issues/23248
   - CKV_TF_1
 
-  # Disable some checks for GKE which are not needed
+  # Disable some checks for GKE that are not needed
   - CKV_GCP_22 # We do not use Shielded Nodes
   - CKV_GCP_61 # We do not require VPC Flow Logs
   - CKV_GCP_68 # We do not use Shielded Nodes
   - CKV_GCP_69 # GKE Metadata server is enabled
   - CKV_GCP_72 # We do not use Shielded Nodes
-  - CKV_GCP_6  # Outdated @see https://github.com/bridgecrewio/checkov/issues/6102
+  - CKV_GCP_6 # Outdated @see https://github.com/bridgecrewio/checkov/issues/6102
   - CKV2_GCP_5 # False positives @see https://github.com/bridgecrewio/checkov/issues/4729
 
   # Disable specific kubernetes checks
-  - CKV_K8S_9  # Do not require configuraiton of readiness probes for all containers as it's not always needed
+  - CKV_K8S_9 # Do not require configuration of readiness probes for all containers as it's not always needed
   - CKV_K8S_11 # We do not want to set CPU limits because it's considered a bad practice
   - CKV_K8S_15 # We do not want to set imagePullPolicy to Always as it's not efficient
   - CKV_K8S_21 # False positives for the kubernetes namespace in helm charts @see https://github.com/bridgecrewio/checkov/issues/3910
   - CKV_K8S_35 # For now, we are using secrets in the environment variables
-...

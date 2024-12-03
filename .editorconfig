@@ -16,6 +16,7 @@ ignore = true
 
 [*.md]
 trim_trailing_whitespace = false
+indent_size = unset
 
 [*.py]
 indent_size = 4
@@ -35,3 +36,6 @@ indent_style = tab
 
 [{*.vue,*.js}]
 quote_type = single
+
+[main.go]
+indent_style = unset

@@ -1,0 +1,11 @@
+// Auto-synced file, managed by dealroom/core-mothership
+// The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: [
+    // We are extending from shared config here to centralize renovate management
+    // see https://github.com/dealroom/core-mothership/blob/main/default.json
+    "local>dealroom/core-mothership:default.json5",
+  ],
+}

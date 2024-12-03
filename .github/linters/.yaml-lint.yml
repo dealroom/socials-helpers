@@ -1,8 +1,11 @@
+---
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
 extends: default
 
-# Temporary fix until we have a better way to handle this
+# Temporary fix until we have a better way to handle this like for example
+# by rendering the helm charts in the CI to a set of pure YAML files
 ignore: |
   charts/
   app-of-charts/dealroom-charts/

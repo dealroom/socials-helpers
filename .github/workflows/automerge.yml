@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      # To auto-approve the PR, we need to write to the PR
       pull-requests: write
       repository-projects: write
     if: |
@@ -29,6 +30,8 @@ jobs:
         contains(github.event.pull_request.labels.*.name, 'dependencies')
         ||
         contains(github.event.pull_request.labels.*.name, 'sync')
+        ||
+        contains(github.event.pull_request.labels.*.name, 'low-risk')
       )
       &&
       (

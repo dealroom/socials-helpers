@@ -14,8 +14,11 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     permissions:
+      # To delete branches
       contents: write
+      # To close stale issues
       issues: write
+      # To close stale PRs
       pull-requests: write
     steps:
       - uses: actions/stale@28ca1036281a5e5922ead5184a1bbf96e5fc984e # v9.0.0
