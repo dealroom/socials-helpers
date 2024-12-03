@@ -15,6 +15,7 @@ jobs:
     name: Cleanup old branches
     runs-on: ubuntu-latest
     permissions:
+      # To delete branches
       contents: write
     steps:
       - name: Checkout Repository

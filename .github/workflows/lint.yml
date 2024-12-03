@@ -18,8 +18,28 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       labels: ${{ steps.pr-labels.outputs.labels }}
+      # We should be linting only if:
+      # - the `force-lint` label is present
+      # OR
+      # - the `dependencies` label is not present
+      #  AND the `sync` label is NOT present
+      #  AND the PR is NOT created by bots
+      should-lint: |
+        contains(steps.pr-labels.outputs.labels, 'force-lint')
+        ||
+        (
+          !contains(steps.pr-labels.outputs.labels, 'dependencies')
+          &&
+          !contains(steps.pr-labels.outputs.labels, 'sync')
+          &&
+          github.event.pull_request.user.login != 'dependabot[bot]'
+          &&
+          github.event.pull_request.user.login != 'renovate[bot]'
+          &&
+          github.event.pull_request.user.login != 'dealroomba'
+        )
     permissions:
-      contents: read
+      # To get PR labels
       pull-requests: read
     steps:
       - name: Get PR labels
@@ -28,26 +48,10 @@ jobs:
 
   lint:
     needs: pr-labels
-    # Run only if:
-    # - the `force-lint` label is present
-    # OR
-    # - the `dependencies` is not present
-    #  AND the `sync` label is NOT present
-    #  AND the PR is NOT created by dependabot or renovate bots
-    if: |
-      contains(needs.pr-labels.outputs.labels, 'force-lint')
-      ||
-      (
-        !contains(needs.pr-labels.outputs.labels, 'dependencies')
-        &&
-        !contains(needs.pr-labels.outputs.labels, 'sync')
-        &&
-        github.event.pull_request.user.login != 'dependabot[bot]'
-        &&
-        github.event.pull_request.user.login != 'renovate[bot]'
-      )
+    if: ${{ needs.pr-labels.outputs.should-lint }}
     runs-on: ubuntu-latest
     permissions:
+      # To read the repository
       contents: read
       packages: read
       # To report GitHub Actions status checks
@@ -59,15 +63,10 @@ jobs:
           fetch-depth: 0
       - name: Ensure SHA pinned actions
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@5d6ac37a4cef8b8df67f482a8e384987766f0213 # v3.0.17
-      - name: Check that "do not merge" or "do-not-merge" label is not present
-        if: |
-          (
-            contains(needs.pr-labels.outputs.labels, 'do not merge')
-            ||
-            contains(needs.pr-labels.outputs.labels, 'do-not-merge')
-          )
+      - name: Check that "do-not-merge" label is not present
+        if: contains(needs.pr-labels.outputs.labels, 'do-not-merge')
         run: |
-          echo 'The "do not merge" or "do-not-merge" label is present. Please remove it before merging.'
+          echo 'The "do not merge" label is present. Please remove it before merging.'
           exit 1
         shell: bash
       - name: Check if a setup action exists
@@ -84,10 +83,94 @@ jobs:
           github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@b4515bd4ad9d0aa4681960e053916ab991bdbe96 # v6.8.0
+        uses: super-linter/super-linter/slim@e1cb86b6e8d119f789513668b4b30bf17fe1efe4 # v7.2.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
           # Required for checkov pulling external modules from private repositories
           GITHUB_PAT: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           VALIDATE_ALL_CODEBASE: ${{ vars.LINT_VALIDATE_ALL_CODEBASE || 'true' }}
+
+  fix-lint-issues:
+    needs: pr-labels
+    if: ${{ needs.pr-labels.outputs.should-lint }}
+    runs-on: ubuntu-latest
+    permissions:
+      # To write linting fixes
+      contents: write
+      # To write Super-linter status checks
+      statuses: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+      - name: Check if a setup action exists
+        id: check_files
+        uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
+        with:
+          files: ./.github/actions/setup/action.yml
+      - name: Load super-linter configuration
+        run: grep -o '^[^#]*' .github/super-linter.env >> "$GITHUB_ENV"
+      - name: Setup application
+        uses: ./.github/actions/setup
+        if: steps.check_files.outputs.files_exists == 'true'
+        with:
+          github-token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          extensions: ${{ vars.EXTENSIONS || 'none' }}
+      - name: Fix linting issues
+        continue-on-error: true
+        uses: super-linter/super-linter/slim@e1cb86b6e8d119f789513668b4b30bf17fe1efe4 # v7.2.0
+        # For a full list of environment variables see `.github/super-linter.env`
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          # Required for checkov pulling external modules from private repositories
+          GITHUB_PAT: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          VALIDATE_ALL_CODEBASE: ${{ vars.LINT_VALIDATE_ALL_CODEBASE || 'true' }}
+          # Do not write summary as we do not need it here
+          ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
+          # Fix mode configuration for specific linters
+          FIX_CSS_PRETTIER: true
+          FIX_CSS: true
+          FIX_YAML_PRETTIER: true
+          FIX_HTML_PRETTIER: true
+          FIX_JAVASCRIPT_PRETTIER: true
+          FIX_JAVASCRIPT_ES: true
+          FIX_JSON_PRETTIER: true
+          FIX_JSON: true
+          FIX_JSONC_PRETTIER: true
+          FIX_JSONC: true
+          FIX_MARKDOWN_PRETTIER: true
+          FIX_PYTHON_BLACK: true
+          FIX_MARKDOWN: true
+          FIX_PROTOBUF: true
+          FIX_GO_MODULES: true
+          FIX_ENV: true
+      - name: Add super-linter ignores to .gitignore file
+        # @deprecated this is only a temporary code and should be
+        # removed once it was executed at least once on all repositories
+        run: |
+          if [ -f .gitignore ]; then
+            if ! grep -q "super-linter-output" .gitignore; then
+              echo "super-linter-output" >> .gitignore
+            fi
+            if ! grep -q "super-linter.log" .gitignore; then
+              echo "super-linter.log" >> .gitignore
+            fi
+            if ! grep -q "github_conf" .gitignore; then
+              echo "github_conf" >> .gitignore
+            fi
+          else
+            echo "super-linter-output" > .gitignore
+            echo "super-linter.log" >> .gitignore
+            echo "github_conf" >> .gitignore
+          fi
+      - name: Commit and push linting fixes
+        uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5.0.1
+        with:
+          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          commit_message: "DEV: Fix linting issues (auto)"
+          commit_user_name: dealroomba
+          commit_user_email: dealroomba@users.noreply.github.com
+          commit_author: dealroomba <dealroomba@users.noreply.github.com>

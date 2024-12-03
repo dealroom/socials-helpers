@@ -6,7 +6,7 @@ name: Rebase Open Sync PRs
 on:
   schedule:
     # At 03:23 on Monday.
-    - cron: '23 3 * * 1'
+    - cron: "23 3 * * 1"
 
 permissions: read-all
 
