@@ -3,7 +3,12 @@
     "description": "Helper package used for the validation and normalization of social media links",
     "type": "library",
     "license": "MIT",
-    "keywords": ["social", "linkedin", "facebook", "twitter"],
+    "keywords": [
+        "social",
+        "linkedin",
+        "facebook",
+        "twitter"
+    ],
     "require": {
         "php": ">=8.2",
         "ext-mbstring": "*"

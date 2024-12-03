@@ -15,7 +15,7 @@ This project requires PHP 8.2 or higher with the `mbstring` extension installed.
 
 Install via [composer], simply run:
 
-``` bash
+```bash
 composer require dealroom/socials-helpers
 ```
 
