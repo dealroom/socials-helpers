@@ -90,6 +90,7 @@ jobs:
           # Required for checkov pulling external modules from private repositories
           GITHUB_PAT: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           VALIDATE_ALL_CODEBASE: ${{ vars.LINT_VALIDATE_ALL_CODEBASE || 'true' }}
+          VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
 
   fix-lint-issues:
     needs: pr-labels
@@ -128,6 +129,7 @@ jobs:
           # Required for checkov pulling external modules from private repositories
           GITHUB_PAT: ${{ secrets.GH_TOKEN_DEALROOMBA }}
           VALIDATE_ALL_CODEBASE: ${{ vars.LINT_VALIDATE_ALL_CODEBASE || 'true' }}
+          VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
           # Do not write summary as we do not need it here
           ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
           # Fix mode configuration for specific linters
