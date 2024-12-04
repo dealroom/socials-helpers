@@ -1,9 +1,0 @@
-# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
-# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
-
-parameters:
-	level: 5
-	excludePaths:
-		# NOTE: "(?)" means an optional, i.e. file or path might not exist
-		analyseAndScan:
-			- ../../src/Codeception (?)
