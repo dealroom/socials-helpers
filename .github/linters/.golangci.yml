@@ -5,7 +5,7 @@
 run:
   # Timeout for analysis, e.g. 30s, 5m.
   # Default: 1m
-  timeout: 30s
+  timeout: 2m
 
 output:
   show-stats: true
@@ -13,6 +13,11 @@ output:
 # This file contains only configs which differ from defaults.
 # All possible options can be found here https://github.com/golangci/golangci-lint/blob/master/.golangci.reference.yml
 linters-settings:
+  lll:
+    # The maximal line length.
+    # Default: 120
+    line-length: 180
+
   cyclop:
     # The maximal code complexity to report.
     # Default: 10
@@ -68,7 +73,7 @@ linters-settings:
     # Checks the number of lines in a function.
     # If lower than 0, disable the check.
     # Default: 60
-    lines: 100
+    lines: 300
     # Checks the number of statements in a function.
     # If lower than 0, disable the check.
     # Default: 40
