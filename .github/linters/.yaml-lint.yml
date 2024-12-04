@@ -8,6 +8,7 @@ extends: default
 # by rendering the helm charts in the CI to a set of pure YAML files
 ignore: |
   charts/
+  github/workspace/charts/
   app-of-charts/dealroom-charts/
   github/workspace/app-of-charts/dealroom-charts/
 
