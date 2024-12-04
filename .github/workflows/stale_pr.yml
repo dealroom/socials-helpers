@@ -27,3 +27,4 @@ jobs:
           close-pr-message: "Automatically closing stale PR to keep things tidy :broom:"
           days-before-stale: 30
           days-before-close: 5
+          stale-issue-label: stale

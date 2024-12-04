@@ -21,6 +21,7 @@ jobs:
       # To auto-approve the PR, we need to write to the PR
       pull-requests: write
       repository-projects: write
+    ## NOTICE: "dealroomba" user is deprecated and will be replaced by "dealroomba-app[bot]"
     if: |
       !failure()
       &&
@@ -37,6 +38,7 @@ jobs:
       (
         github.event.pull_request.user.login == 'dependabot[bot]' ||
         github.event.pull_request.user.login == 'dealroomba' ||
+        github.event.pull_request.user.login == 'dealroomba-app[bot]' ||
         github.event.pull_request.user.login == 'renovate[bot]'
       )
     steps:
