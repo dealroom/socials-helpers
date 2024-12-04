@@ -23,7 +23,7 @@ runs:
   using: composite
   steps:
     - id: extcache
-      uses: shivammathur/cache-extensions@e89b73cec90831b114a953e9fc59aef9694c29e3 # 1.11.1
+      uses: shivammathur/cache-extensions@559320acb3c326babd37f3306389471f2501f074 # 1.11.1
       with:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
