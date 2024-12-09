@@ -64,6 +64,8 @@ jobs:
           ||
           contains(steps.pr-labels.outputs.labels, 'update-patch')
           ||
+          contains(steps.pr-labels.outputs.labels, 'update-digest')
+          ||
           contains(steps.pr-labels.outputs.labels, 'sync')
           ||
           contains(steps.pr-labels.outputs.labels, 'low-risk')

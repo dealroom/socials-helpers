@@ -6,6 +6,7 @@ WANT_LABELS=(
   "update-major"
   "update-minor"
   "update-patch"
+  "update-digest"
   "dependencies"
   "force-lint"
   "low-risk"
@@ -14,6 +15,7 @@ WANT_LABELS=(
   "auto-docs"
   "do-not-merge"
   "stale"
+  "pre-release"
 )
 IFS=$'\n' read -r -d '' -a label_array <<<"$LABELS"
 for label in "${label_array[@]}"; do
