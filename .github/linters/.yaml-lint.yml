@@ -61,3 +61,8 @@ rules:
   new-lines:
     type: unix
   trailing-spaces: disable
+  quoted-strings:
+    # Note: This should be set to "only-when-needed" however too
+    # much work until Prettier is able to handle this correctly.
+    # @see: https://github.com/prettier/prettier/issues/16037
+    required: false

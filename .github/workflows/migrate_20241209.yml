@@ -1,0 +1,70 @@
+# jscpd:ignore-start
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Migrate (09 December 2024)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  # WARNING: The following job will be executed exactly 1 time (per repository).
+  # The workflow is automatically disabled in the last step.
+  # This as a sort-of global "migration" script for repositories.
+  migrate:
+    runs-on: ubuntu-latest
+    permissions:
+      # To be able to sync GHA files
+      actions: write
+      # To read the repository contents
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Delete unnecessary files and folders
+        run: |
+          rm -f ./.github/migrate_20240320.yml
+          rm -f ./.github/migrate_20240412.yml
+          rm -f ./.github/migrate_20240620.yml
+      - name: Create needed labels
+        run: |
+          #
+          # Step 1: Add new labels with descriptions
+          #
+          gh label create update-digest --force -R "$REPO_NAME" --color EDEDED --description "Pinning a digest to a dependency"
+          gh label create pre-release --force -R "$REPO_NAME" --color 5319E7 --description "Marks a PR as a release preview"
+          #
+          # Step 2: Delete all unused labels
+          #
+          # Note: This script cannot be inlined due to usage of IFS breaking the GHA ("Error: Process completed with exit code 1.")
+          #
+          chmod +x ./.github/scripts/delete-unused-labels/script.sh
+          ./.github/scripts/delete-unused-labels/script.sh
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          REPO_NAME: ${{ github.repository }}
+      - name: Create Migration PR
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
+        with:
+          commit-message: "DEV: Repository migration"
+          title: "DEV: Workflow repository migration"
+          body: |
+            :robot: This is an auto-generated PR to migrate the repository.
+          token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          branch: feature/DEV/repository-migration
+          delete-branch: true
+          labels: |
+            sync
+            force-lint
+      - name: Disable itself
+        run: |
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${{ github.workflow }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+# jscpd:ignore-end
