@@ -21,9 +21,16 @@ jobs:
       contents: write
       pull-requests: write
       repository-projects: write
-    env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
     steps:
+      - name: Get App Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@8e4e6fbf6fcc8a272781d97597969d21b3812974 # v4.0.0
+        with:
+          organization: dealroom
+          application_id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: "metadata:read,pull_requests:write"
+          revoke_token: true
       - name: Dependabot metadata
         id: dependabot-metadata
         uses: dependabot/fetch-metadata@dbb049abf0d677abbd7f7eee0375145b417fdd34 # v2.2.0
@@ -33,6 +40,7 @@ jobs:
           gh pr edit "$PR_URL" --add-label "update-major"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
       - name: Add a label for a minor update
         id: dependabot-label-minor
         if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
@@ -40,6 +48,7 @@ jobs:
           gh pr edit "$PR_URL" --add-label "update-minor"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
       - name: Add a label for a patch update
         id: dependabot-label-patch
         if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
@@ -47,9 +56,11 @@ jobs:
           gh pr edit "$PR_URL" --add-label "update-patch"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
       - name: Add a label force-lint for a super-linter upgrades
         if: contains(steps.dependabot-metadata.outputs.dependency-names, 'super-linter')
         run: |
           gh pr edit "$PR_URL" --add-label "force-lint"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
