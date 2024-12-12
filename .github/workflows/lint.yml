@@ -142,6 +142,7 @@ jobs:
         with:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
+          docs-generate: false
       - name: Add ignores to .prettierignore file
         run: |
           if [ -d ./charts ]; then

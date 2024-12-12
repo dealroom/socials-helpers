@@ -7,3 +7,9 @@ self-hosted-runner:
     - linux-64-high-mem
     - gha-dev-scale-set
     - gha-prod-scale-set
+
+paths:
+  # Glob pattern relative to the repository root for matching files. The path separator is always '/'.
+  .github/workflows/lint*.{yml,yaml}:
+    ignore:
+      - input "docs-generate" is not defined in action ".+" defined at ".+". available inputs are ".+"
