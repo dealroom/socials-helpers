@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   dependabot-auto-label:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
     permissions:
       contents: write
@@ -42,7 +42,6 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
       - name: Add a label for a minor update
-        id: dependabot-label-minor
         if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-minor'
         run: |
           gh pr edit "$PR_URL" --add-label "update-minor"
@@ -50,17 +49,18 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
       - name: Add a label for a patch update
-        id: dependabot-label-patch
         if: steps.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
         run: |
           gh pr edit "$PR_URL" --add-label "update-patch"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-      - name: Add a label force-lint for a super-linter upgrades
-        if: contains(steps.dependabot-metadata.outputs.dependency-names, 'super-linter')
+      # Indirect updates are those that are not direct dependencies of the project
+      # For example security updates in transitive dependencies
+      - name: Add a low-risk label for indirect updates
+        if: steps.dependabot-metadata.outputs.update-type == 'indirect'
         run: |
-          gh pr edit "$PR_URL" --add-label "force-lint"
+          gh pr edit "$PR_URL" --add-label "low-risk"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
