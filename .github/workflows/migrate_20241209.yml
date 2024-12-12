@@ -16,7 +16,7 @@ jobs:
   # The workflow is automatically disabled in the last step.
   # This as a sort-of global "migration" script for repositories.
   migrate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       # To be able to sync GHA files
       actions: write

@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   pr-labels:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       labels: ${{ steps.pr-labels.outputs.labels }}
       # We should be linting only if:
@@ -53,7 +53,7 @@ jobs:
   lint:
     needs: pr-labels
     if: ${{ needs.pr-labels.outputs.should-lint }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       # To read the repository
       contents: read
@@ -108,7 +108,7 @@ jobs:
   fix-lint-issues:
     needs: pr-labels
     if: ${{ needs.pr-labels.outputs.should-lint }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       # To write linting fixes
       contents: write
@@ -142,7 +142,8 @@ jobs:
         with:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
-          docs-generate: false
+        env:
+          INPUT_DOCS-GENERATE: false
       - name: Add ignores to .prettierignore file
         run: |
           if [ -d ./charts ]; then

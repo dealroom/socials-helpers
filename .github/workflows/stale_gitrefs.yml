@@ -13,7 +13,7 @@ permissions: read-all
 jobs:
   housekeeping:
     name: Cleanup old branches
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       # To delete branches
       contents: write

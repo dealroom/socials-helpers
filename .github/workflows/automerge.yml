@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   automerge:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
       # To auto-approve the PR, we need to write to the PR
