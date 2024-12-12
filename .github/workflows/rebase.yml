@@ -14,8 +14,17 @@ jobs:
   rebase:
     runs-on: ubuntu-latest
     steps:
+      - name: Get App Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@8e4e6fbf6fcc8a272781d97597969d21b3812974 # v4.0.0
+        with:
+          organization: dealroom
+          application_id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: "metadata:read,contents:read,pull_requests:write"
+          revoke_token: true
       - uses: peter-evans/rebase@87c3fd9344792e51ab1c7494c3369620c84ed852 # v3.1.0
         name: Rebase Open Sync PRs
         with:
           include-labels: sync
-          token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          token: ${{ steps.get_workflow_token.outputs.token }}

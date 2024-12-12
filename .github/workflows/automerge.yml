@@ -42,6 +42,15 @@ jobs:
         github.event.pull_request.user.login == 'renovate[bot]'
       )
     steps:
+      - name: Get Approver App Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@8e4e6fbf6fcc8a272781d97597969d21b3812974 # v4.0.0
+        with:
+          organization: dealroom
+          application_id: ${{ secrets.DEALROOM_APPROVER_APP_ID }}
+          application_private_key: ${{ secrets.DEALROOM_APPROVER_PRIVATE_KEY }}
+          permissions: "metadata:read,contents:write,pull_requests:write"
+          revoke_token: true
       - name: Enable Pull Request Automerge (squash)
         run: |
           gh pr merge --auto \
@@ -52,7 +61,7 @@ jobs:
         env:
           # Cannot use default GITHUB_TOKEN because other workflows will be not triggered
           # @see https://github.com/orgs/community/discussions/55906#discussioncomment-5946239
-          GH_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
       - name: Get PR labels
         id: pr-labels
         uses: joerick/pr-labels-action@0543b277721e852d821c6738d449f2f4dea03d5f # v1.0.9
