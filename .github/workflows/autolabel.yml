@@ -12,15 +12,10 @@ permissions: read-all
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-
 jobs:
   dependabot-auto-label:
     runs-on: ubuntu-24.04
     if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' }}
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
     steps:
       - name: Get App Token
         id: get_workflow_token
@@ -29,7 +24,7 @@ jobs:
           organization: dealroom
           application_id: ${{ secrets.DEALROOMBA_APP_ID }}
           application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: "metadata:read,pull_requests:write"
+          permissions: "metadata:read,pull_requests:write,repository_projects:write"
           revoke_token: true
       - name: Dependabot metadata
         id: dependabot-metadata
