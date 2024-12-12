@@ -60,6 +60,8 @@ jobs:
       packages: read
       # To report GitHub Actions status checks
       statuses: write
+      # For the gcloud auth
+      id-token: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -114,6 +116,8 @@ jobs:
       contents: write
       # To write Super-linter status checks
       statuses: write
+      # For the gcloud auth
+      id-token: write
     steps:
       - name: Get App Token
         id: get_workflow_token
