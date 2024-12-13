@@ -147,10 +147,7 @@ jobs:
         with:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
-        env:
-          # Workaround to silence the warning "Unexpected input 'docs-generate', valid inputs are ..."
-          # @see https://github.com/octokit/request-action/issues/26#issuecomment-996992989
-          INPUT_DOCS-GENERATE: false
+          docs-generate: false
       - name: Add ignores to .prettierignore file
         run: |
           if [ -d ./charts ]; then
