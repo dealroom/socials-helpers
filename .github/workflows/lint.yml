@@ -99,7 +99,7 @@ jobs:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@e1cb86b6e8d119f789513668b4b30bf17fe1efe4 # v7.2.0
+        uses: super-linter/super-linter/slim@85f7611e0f7b53c8573cca84aa0ed4344f6f6a4d # v7.2.1
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -193,7 +193,7 @@ jobs:
           add_prettier_ignore "END_TF_DOCS" "prettier-ignore-end"
       - name: Fix linting issues
         continue-on-error: true
-        uses: super-linter/super-linter/slim@e1cb86b6e8d119f789513668b4b30bf17fe1efe4 # v7.2.0
+        uses: super-linter/super-linter/slim@85f7611e0f7b53c8573cca84aa0ed4344f6f6a4d # v7.2.1
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
