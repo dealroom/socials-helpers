@@ -1,0 +1,153 @@
+# jscpd:ignore-start
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Migrate (13 December 2024)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  # WARNING: The following job will be executed exactly 1 time (per repository).
+  # The workflow is automatically disabled in the last step.
+  # This as a sort-of global "migration" script for repositories.
+  migrate:
+    runs-on: ubuntu-24.04
+    permissions:
+      # To be able to sync GHA files
+      actions: write
+      # To read the repository contents
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Delete unnecessary files and folders
+        run: |
+          rm -f ./.github/workflows/migrate_20240320.yml
+          rm -f ./.github/workflows/migrate_20240412.yml
+          rm -f ./.github/workflows/migrate_20240620.yml
+          rm -f ./.github/workflows/migrate_20241204.yml
+          rm -f ./.github/workflows/migrate_20241209.yml
+      - name: Create needed labels
+        run: |
+          #
+          # Step 1: Recreate labels with improved descriptions
+          #
+          gh label create update-major --force -R "$REPO_NAME" --color B60205 --description "Major version dependency updates"
+          gh label create update-minor --force -R "$REPO_NAME" --color FFA96A --description "Minor version dependency updates"
+          gh label create update-patch --force -R "$REPO_NAME" --color BDECB6 --description "Patch version dependency updates"
+          gh label create update-digest --force -R "$REPO_NAME" --color EDEDED --description "Pinning a digest to a dependency"
+          gh label create dependencies --force -R "$REPO_NAME" --color 1A9035 --description "Dependency updates"
+          gh label create force-lint --force -R "$REPO_NAME" --color EA8F33 --description "Force linter checks on PR regardless of other labels"
+          gh label create low-risk --force -R "$REPO_NAME" --color 6E5494 --description "Update which is considered a low risk"
+          gh label create sync --force -R "$REPO_NAME" --color EAD433 --description "Synchronization process"
+          gh label create auto-docs --force -R "$REPO_NAME" --color 06A14E --description "Automatically generated documentation"
+          gh label create do-not-merge --force -R "$REPO_NAME" --color CC3300 --description "Do not merge this PR"
+          gh label create stale --force -R "$REPO_NAME" --color CD29A1 --description "Stale PR or issue"
+          gh label create pre-release --force -R "$REPO_NAME" --color 5319E7 --description "Marks a PR as a release preview"
+          #
+          # Step 2: Delete all unused labels
+          #
+          # Note: This script cannot be inlined due to usage of IFS breaking the GHA ("Error: Process completed with exit code 1.")
+          #
+          chmod +x ./.github/scripts/delete-unused-labels/script.sh
+          ./.github/scripts/delete-unused-labels/script.sh
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          REPO_NAME: ${{ github.repository }}
+      - name: Add ignores to .gitignore file
+        run: |
+          if [ -f .gitignore ]; then
+            if ! grep -q "super-linter-output" .gitignore; then
+              echo "super-linter-output" >> .gitignore
+            fi
+            if ! grep -q "super-linter.log" .gitignore; then
+              echo "super-linter.log" >> .gitignore
+            fi
+            if ! grep -q "github_conf" .gitignore; then
+              echo "github_conf" >> .gitignore
+            fi
+            if ! grep -q "gha-creds-*.json" .gitignore; then
+              echo "gha-creds-*.json" >> .gitignore
+            fi
+            if ! grep -q "key.json" .gitignore; then
+              echo "*key.json" >> .gitignore
+            fi
+          else
+          {
+            echo "super-linter-output"
+            echo "super-linter.log"
+            echo "github_conf"
+            echo "gha-creds-*.json"
+            echo "*key.json"
+          } >> .gitignore
+          fi
+      - name: Add ignores to .prettierignore file
+        run: |
+          if [ -d ./charts ]; then
+            if [ -f .prettierignore ]; then
+              if ! grep -q "charts/" .prettierignore; then
+                  echo "charts/${REPO_NAME}/templates/**/*.yaml" >> .prettierignore
+                  echo "charts/${REPO_NAME}/values/**/*.yaml" >> .prettierignore
+              fi
+            else
+              echo "charts/${REPO_NAME}/templates/**/*.yaml" > .prettierignore
+              echo "charts/${REPO_NAME}/values/**/*.yaml" >> .prettierignore
+            fi
+          fi
+          if [ -f helmfile.yaml ]; then
+            if [ -f .prettierignore ]; then
+              if ! grep -q "helmfile.yaml" .prettierignore; then
+                echo "helmfile.yaml" >> .prettierignore
+              fi
+            else
+              echo "helmfile.yaml" > .prettierignore
+            fi
+          fi
+        env:
+          REPO_NAME: ${{ github.event.repository.name }}
+      - name: Add Prettier Ignore Comments
+        run: |
+          add_prettier_ignore() {
+            local marker="$1"
+            local comment="$2"
+            if [ "$comment" == "prettier-ignore-start" ]; then
+              find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
+                xargs -0 sed -i "/<!-- ${marker} -->/!b;/<!-- ${comment} -->/!i <!-- ${comment} -->"
+            else
+              find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
+                xargs -0 sed -i "/<!-- ${marker} -->/!b;/<!-- ${comment} -->/!a <!-- ${comment} -->"
+            fi
+          }
+          ensure_no_duplicates() {
+            find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
+              xargs -0 sed -i '/<!-- prettier-ignore-start -->/d; /<!-- prettier-ignore-end -->/d'
+          }
+          ensure_no_duplicates
+          add_prettier_ignore "BEGIN_TF_DOCS" "prettier-ignore-start"
+          add_prettier_ignore "END_TF_DOCS" "prettier-ignore-end"
+      - name: Create Migration PR
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
+        with:
+          commit-message: "DEV: Repository migration"
+          title: "DEV: Workflow repository migration"
+          body: |
+            :robot: This is an auto-generated PR to migrate the repository.
+          token: ${{ secrets.GH_TOKEN_DEALROOMBA }}
+          branch: feature/DEV/repository-migration
+          delete-branch: true
+          labels: |
+            sync
+            force-lint
+      - name: Disable itself
+        run: |
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${{ github.workflow }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+# jscpd:ignore-end

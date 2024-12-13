@@ -16,14 +16,6 @@ module.exports = {
       options: {
         proseWrap: 'preserve'
       }
-    },
-    {
-      files: ['**/*.yml', '**/*.yaml'],
-      options: {
-        // This doesn't work with the current version of prettier
-        // @see: https://github.com/prettier/prettier/issues/16037
-        quoteProps: 'as-needed'
-      }
     }
   ]
 }

@@ -12,6 +12,7 @@ permissions: read-all
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
 jobs:
   dependabot-auto-label:
     runs-on: ubuntu-24.04
@@ -53,7 +54,7 @@ jobs:
       # Indirect updates are those that are not direct dependencies of the project
       # For example security updates in transitive dependencies
       - name: Add a low-risk label for indirect updates
-        if: steps.dependabot-metadata.outputs.update-type == 'indirect'
+        if: steps.dependabot-metadata.outputs.dependency-type == 'indirect'
         run: |
           gh pr edit "$PR_URL" --add-label "low-risk"
         env:

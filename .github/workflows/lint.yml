@@ -1,3 +1,4 @@
+# jscpd:ignore-start
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
@@ -147,6 +148,8 @@ jobs:
           github-token: ${{ steps.get_workflow_token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
         env:
+          # Workaround to silence the warning "Unexpected input 'docs-generate', valid inputs are ..."
+          # @see https://github.com/octokit/request-action/issues/26#issuecomment-996992989
           INPUT_DOCS-GENERATE: false
       - name: Add ignores to .prettierignore file
         run: |
@@ -203,7 +206,9 @@ jobs:
           VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
           # Do not write summary as we do not need it here
           ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
+          #
           # Fix mode configuration for specific linters
+          #
           FIX_CSS_PRETTIER: true
           FIX_CSS: true
           FIX_YAML_PRETTIER: true
@@ -251,3 +256,4 @@ jobs:
           commit_user_name: dealroomba
           commit_user_email: dealroomba@users.noreply.github.com
           commit_author: dealroomba <dealroomba@users.noreply.github.com>
+# jscpd:ignore-end
