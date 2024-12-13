@@ -248,6 +248,21 @@ jobs:
             echo "super-linter.log" >> .gitignore
             echo "github_conf" >> .gitignore
           fi
+      - name: Add checkov ignores to .gitignore file
+        run: |
+          if [ -d terraform ]; then
+            if [ -f .gitignore ]; then
+              if ! grep -qF ".external_modules" .gitignore; then
+                echo ".external_modules" >> .gitignore
+              fi
+              if ! grep -qF "**/.external_modules" .gitignore; then
+                echo "**/.external_modules" >> .gitignore
+              fi
+            else
+              echo ".external_modules" > .gitignore
+              echo "**/.external_modules" >> .gitignore
+            fi
+          fi
       - name: Commit and push linting fixes
         uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5.0.1
         with:
