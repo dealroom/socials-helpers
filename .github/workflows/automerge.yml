@@ -21,7 +21,7 @@ jobs:
       # To auto-approve the PR, we need to write to the PR
       pull-requests: write
       repository-projects: write
-    ## NOTICE: "dealroomba" user is deprecated and will be replaced by "dealroomba-app[bot]"
+    ## @deprecated "dealroomba" user is getting removed and will be replaced by "dealroomba-app[bot]"
     if: |
       !failure()
       &&
