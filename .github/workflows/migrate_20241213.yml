@@ -88,6 +88,21 @@ jobs:
             echo "*key.json"
           } >> .gitignore
           fi
+      - name: Add checkov ignores to .gitignore file
+        run: |
+          if [ -d terraform ]; then
+            if [ -f .gitignore ]; then
+              if ! grep -qF ".external_modules" .gitignore; then
+                echo ".external_modules" >> .gitignore
+              fi
+              if ! grep -qF "**/.external_modules" .gitignore; then
+                echo "**/.external_modules" >> .gitignore
+              fi
+            else
+              echo ".external_modules" > .gitignore
+              echo "**/.external_modules" >> .gitignore
+            fi
+          fi
       - name: Add ignores to .prettierignore file
         run: |
           if [ -d ./charts ]; then
