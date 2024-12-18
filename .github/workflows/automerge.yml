@@ -32,6 +32,8 @@ jobs:
         ||
         contains(github.event.pull_request.labels.*.name, 'sync')
         ||
+        contains(github.event.pull_request.labels.*.name, 'security')
+        ||
         contains(github.event.pull_request.labels.*.name, 'low-risk')
       )
       &&
