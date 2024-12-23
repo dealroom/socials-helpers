@@ -21,7 +21,7 @@ jobs:
           organization: dealroom
           application_id: ${{ secrets.DEALROOMBA_APP_ID }}
           application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: "metadata:read,contents:read,pull_requests:write"
+          permissions: "metadata:read,contents:write,pull_requests:write"
           revoke_token: true
       - uses: peter-evans/rebase@87c3fd9344792e51ab1c7494c3369620c84ed852 # v3.1.0
         name: Rebase Open Sync PRs
