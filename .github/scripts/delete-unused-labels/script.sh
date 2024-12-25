@@ -16,6 +16,7 @@ KEEP_LABELS=(
   "do-not-merge"
   "stale"
   "pre-release"
+  "security"
 )
 IFS=$'\n' read -r -d '' -a label_array <<<"$EXISTING_LABELS"
 for label in "${label_array[@]}"; do
