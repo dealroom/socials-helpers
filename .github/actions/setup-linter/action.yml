@@ -77,15 +77,15 @@ runs:
           find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
           xargs -0 sed -i "/<!-- ${marker} -->/!b;/<!-- ${comment} -->/!${3} <!-- ${comment} -->"
         }
-
         ensure_no_duplicates() {
           find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
-          xargs -0 sed -i '/<!-- markdownlint-disable MD034 -->/d; /<!-- markdownlint-enable MD034 -->/d; /<!-- prettier-ignore-start -->/d; /<!-- prettier-ignore-end -->/d'
+            xargs -0 sed -i '/<!-- markdownlint-disable MD034 -->/d; /<!-- markdownlint-enable MD034 -->/d;'
+          find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
+            xargs -0 sed -i '/<!-- prettier-ignore-start -->/d; /<!-- prettier-ignore-end -->/d;'
         }
-
         ensure_no_duplicates
-        add_ignore "markdownlint-disable MD034" "markdownlint-disable MD034" "i"
-        add_ignore "markdownlint-enable MD034" "markdownlint-enable MD034" "a"
+        add_ignore "BEGIN_TF_DOCS" "markdownlint-disable MD034" "i"
+        add_ignore "END_TF_DOCS" "markdownlint-enable MD034" "a"
         add_ignore "BEGIN_TF_DOCS" "prettier-ignore-start" "i"
         add_ignore "END_TF_DOCS" "prettier-ignore-end" "a"
     - if: inputs.configure-ignores == 'true'
