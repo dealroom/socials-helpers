@@ -79,11 +79,15 @@ runs:
         }
         ensure_no_duplicates() {
           find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
+              xargs -0 sed -i '/<!-- textlint-disable terminology -->/d; /<!-- textlint-enable terminology -->/d;'
+          find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
             xargs -0 sed -i '/<!-- markdownlint-disable MD034 -->/d; /<!-- markdownlint-enable MD034 -->/d;'
           find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
             xargs -0 sed -i '/<!-- prettier-ignore-start -->/d; /<!-- prettier-ignore-end -->/d;'
         }
         ensure_no_duplicates
+        add_ignore "BEGIN_TF_DOCS" "textlint-disable terminology" "i"
+        add_ignore "END_TF_DOCS" "textlint-enable terminology" "a"
         add_ignore "BEGIN_TF_DOCS" "markdownlint-disable MD034" "i"
         add_ignore "END_TF_DOCS" "markdownlint-enable MD034" "a"
         add_ignore "BEGIN_TF_DOCS" "prettier-ignore-start" "i"
