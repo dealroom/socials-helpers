@@ -91,6 +91,7 @@ jobs:
           extensions: ${{ vars.EXTENSIONS || 'none' }}
           external-setup: true
           docs-generate: true
+          configure-ignores: true
       - name: Lint Codebase
         uses: super-linter/super-linter/slim@85f7611e0f7b53c8573cca84aa0ed4344f6f6a4d # v7.2.1
         # For a full list of environment variables see `.github/super-linter.env`
