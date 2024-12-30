@@ -74,15 +74,15 @@ runs:
         add_ignore() {
           local marker="$1"
           local comment="$2"
-          find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
+          find . -type d -name "terraform" -prune -o -type f -name "README.md" -print0 | \
           xargs -0 sed -i "/<!-- ${marker} -->/!b;/<!-- ${comment} -->/!${3} <!-- ${comment} -->"
         }
         ensure_no_duplicates() {
-          find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
+          find . -type d -name "terraform" -prune -o -type f -name "README.md" -print0 | \
               xargs -0 sed -i '/<!-- textlint-disable terminology -->/d; /<!-- textlint-enable terminology -->/d;'
-          find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
+          find . -type d -name "terraform" -prune -o -type f -name "README.md" -print0 | \
             xargs -0 sed -i '/<!-- markdownlint-disable MD034 -->/d; /<!-- markdownlint-enable MD034 -->/d;'
-          find . -type d -name ".terraform" -prune -o -type f -name "README.md" -print0 | \
+          find . -type d -name "terraform" -prune -o -type f -name "README.md" -print0 | \
             xargs -0 sed -i '/<!-- prettier-ignore-start -->/d; /<!-- prettier-ignore-end -->/d;'
         }
         ensure_no_duplicates
