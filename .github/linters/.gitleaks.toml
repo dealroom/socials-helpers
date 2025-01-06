@@ -16,6 +16,5 @@ useDefault = true
         '''key_temp_file''',
         '''client_id''',
         '''CLIENT_ID''',
-        '''apiKey''',
     ]
     regexTarget = "line"
