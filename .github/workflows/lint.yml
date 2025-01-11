@@ -170,7 +170,7 @@ jobs:
           FIX_GO_MODULES: true
           FIX_ENV: true
       - name: Commit and push linting fixes
-        uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5.0.1
+        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79 # v5.1.0
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_message: "DEV: Fix linting issues (auto)"
