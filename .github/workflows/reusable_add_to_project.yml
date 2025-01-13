@@ -1,0 +1,45 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Add To Project
+
+on:
+  workflow_call:
+    inputs:
+      project-number:
+        type: number
+        description: The number of the GitHub project where to add the PR (@see https://github.com/orgs/dealroom/projects)
+        required: false
+        default: 5 # Platform
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ${{ vars.REPO_NAME }}
+  IMAGE_TAG: 0.0.0-${{ github.sha }}
+  REPO_GAR: europe-docker.pkg.dev/dealroom-artifacts/dealroom-containers
+
+jobs:
+  add-to-project:
+    name: Add To Project
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Get App Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@8e4e6fbf6fcc8a272781d97597969d21b3812974 # v4.0.0
+        with:
+          organization: dealroom
+          application_id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: metadata:read,contents:write,organization_projects:write,pull_requests:write
+          revoke_token: true
+      - name: Add PR to a project
+        uses: ./.github/actions/project-add
+        with:
+          project-number: ${{ inputs.project-number }}
+          github-token: ${{ steps.get_workflow_token.outputs.token }}
