@@ -6,13 +6,17 @@ name: Add To Project (Core)
 
 on:
   pull_request:
-    types: [ready_for_review]
+    types:
+      - opened
+      - reopened
+      - ready_for_review
 
 permissions:
   contents: read
 
 jobs:
   add-to-project:
+    if: github.event.repository.name != 'core-mothership'
     uses: ./.github/workflows/reusable_add_to_project.yml
     with:
       project-number: 6
