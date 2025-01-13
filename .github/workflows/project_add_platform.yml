@@ -6,7 +6,10 @@ name: Add To Project (Platform)
 
 on:
   pull_request:
-    types: [ready_for_review]
+    types:
+      - opened
+      - reopened
+      - ready_for_review
 
 permissions:
   contents: read
