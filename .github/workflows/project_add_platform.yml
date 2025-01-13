@@ -1,0 +1,20 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+# jscpd:ignore-start
+name: Add To Project (Platform)
+
+on:
+  pull_request:
+    types: [ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  add-to-project:
+    uses: ./.github/workflows/reusable_add_to_project.yml
+    with:
+      project-number: 5
+    secrets: inherit
+# jscpd:ignore-end

@@ -14,7 +14,7 @@ runs:
       uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
-        WITH_V: "true"
+        WITH_V: true
     - uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
       with:
         generateReleaseNotes: true

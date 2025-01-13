@@ -4,10 +4,9 @@
 name: Test Final Results
 description: Aggregate all test results and fail if any of them failed
 inputs:
-  # See https://docs.github.com/en/actions/learn-github-actions/contexts#needs-context
-  # Example: `toJson(needs)`
+  # @see https://docs.github.com/en/actions/learn-github-actions/contexts#needs-context
   needs:
-    description: The needs context (JSON)
+    description: The needs context (JSON), e.g. `toJson(needs)`
     required: true
 runs:
   using: composite

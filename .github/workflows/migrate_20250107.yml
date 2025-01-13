@@ -2,7 +2,7 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
-name: Migrate (19 December 2024)
+name: Migrate (07 January 2025)
 
 on:
   push:
@@ -35,22 +35,22 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
-      - name: Create needed labels
+      - name: Remove unused files and folders
         run: |
-          #
-          # Step 1: Recreate labels with improved descriptions
-          #
-          gh label create security --force -R "$REPO_NAME" --color FF4545 --description "Security vulnerability fix"
-          #
-          # Step 2: Delete all unused labels
-          #
-          # Note: This script cannot be inlined due to usage of IFS breaking the GHA ("Error: Process completed with exit code 1.")
-          #
-          chmod +x ./.github/scripts/delete-unused-labels/script.sh
-          ./.github/scripts/delete-unused-labels/script.sh
-        env:
-          GH_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-          REPO_NAME: ${{ github.repository }}
+          rm -f ./.github/workflows/autolabel.yml
+      - name: Create Migration PR
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
+        with:
+          commit-message: "chore(auto): repository migration"
+          title: "chore(auto): workflow repository migration"
+          body: |
+            :robot: This is an auto-generated PR to migrate the repository.
+          token: ${{ steps.get_workflow_token.outputs.token }}
+          branch: feature/DEV/repository-migration
+          delete-branch: true
+          labels: |
+            sync
+            force-lint
       - name: Disable itself
         run: |
           gh workflow disable -R "$GITHUB_REPOSITORY" "${{ github.workflow }}"

@@ -4,21 +4,21 @@
 name: Setup PHP
 description: Setup PHP, with composer and extensions
 inputs:
-  php-version:
-    description: PHP version to setup
-    required: true
-    default: "8.2"
-  extensions:
-    description: PHP extensions to install
-    required: true
-    default: none
-  key:
-    description: Cache key to use for extensions
-    required: true
-    default: ext-cache-1
   github-token:
     description: GitHub token to use for composer
     required: true
+  php-version:
+    description: PHP version to setup
+    required: false
+    default: 8.4
+  extensions:
+    description: PHP extensions to install
+    required: false
+    default: none
+  key:
+    description: Cache key to use for extensions
+    required: false
+    default: ext-cache-1
 runs:
   using: composite
   steps:

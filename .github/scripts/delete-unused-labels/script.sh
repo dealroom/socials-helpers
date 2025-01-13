@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
 EXISTING_LABELS=$(gh label list -R "$REPO_NAME" --json name --jq '.[].name')
 echo "Existing labels: $EXISTING_LABELS"
 
@@ -7,7 +10,6 @@ KEEP_LABELS=(
   "update-major"
   "update-minor"
   "update-patch"
-  "update-digest"
   "dependencies"
   "low-risk"
   "sync"

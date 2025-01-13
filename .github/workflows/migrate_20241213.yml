@@ -14,7 +14,6 @@ permissions: read-all
 jobs:
   # WARNING: The following job will be executed exactly 1 time (per repository).
   # The workflow is automatically disabled in the last step.
-  # This as a sort-of global "migration" script for repositories.
   migrate:
     runs-on: ubuntu-24.04
     permissions:
@@ -30,7 +29,7 @@ jobs:
           organization: dealroom
           application_id: ${{ secrets.DEALROOMBA_APP_ID }}
           application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: "metadata:read,contents:write,workflows:write,issues:write,pull_requests:write"
+          permissions: metadata:read,contents:write,workflows:write,issues:write,pull_requests:write
           revoke_token: true
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -51,7 +50,6 @@ jobs:
           gh label create update-major --force -R "$REPO_NAME" --color B60205 --description "Major version dependency updates"
           gh label create update-minor --force -R "$REPO_NAME" --color FFA96A --description "Minor version dependency updates"
           gh label create update-patch --force -R "$REPO_NAME" --color BDECB6 --description "Patch version dependency updates"
-          gh label create update-digest --force -R "$REPO_NAME" --color EDEDED --description "Pinning a digest to a dependency"
           gh label create dependencies --force -R "$REPO_NAME" --color 1A9035 --description "Dependency updates"
           gh label create force-lint --force -R "$REPO_NAME" --color EA8F33 --description "Force linter checks on PR regardless of other labels"
           gh label create low-risk --force -R "$REPO_NAME" --color 6E5494 --description "Update which is considered a low risk"
@@ -78,8 +76,8 @@ jobs:
       - name: Create Migration PR
         uses: peter-evans/create-pull-request@67ccf781d68cd99b580ae25a5c18a1cc84ffff1f # v7.0.6
         with:
-          commit-message: "DEV: Repository migration"
-          title: "DEV: Workflow repository migration"
+          commit-message: "chore(auto): repository migration"
+          title: "chore(auto): workflow repository migration"
           body: |
             :robot: This is an auto-generated PR to migrate the repository.
           token: ${{ steps.get_workflow_token.outputs.token }}

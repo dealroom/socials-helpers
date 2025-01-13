@@ -21,7 +21,6 @@ jobs:
       # To auto-approve the PR, we need to write to the PR
       pull-requests: write
       repository-projects: write
-    ## @deprecated "dealroomba" user is getting removed and will be replaced by "dealroomba-app[bot]"
     if: |
       !failure()
       &&
@@ -38,8 +37,6 @@ jobs:
       )
       &&
       (
-        github.event.pull_request.user.login == 'dependabot[bot]' ||
-        github.event.pull_request.user.login == 'dealroomba' ||
         github.event.pull_request.user.login == 'dealroomba-app[bot]' ||
         github.event.pull_request.user.login == 'renovate[bot]'
       )
@@ -51,7 +48,7 @@ jobs:
           organization: dealroom
           application_id: ${{ secrets.DEALROOM_APPROVER_APP_ID }}
           application_private_key: ${{ secrets.DEALROOM_APPROVER_PRIVATE_KEY }}
-          permissions: "metadata:read,contents:write,pull_requests:write"
+          permissions: metadata:read,contents:write,pull_requests:write
           revoke_token: true
       - name: Enable Pull Request Automerge (squash)
         run: |
@@ -74,8 +71,6 @@ jobs:
           contains(steps.pr-labels.outputs.labels, 'update-minor')
           ||
           contains(steps.pr-labels.outputs.labels, 'update-patch')
-          ||
-          contains(steps.pr-labels.outputs.labels, 'update-digest')
           ||
           contains(steps.pr-labels.outputs.labels, 'sync')
           ||

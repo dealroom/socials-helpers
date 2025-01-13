@@ -5,15 +5,19 @@ name: PHP Test
 description: Test the codebase and upload coverage to Code Climate
 inputs:
   cc-skip:
-    description: Skip Code Climate upload
+    description: Whether to skip Code Climate upload
     required: false
-    default: "false"
+    default: false
+    options:
+      - true
+      - false
   cc-reporter-id:
-    description: "Code Climate reporter ID (required if `cc-skip` input is false)"
+    description: Code Climate reporter ID (required if `cc-skip` input is false)
     required: false
   cc-coverage-location:
-    description: "Test coverage location to upload to Code Climate (required if `cc-skip` input is false)"
+    description: Test coverage location to upload to Code Climate (required if `cc-skip` input is false)
     required: false
+    default: ${{ github.workspace }}
 runs:
   using: composite
   steps:

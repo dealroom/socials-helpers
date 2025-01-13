@@ -6,7 +6,7 @@ name: Cleanup stale branches
 on:
   schedule:
     # At 04:20 on Monday.
-    - cron: "20 4 * * 1"
+    - cron: 20 4 * * 1
 
 permissions: read-all
 

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
 HELMFILE_ENVIRONMENTS=$(awk '/^environments:/ {flag=1; next} /^[[:space:]]+[a-zA-Z0-9_-]+:/ && flag {print $1; next} /^[^[:space:]]/ {flag=0}' helmfile.yaml | sed 's/://')
 echo "$HELMFILE_ENVIRONMENTS"
 if echo "$HELMFILE_ENVIRONMENTS" | grep -wq "$ENVIRONMENT"; then
