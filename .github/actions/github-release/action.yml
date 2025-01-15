@@ -4,6 +4,12 @@
 name: GitHub Release
 description: Create a new GitHub release (and git tag)
 inputs:
+  with_v2:
+    default: true
+    required: false
+  custom_tag:
+    required: false
+    default: ""
   github-token:
     description: GitHub token to use for creating the release
     required: true
@@ -13,8 +19,9 @@ runs:
     - id: version-bump
       uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
       env:
+        WITH_V: ${{ inputs.with_v2 }}
+        CUSTOM_TAG: ${{ inputs.custom_tag }}
         GITHUB_TOKEN: ${{ inputs.github-token }}
-        WITH_V: true
     - uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
       with:
         generateReleaseNotes: true
