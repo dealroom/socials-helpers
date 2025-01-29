@@ -10,7 +10,7 @@ permissions:
 jobs:
   tests:
     name: Run Tests (PHP ${{ matrix.php-version }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -44,7 +44,7 @@ jobs:
 
   test-results:
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Test Final Results
     needs: tests
     steps:
@@ -56,7 +56,7 @@ jobs:
           needs: ${{ toJson(needs) }}
 
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: test-results
     name: Release
     if: github.ref == 'refs/heads/main'
