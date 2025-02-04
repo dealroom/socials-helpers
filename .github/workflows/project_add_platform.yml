@@ -18,6 +18,7 @@ jobs:
   add-to-project:
     uses: ./.github/workflows/reusable_add_to_project.yml
     with:
+      # @see https://github.com/orgs/dealroom/projects/5
       project-number: 5
     secrets: inherit
 # jscpd:ignore-end

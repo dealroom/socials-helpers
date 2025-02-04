@@ -19,6 +19,7 @@ jobs:
     if: github.event.repository.name != 'core-mothership'
     uses: ./.github/workflows/reusable_add_to_project.yml
     with:
+      # @see https://github.com/orgs/dealroom/projects/6
       project-number: 6
     secrets: inherit
 # jscpd:ignore-end

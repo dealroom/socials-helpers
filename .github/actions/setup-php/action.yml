@@ -1,0 +1,84 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Setup PHP
+description: Setup PHP, with composer and extensions
+inputs:
+  github-token:
+    description: GitHub token to use for composer
+    required: false
+  install-php:
+    description: Whether to install PHP
+    required: false
+    default: false
+    options:
+      - true
+      - false
+  extensions:
+    description: Additional PHP extensions to install (comma separated, e.g. `gd,imagick`, only valid if `install-php` is true)
+    required: false
+    default: none
+  php-version:
+    description: PHP version to install (only valid if `install-php` is true)
+    required: false
+    default: 8.4
+runs:
+  using: composite
+  steps:
+    - id: extcache
+      if: ${{ inputs.extensions != 'none' }}
+      uses: shivammathur/cache-extensions@61a445950f67069fbe66bacb1235dc552b27ca8a # 1.12.0
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        key: ext-cache-1
+    - uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      if: ${{ inputs.extensions != 'none' }}
+      with:
+        path: ${{ steps.extcache.outputs.dir }}
+        key: ${{ steps.extcache.outputs.key }}
+        restore-keys: ${{ steps.extcache.outputs.key }}
+    - uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # 2.32.0
+      if: ${{ inputs.install-php == 'true' }}
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        coverage: xdebug
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+    - uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      with:
+        path: ${{ github.workspace }}/vendor
+        key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock', '*/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+    - shell: sh
+      if: ${{ inputs.github-token != '' }}
+      run: |
+        composer config --global github-oauth.github.com ${{ inputs.github-token }}
+    # install composer dependencies
+    - shell: sh
+      run: composer install --no-progress --prefer-dist --optimize-autoloader --no-scripts --no-interaction
+    # configure .env and .env.testing files (if applicable)
+    - shell: sh
+      run: |
+        if [ -f .env.example ]; then
+          cp .env.example .env
+        fi
+        if [ -f .env.testing.example ]; then
+          cp .env.testing.example .env.testing
+          echo -e "DB_HOST=mysql\nES_HOST=elasticsearch\nREDIS_HOST=redis\nRABBITMQ_HOST=rabbitmq" >> .env.testing
+        fi
+    # configure Laravel environment (if applicable)
+    - shell: sh
+      run: |
+        if [ -f artisan ]; then
+          php artisan key:generate
+          php artisan optimize:clear
+        fi
+    # install npm dependencies (if applicable)
+    - shell: sh
+      run: |
+        if [ -f package.json ]; then
+          npm install
+          npm run build
+        fi
