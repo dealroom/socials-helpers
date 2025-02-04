@@ -1,6 +1,7 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
+# jscpd:ignore-start
 name: Setup PHP
 description: Setup PHP, with composer and extensions
 inputs:
@@ -82,3 +83,5 @@ runs:
           npm install
           npm run build
         fi
+
+# jscpd:ignore-end
