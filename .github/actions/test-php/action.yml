@@ -1,6 +1,7 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
+# jscpd:ignore-start
 name: PHP Test
 description: Test the codebase and upload coverage to Code Climate
 inputs:
@@ -49,3 +50,4 @@ runs:
       with:
         coverageLocations: ${{ steps.cc-config.outputs.location }}
         coverageCommand: ${{ steps.cc-config.outputs.command }}
+# jscpd:ignore-end

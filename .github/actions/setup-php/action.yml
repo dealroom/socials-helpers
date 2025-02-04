@@ -1,6 +1,7 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
+# jscpd:ignore-start
 name: Setup PHP
 description: Setup PHP, with composer and extensions
 inputs:
@@ -15,11 +16,11 @@ inputs:
       - true
       - false
   extensions:
-    description: Additional PHP extensions to install (comma separated, e.g. `gd,imagick`, only valid if `install-php` is true)
+    description: Additional PHP extensions to install (comma separated, e.g. `gd,imagick`)
     required: false
     default: none
   php-version:
-    description: PHP version to install (only valid if `install-php` is true)
+    description: PHP version to install (only valid if `install-php` is true or `extensions` are provided)
     required: false
     default: 8.4
 runs:
@@ -39,7 +40,7 @@ runs:
         key: ${{ steps.extcache.outputs.key }}
         restore-keys: ${{ steps.extcache.outputs.key }}
     - uses: shivammathur/setup-php@9e72090525849c5e82e596468b86eb55e9cc5401 # 2.32.0
-      if: ${{ inputs.install-php == 'true' }}
+      if: ${{ inputs.install-php == 'true' || inputs.extensions != 'none' }}
       with:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
@@ -82,3 +83,5 @@ runs:
           npm install
           npm run build
         fi
+
+# jscpd:ignore-end
