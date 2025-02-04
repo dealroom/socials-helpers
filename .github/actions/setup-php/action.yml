@@ -15,14 +15,21 @@ inputs:
     options:
       - true
       - false
-  extensions:
-    description: Additional PHP extensions to install (comma separated, e.g. `gd,imagick`)
-    required: false
-    default: none
   php-version:
     description: PHP version to install (only valid if `install-php` is true or `extensions` are provided)
     required: false
     default: 8.4
+  extensions:
+    description: Additional PHP extensions to install (comma separated, e.g. `gd,imagick`)
+    required: false
+    default: none
+  generate-docs:
+    description: Whether to generate the docs (not implemented)
+    required: false
+    default: true
+    options:
+      - true
+      - false
 runs:
   using: composite
   steps:

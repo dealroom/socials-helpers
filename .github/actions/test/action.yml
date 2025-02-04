@@ -17,10 +17,10 @@ inputs:
       - true
       - false
   cc-reporter-id:
-    description: Code Climate reporter ID (required if `cc-export` input is true)
+    description: Code Climate reporter ID
     required: false
   cc-coverage-location:
-    description: Test coverage location to upload to Code Climate (required if `cc-export` input is false)
+    description: Test coverage location to upload to Code Climate (required if `cc-export` input is true)
     required: false
     default: .
 runs:

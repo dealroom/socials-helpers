@@ -48,6 +48,15 @@ jobs:
           rm -f ./.github/workflows/reusable-ghcr-cleanup.yml
           rm -f ./.github/workflows/reusable-helm-test.yml
           rm -f ./.github/workflows/reusable-terraform.yml
+          rm -f ./.github/workflows/reusable_terraform_ns.yml
+          rm -f ./.github/workflows/reusable_terraform.yml
+          rm -f ./.github/workflows/reusable_deploy.yml
+          rm -f ./.github/workflows/reusable_build.yml
+          rm -f ./.github/workflows/reusable_tests.yml
+          rm -f ./.github/workflows/reusable_release_start.yml
+          rm -f ./.github/workflows/reusable_ghcr_cleanup.yml
+          rm -f ./.github/workflows/reusable_helm_test.yml
+          rm -f ./.github/workflows/reusable_add_to_project.yml
       - name: Create Migration PR
         uses: peter-evans/create-pull-request@67ccf781d68cd99b580ae25a5c18a1cc84ffff1f # v7.0.6
         with:
