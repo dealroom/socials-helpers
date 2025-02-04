@@ -47,6 +47,7 @@ jobs:
           cc-reporter-id: ${{ secrets.CC_REPORTER_ID }}
           cc-coverage-location: ${{ github.workspace }}
           cc-export: true
+          test-command: ${{ vars.TEST_COMMAND || './vendor/bin/phpunit' }}
 
   test-results:
     if: ${{ always() }}
