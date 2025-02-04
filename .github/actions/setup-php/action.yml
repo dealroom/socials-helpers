@@ -23,7 +23,7 @@ inputs:
     description: Additional PHP extensions to install (comma separated, e.g. `gd,imagick`)
     required: false
     default: none
-  generate-docs:
+  docs-generate:
     description: Whether to generate the docs (not implemented)
     required: false
     default: true
