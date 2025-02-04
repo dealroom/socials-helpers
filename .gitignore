@@ -8,3 +8,4 @@ super-linter.log
 github_conf
 gha-creds-*.json
 *key.json
+*.netrc
