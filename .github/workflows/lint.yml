@@ -163,6 +163,12 @@ jobs:
           FIX_PROTOBUF: true
           FIX_GO_MODULES: true
           FIX_ENV: true
+      - id: check_files_post
+        uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
+        with:
+          files: ./.github/actions/post-linter/action.yml
+      - uses: ./.github/actions/post-linter
+        if: steps.check_files_post.outputs.files_exists == 'true'
       - name: Commit and push linting fixes
         uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79 # v5.1.0
         with:
