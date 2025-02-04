@@ -11,7 +11,10 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: exit 1
+    - run: |
+        echo "Tests results: ${{ toJson(inputs.needs) }}"
+        echo "Some tests failed, see above for details"
+        exit 1
       shell: bash
       # see https://stackoverflow.com/a/67532120/4907315
       if: >-

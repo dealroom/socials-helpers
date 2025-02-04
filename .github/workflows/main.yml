@@ -1,3 +1,6 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
 name: Test & Release
 
 on: [push, pull_request]
@@ -14,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ["8.2", "8.3"]
+        php-version: ["8.3", "8.4"]
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ matrix.php-version }}
       cancel-in-progress: true
@@ -28,19 +31,21 @@ jobs:
           organization: dealroom
           application_id: ${{ secrets.DEALROOMBA_APP_ID }}
           application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: "metadata:read,contents:read,packages:read"
+          permissions: metadata:read,contents:read,packages:read
           revoke_token: true
       - name: Setup Environment
-        uses: ./.github/actions/setup
+        uses: ./.github/actions/setup-php
         with:
           php-version: ${{ matrix.php-version }}
           extensions: ${{ vars.EXTENSIONS }}
           github-token: ${{ steps.get_workflow_token.outputs.token }}
+          install-php: true
       - name: Test
-        uses: ./.github/actions/test
+        uses: ./.github/actions/test-php
         with:
           cc-reporter-id: ${{ secrets.CC_REPORTER_ID }}
           cc-coverage-location: ${{ github.workspace }}
+          cc-export: true
 
   test-results:
     if: ${{ always() }}
@@ -75,7 +80,7 @@ jobs:
           organization: dealroom
           application_id: ${{ secrets.DEALROOMBA_APP_ID }}
           application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: "metadata:read,contents:write"
+          permissions: metadata:read,contents:write
           revoke_token: true
       - name: Release
         uses: ./.github/actions/github-release
