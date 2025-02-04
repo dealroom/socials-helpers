@@ -83,4 +83,5 @@ runs:
           npm install
           npm run build
         fi
+
 # jscpd:ignore-end
