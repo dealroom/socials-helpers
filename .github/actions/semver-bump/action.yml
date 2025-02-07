@@ -7,6 +7,10 @@ inputs:
   version-files:
     description: List of files to update with the new version (comma-separated)
     required: true
+  extra-cmd:
+    description: Extra command to run after the version bump
+    required: false
+    default: ""
 outputs:
   pull-request-number:
     description: Pull request number created for the version bump
@@ -35,6 +39,10 @@ runs:
         files: ${{ inputs.version-files }}
         search-text: ${{ steps.clean-version.outputs.old_tag }}
         replacement-text: ${{ steps.clean-version.outputs.new_tag }}
+    - if: ${{ inputs.extra-cmd != '' }}
+      run: |
+        ${{ steps.create-pr.outputs.extra-cmd }}
+      shell: bash
     - id: create-pr
       uses: ./.github/actions/github-pull-request
       with:
