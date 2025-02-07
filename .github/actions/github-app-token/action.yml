@@ -1,0 +1,28 @@
+name: Get App Token
+description: Get an application token for authenticating to Github APIs
+inputs:
+  application-id:
+    description: GitHub Application ID
+    required: true
+  application-private-key:
+    description: GitHub Application private key
+    required: true
+  permissions:
+    description: Permissions to assign to the generated token
+    required: true
+    default: metadata:read
+outputs:
+  token:
+    description: Application token to use for authentication to Github APIs
+    value: ${{ steps.get-app-token.outputs.token }}
+runs:
+  using: composite
+  steps:
+    - id: get-app-token
+      uses: peter-murray/workflow-application-token-action@d17e3a9a36850ea89f35db16c1067dd2b68ee343 # v4.0.1
+      with:
+        organization: dealroom
+        application_id: ${{ inputs.application-id }}
+        application_private_key: ${{ inputs.application-private-key }}
+        permissions: ${{ inputs.permissions }}
+        revoke_token: true

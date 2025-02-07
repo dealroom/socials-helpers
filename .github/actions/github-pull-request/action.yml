@@ -1,0 +1,35 @@
+name: Github Pull Request
+description: Create a new GitHub pull request
+inputs:
+  github-token:
+    description: GitHub token to use for creating the PR
+    required: true
+  new-tag:
+    description: The new git tag
+    required: true
+  commit-message:
+    description: The commit message for the PR
+    required: true
+outputs:
+  pull-request-number:
+    description: Pull request number created for the version bump
+    value: ${{ steps.create-pr.outputs.pull-request-number }}
+  new-tag:
+    description: The new git tag
+    value: ${{ inputs.new-tag }}
+runs:
+  using: composite
+  steps:
+    - id: create-pr
+      uses: peter-evans/create-pull-request@v7
+      with:
+        commit-message: ${{ inputs.commit-message }}
+        body: |
+          :robot: This is an auto-generated PR
+        title: ${{ inputs.commit-message }}
+        labels: sync
+        base: main
+        token: ${{ inputs.github-token }}
+        author: dealroomba-app[bot] <dealroomba-app[bot]@users.noreply.github.com>
+        branch: release/${{ inputs.new-tag }}
+        draft: false

@@ -1,0 +1,43 @@
+name: Semver Bump Version
+description: Bump the version in the specified files and create a PR
+inputs:
+  github-token:
+    description: GitHub token to use for creating the PR
+    required: true
+  version-files:
+    description: List of files to update with the new version (comma-separated)
+    required: true
+outputs:
+  pull-request-number:
+    description: Pull request number created for the version bump
+    value: ${{ steps.create-pr.outputs.pull-request-number }}
+  new-tag:
+    description: The new git tag
+    value: ${{ steps.detect-version.outputs.new_tag }}
+runs:
+  using: composite
+  steps:
+    - id: detect-version
+      uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        WITH_V: false
+        DRY_RUN: true
+    - id: clean-version
+      shell: bash
+      run: |
+        NEW_TAG=${{ steps.detect-version.outputs.new_tag }}
+        OLD_TAG=$(echo "${{ steps.detect-version.outputs.old_tag }}" | cut -c 2-)
+        echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
+        echo "old_tag=$OLD_TAG" >> "$GITHUB_OUTPUT"
+    - uses: richardrigutins/replace-in-files@v2
+      with:
+        files: ${{ inputs.version-files }}
+        search-text: ${{ steps.clean-version.outputs.old_tag }}
+        replacement-text: ${{ steps.clean-version.outputs.new_tag }}
+    - id: create-pr
+      uses: ./.github/actions/github-pull-request
+      with:
+        github-token: ${{ inputs.github-token }}
+        new-tag: ${{ steps.detect-version.outputs.new_tag }}
+        commit-message: "chore(auto): bump the version to ${{ steps.detect-version.outputs.new_tag }} #release"
