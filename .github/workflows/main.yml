@@ -49,6 +49,27 @@ jobs:
           cc-export: true
           test-command: ${{ vars.TEST_COMMAND || './vendor/bin/phpunit' }}
 
+  bump-version:
+    name: Bump version
+    runs-on: ubuntu-24.04
+    needs: test-results
+    if: ${{ github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '#release') }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Get Application Token
+        id: app-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: metadata:read,contents:write,pull_requests:write
+      - uses: ./.github/actions/semver-bump
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          version-files: "**/{composer.json,README.md}"
+
   test-results:
     if: ${{ always() }}
     runs-on: ubuntu-24.04
@@ -66,7 +87,10 @@ jobs:
     runs-on: ubuntu-24.04
     needs: test-results
     name: Release
-    if: github.ref == 'refs/heads/main'
+    if: ${{
+      github.ref == 'refs/heads/main' &&
+      (vars.RELEASE_STRATEGY != 'hashtag' || contains(github.event.head_commit.message, '#release'))
+      }}
     concurrency:
       group: ${{ github.workflow }}
       cancel-in-progress: true
