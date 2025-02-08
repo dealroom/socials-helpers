@@ -4,19 +4,24 @@ inputs:
   github-token:
     description: GitHub token to use for creating the PR
     required: true
-  new-tag:
-    description: The new git tag
-    required: true
+  branch:
+    description: The branch to create the PR from
+    required: false
+    default: auto/pr
   commit-message:
     description: The commit message for the PR
     required: true
+  add-paths:
+    description: List of files to add to the PR (comma or newline-separated)
+    required: false
+  labels:
+    description: List of labels to add to the PR (comma or newline-separated)
+    required: false
+    default: sync
 outputs:
   pull-request-number:
     description: Pull request number created for the version bump
     value: ${{ steps.create-pr.outputs.pull-request-number }}
-  new-tag:
-    description: The new git tag
-    value: ${{ inputs.new-tag }}
 runs:
   using: composite
   steps:
@@ -24,12 +29,14 @@ runs:
       uses: peter-evans/create-pull-request@67ccf781d68cd99b580ae25a5c18a1cc84ffff1f # v7
       with:
         commit-message: ${{ inputs.commit-message }}
+        title: ${{ inputs.commit-message }}
+        labels: ${{ inputs.labels }}
+        add-paths: ${{ inputs.add-paths }}
+        token: ${{ inputs.github-token }}
+        branch: ${{ inputs.branch }}
+        base: main
+        draft: false
+        delete-branch: true
+        author: dealroomba-app[bot] <dealroomba-app[bot]@users.noreply.github.com>
         body: |
           :robot: This is an auto-generated PR
-        title: ${{ inputs.commit-message }}
-        labels: sync
-        base: main
-        token: ${{ inputs.github-token }}
-        author: dealroomba-app[bot] <dealroomba-app[bot]@users.noreply.github.com>
-        branch: release/${{ inputs.new-tag }}
-        draft: false

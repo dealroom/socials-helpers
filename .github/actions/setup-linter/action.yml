@@ -172,7 +172,3 @@ runs:
         rm -f ./.github/workflows/reusable-ghcr-cleanup.yml
         rm -f ./.github/workflows/reusable-helm-test.yml
         rm -f ./.github/workflows/reusable-terraform.yml
-    - if: github.event.repository.name != 'core-mothership'
-      shell: bash
-      run: |
-        rm -Rf ./.github/workflows/workflow-templates
