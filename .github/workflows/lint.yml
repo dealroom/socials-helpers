@@ -62,15 +62,13 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
-      - name: Get App Token
-        id: get_workflow_token
-        uses: peter-murray/workflow-application-token-action@d17e3a9a36850ea89f35db16c1067dd2b68ee343 # v4.0.1
+      - name: Get Application Token
+        id: app-token
+        uses: ./.github/actions/github-app-token
         with:
-          organization: dealroom
-          application_id: ${{ secrets.DEALROOMBA_APP_ID }}
-          application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
           permissions: metadata:read,packages:read,contents:read
-          revoke_token: true
       - name: Ensure SHA pinned actions
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@c3a2b64f69b7a1542a68f44d9edbd9ec3fc1455e # v3.0.20
       - name: Check that "do-not-merge" label is not present
@@ -81,7 +79,7 @@ jobs:
       - name: Setup linting process
         uses: ./.github/actions/setup-linter
         with:
-          github-token: ${{ steps.get_workflow_token.outputs.token }}
+          github-token: ${{ steps.app-token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
           external-setup: true
           docs-generate: true
@@ -91,7 +89,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           # Required for checkov pulling external modules from private repositories
-          GITHUB_PAT: ${{ steps.get_workflow_token.outputs.token }}
+          GITHUB_PAT: ${{ steps.app-token.outputs.token }}
           VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
 
   fix-lint-issues:
@@ -106,24 +104,21 @@ jobs:
       # For the gcloud auth
       id-token: write
     steps:
-      - name: Get App Token
-        id: get_workflow_token
-        uses: peter-murray/workflow-application-token-action@d17e3a9a36850ea89f35db16c1067dd2b68ee343 # v4.0.1
-        with:
-          organization: dealroom
-          application_id: ${{ secrets.DEALROOMBA_APP_ID }}
-          application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: metadata:read,contents:write,workflows:write
-          revoke_token: true
       - name: Checkout Repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
-          token: ${{ steps.get_workflow_token.outputs.token }}
+      - name: Get Application Token
+        id: app-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: metadata:read,contents:write,workflows:write
       - name: Setup linting process
         uses: ./.github/actions/setup-linter
         with:
-          github-token: ${{ steps.get_workflow_token.outputs.token }}
+          github-token: ${{ steps.app-token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
           external-setup: true
           configure-ignores: true
@@ -134,7 +129,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           # Required for checkov pulling external modules from private repositories
-          GITHUB_PAT: ${{ steps.get_workflow_token.outputs.token }}
+          GITHUB_PAT: ${{ steps.app-token.outputs.token }}
           VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
           # Do not write summary as we do not need it here
           ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false

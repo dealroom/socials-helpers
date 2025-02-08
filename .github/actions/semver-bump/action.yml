@@ -47,5 +47,5 @@ runs:
       uses: ./.github/actions/github-pull-request
       with:
         github-token: ${{ inputs.github-token }}
-        new-tag: ${{ steps.detect-version.outputs.new_tag }}
+        branch: release/${{ steps.detect-version.outputs.new_tag }}
         commit-message: "chore(auto): bump the version to ${{ steps.detect-version.outputs.new_tag }} #release"

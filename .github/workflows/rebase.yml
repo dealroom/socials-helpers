@@ -14,17 +14,17 @@ jobs:
   rebase:
     runs-on: ubuntu-24.04
     steps:
-      - name: Get App Token
-        id: get_workflow_token
-        uses: peter-murray/workflow-application-token-action@d17e3a9a36850ea89f35db16c1067dd2b68ee343 # v4.0.1
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Get Application Token
+        id: app-token
+        uses: ./.github/actions/github-app-token
         with:
-          organization: dealroom
-          application_id: ${{ secrets.DEALROOMBA_APP_ID }}
-          application_private_key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
           permissions: metadata:read,contents:write,pull_requests:write
-          revoke_token: true
       - uses: peter-evans/rebase@87c3fd9344792e51ab1c7494c3369620c84ed852 # v3.1.0
         name: Rebase Open Sync PRs
         with:
           include-labels: sync
-          token: ${{ steps.get_workflow_token.outputs.token }}
+          token: ${{ steps.app-token.outputs.token }}
