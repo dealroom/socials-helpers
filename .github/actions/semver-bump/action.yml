@@ -54,4 +54,4 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         branch: release/${{ steps.semver.outputs.next }}
-        commit-message: "chore(auto): bump the version to ${{ steps.semver.outputs.next }} #release"
+        commit-message: "ci(auto): bump the version to ${{ steps.semver.outputs.next }} #release"

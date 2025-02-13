@@ -168,8 +168,8 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79 # v5.1.0
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
-          commit_message: "chore(auto): fix linting issues"
-          commit_user_name: dealroomba-app
+          commit_message: "fix(auto): address linting concerns"
+          commit_user_name: dealroomba-app[bot]
           commit_user_email: dealroomba-app[bot]@users.noreply.github.com
           commit_author: dealroomba-app[bot] <dealroomba-app[bot]@users.noreply.github.com>
 # jscpd:ignore-end
