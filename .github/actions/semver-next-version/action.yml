@@ -27,4 +27,7 @@ runs:
         prefix: ${{ inputs.tag-prefix }}
         skipInvalidTags: true
         fallbackTag: v0.0.0
-        minorList: feature, feat, chore
+        # Mapping conventional commits to semver (config-conventional)
+        # @see https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional
+        minorList: feat
+        patchList: fix, perf, refactor, test, build, ci, chore, docs, style, revert
