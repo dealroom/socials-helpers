@@ -9,7 +9,7 @@ inputs:
     required: true
   permissions:
     description: Permissions to assign to the generated token
-    required: true
+    required: false
     default: metadata:read
 outputs:
   token:

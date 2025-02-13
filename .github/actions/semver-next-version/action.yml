@@ -1,0 +1,30 @@
+name: Semver Get Next Version
+description: Get the next version based on the latest tag
+inputs:
+  github-token:
+    description: GitHub token to use for retrieving the latest tag
+    required: true
+  tag-prefix:
+    description: |
+      A prefix that will be striped when parsing tags (e.g. foobar/).
+      Any other prefix will be ignored. Useful for monorepos.
+    required: false
+outputs:
+  current:
+    description: Current version number / latest tag.
+    value: ${{ steps.semver.outputs.current }}
+  next:
+    description: Next version number in format v0.0.0
+    value: ${{ steps.semver.outputs.next }}
+runs:
+  using: composite
+  steps:
+    - name: Get Next Version
+      id: semver
+      uses: ietf-tools/semver-action@1c7c3f023f427188333afc94c8b91c76d63ec799 # v1.9.0
+      with:
+        token: ${{ inputs.github-token }}
+        prefix: ${{ inputs.tag-prefix }}
+        skipInvalidTags: true
+        fallbackTag: v0.0.0
+        minorList: feature, feat, chore

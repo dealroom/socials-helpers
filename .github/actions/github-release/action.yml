@@ -2,20 +2,27 @@
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
 name: GitHub Release
-description: Create a new GitHub release (and git tag)
+description: Create a new GitHub release
 inputs:
   github-token:
     description: GitHub token to use for creating the release
     required: true
+  tag-prefix:
+    description: |
+      A prefix that will be striped when parsing tags (e.g. foobar/).
+      Any other prefix will be ignored. Useful for monorepos.
+    required: false
 runs:
   using: composite
   steps:
-    - id: version-bump
-      uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
+    - name: Get Next Version
+      id: semver
+      uses: ./.github/actions/semver-next-version
+      with:
+        github-token: ${{ inputs.github-token }}
+        tag-prefix: ${{ inputs.tag-prefix }}
     - uses: ncipollo/release-action@cdcc88a9acf3ca41c16c37bb7d21b9ad48560d87 # v1.15.0
       with:
         generateReleaseNotes: true
         token: ${{ inputs.github-token }}
-        tag: ${{ steps.version-bump.outputs.new_tag }}
+        tag: ${{ steps.semver.outputs.next }}
