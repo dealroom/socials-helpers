@@ -12,13 +12,13 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: Run the action in dry-run mode
+        description: Run the action in dry-run mode to see what would be deleted
         required: false
         default: true
       date:
         description: The date to use as a reference for stale branches and tags
         required: false
-        default: 1 month ago
+        default: 1 week ago
 
 permissions: read-all
 
@@ -36,8 +36,8 @@ jobs:
         uses: beatlabs/delete-old-branches-action@6e94df089372a619c01ae2c2f666bf474f890911 # v0.0.10
         with:
           repo_token: ${{ github.token }}
-          date: ${{ github.event.inputs.date || '1 month ago' }}
-          dry_run: ${{ github.event.inputs.dry_run || 'true' }}
+          date: ${{ github.event.inputs.date || '1 week ago' }}
+          dry_run: ${{ github.event.inputs.dry_run || 'false' }}
           delete_tags: true
           # extra_protected_tag_regex matches SemVer with an optional "<anything>/" prefix
           # Examples:
