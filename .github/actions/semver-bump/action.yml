@@ -11,30 +11,36 @@ inputs:
     description: Extra command to run after the version bump
     required: false
     default: ""
+  tag-prefix:
+    description: |
+      A prefix that will be striped when parsing tags (e.g. foobar/).
+      Any other prefix will be ignored. Useful for monorepos.
+    required: false
 outputs:
   pull-request-number:
     description: Pull request number created for the version bump
     value: ${{ steps.create-pr.outputs.pull-request-number }}
   new-tag:
     description: The new git tag
-    value: ${{ steps.detect-version.outputs.new_tag }}
+    value: ${{ steps.semver.outputs.next }}
 runs:
   using: composite
   steps:
-    - id: detect-version
-      uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297 # 1.71.0
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-        WITH_V: false
-        DRY_RUN: true
+    - name: Get Next Version
+      id: semver
+      uses: ./.github/actions/semver-next-version
+      with:
+        github-token: ${{ inputs.github-token }}
+        tag-prefix: ${{ inputs.tag-prefix }}
+    # Strips the leading 'v' from the tag to make file replacement easier
     - id: clean-version
       shell: bash
       run: |
-        NEW_TAG=${{ steps.detect-version.outputs.new_tag }}
-        OLD_TAG=$(echo "${{ steps.detect-version.outputs.old_tag }}" | cut -c 2-)
+        NEW_TAG=$(echo "${{ steps.semver.outputs.next }}" | sed 's/^v//')
+        OLD_TAG=$(echo "${{ steps.semver.outputs.current }}" | sed 's/^v//')
         echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
         echo "old_tag=$OLD_TAG" >> "$GITHUB_OUTPUT"
-    - uses: richardrigutins/replace-in-files@80f28b2314cc4900984548a9f4ddf3c67a2dd900 # v2
+    - uses: richardrigutins/replace-in-files@80f28b2314cc4900984548a9f4ddf3c67a2dd900 # v2.1.10
       with:
         files: ${{ inputs.version-files }}
         search-text: ${{ steps.clean-version.outputs.old_tag }}
@@ -47,5 +53,5 @@ runs:
       uses: ./.github/actions/github-pull-request
       with:
         github-token: ${{ inputs.github-token }}
-        branch: release/${{ steps.detect-version.outputs.new_tag }}
-        commit-message: "chore(auto): bump the version to ${{ steps.detect-version.outputs.new_tag }} #release"
+        branch: release/${{ steps.semver.outputs.next }}
+        commit-message: "chore(auto): bump the version to ${{ steps.semver.outputs.next }} #release"
