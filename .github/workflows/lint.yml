@@ -68,7 +68,7 @@ jobs:
         with:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: metadata:read,packages:read,contents:read
+          permissions: metadata:read,packages:read,contents:read,workflows:write
       - name: Ensure SHA pinned actions
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@25ed13d0628a1601b4b44048e63cc4328ed03633 # v3.0.22
       - name: Check that "do-not-merge" label is not present
