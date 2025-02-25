@@ -115,6 +115,11 @@ jobs:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
           permissions: metadata:read,contents:write,workflows:write
+      - name: Checkout Repository (with app token)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
       - name: Setup linting process
         uses: ./.github/actions/setup-linter
         with:
@@ -122,11 +127,6 @@ jobs:
           extensions: ${{ vars.EXTENSIONS || 'none' }}
           external-setup: true
           configure-ignores: true
-      - name: Checkout Repository (with app token)
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0
-          token: ${{ steps.app-token.outputs.token }}
       - name: Fix linting issues
         continue-on-error: true
         uses: super-linter/super-linter/slim@85f7611e0f7b53c8573cca84aa0ed4344f6f6a4d # v7.2.1
