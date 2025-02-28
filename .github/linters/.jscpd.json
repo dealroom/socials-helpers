@@ -1,15 +1,6 @@
 {
   "threshold": 10,
   "reporters": ["consoleFull"],
-  "ignore": [
-    "**/__snapshots__/**",
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/vendor/**",
-    "**/.external_modules/**",
-    "**/.terraform/**",
-    "**/README.md"
-  ],
+  "ignore": ["**/__snapshots__/**", "**/node_modules/**", "**/dist/**", "**/build/**", "**/vendor/**", "**/.external_modules/**", "**/.terraform/**", "**/README.md"],
   "absolute": true
 }

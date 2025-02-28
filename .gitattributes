@@ -1,8 +1,13 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
-# Auto detect text files and perform LF normalization
-*          text=auto
+# See this article for reference: https://help.github.com/articles/dealing-with-line-endings/
+# Refreshing repo after line ending change:
+# https://help.github.com/articles/dealing-with-line-endings/#refreshing-a-repository-after-changing-line-endings
+
+# Handle line endings automatically for files detected as text
+# and leave all files detected as binary untouched.
+* text=auto
 
 # Documents
 *.pdf      diff=astextplain
@@ -43,7 +48,6 @@
 # Text files where line endings should be preserved
 *.patch    -text
 
-
 # Exclude files from exporting
 .gitattributes export-ignore
 .gitignore     export-ignore
@@ -61,6 +65,14 @@ phpcs.xml    text eol=lf
 phpunit.xml  text eol=lf
 phpstan.neon text eol=lf
 psalm.xml    text eol=lf
+
+# JavaScript and TypeScript files
+*.js       text eol=lf
+*.jsx      text eol=lf
+*.ts       text eol=lf
+*.tsx      text eol=lf
+*.cjs      text eol=lf
+*.mjs      text eol=lf
 
 # Treat all Go files in this repository as binary, with no git magic updating
 # line endings. Windows users contributing to Go will need to use a

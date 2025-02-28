@@ -23,6 +23,9 @@ inputs:
     description: Test coverage location to upload to Code Climate (required if `cc-export` input is true)
     required: false
     default: .
+  sonar-token:
+    description: SonarQube token (not supported)
+    required: false
 runs:
   using: composite
   steps:

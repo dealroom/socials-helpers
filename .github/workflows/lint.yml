@@ -145,8 +145,9 @@ jobs:
           FIX_CSS: true
           FIX_YAML_PRETTIER: true
           FIX_HTML_PRETTIER: true
-          FIX_JAVASCRIPT_PRETTIER: true
           FIX_JAVASCRIPT_ES: true
+          FIX_JAVASCRIPT_PRETTIER: true
+          FIX_JAVASCRIPT_STANDARD: true
           FIX_JSON_PRETTIER: true
           FIX_JSON: true
           FIX_JSONC_PRETTIER: true

@@ -19,6 +19,7 @@ KEEP_LABELS=(
   "stale"
   "pre-release"
   "security"
+  "preview"
 )
 IFS=$'\n' read -r -d '' -a label_array <<<"$EXISTING_LABELS"
 for label in "${label_array[@]}"; do
