@@ -3,7 +3,6 @@
 
 module.exports = {
   arrowParens: "avoid",
-  printWidth: 180,
   tabWidth: 2,
   useTabs: false,
   // Overrides for specific file types
@@ -13,7 +12,7 @@ module.exports = {
       options: {
         trailingComma: "none",
         semi: false,
-        singleQuote: false,
+        singleQuote: true,
       }
     },
     {
