@@ -38,7 +38,7 @@ jobs:
           php-version: ${{ matrix.php-version }}
           extensions: ${{ vars.EXTENSIONS }}
           github-token: ${{ steps.app-token.outputs.token }}
-          install-php: true
+          install-language: true
       - name: Test
         uses: ./.github/actions/test-php
         with:

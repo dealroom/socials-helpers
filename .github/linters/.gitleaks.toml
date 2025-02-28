@@ -9,12 +9,20 @@ title = "gitleaks config"
 useDefault = true
 
 [allowlist]
-    description = "ignore these lines as they are used for naming conventions"
-    regexes = [
-        '''prod_secrets''',
-        '''project_id_secrets''',
-        '''key_temp_file''',
-        '''client_id''',
-        '''CLIENT_ID''',
-    ]
-    regexTarget = "line"
+description = "global allow lists"
+paths = [
+  '''bin/''',
+  '''e2e/recordings/''',
+  '''examples/''',
+]
+regexes = [
+  '''prod_secrets''',
+  '''project_id_secrets''',
+  '''key_temp_file''',
+  '''client_id''',
+  '''CLIENT_ID''',
+  '''auth0ClientId''',
+  '''shareToken''',
+  '''sortKey''',
+]
+regexTarget = "line"

@@ -1,6 +1,11 @@
 # Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
+# EditorConfig helps developers define and maintain consistent
+# coding styles between different editors and IDEs
+# @see: https://editorconfig.org
+
+# top-most EditorConfig file
 root = true
 
 [*]
@@ -34,7 +39,7 @@ indent_size = 4
 [*.neon]
 indent_style = tab
 
-[{*.vue,*.js}]
+[{*.vue,*.js,*.ts,*.tsx}]
 quote_type = single
 
 [main.go]
