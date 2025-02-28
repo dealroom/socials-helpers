@@ -21,6 +21,12 @@ module.exports = {
       options: {
         proseWrap: "preserve"
       }
+    },
+    {
+      files: ["*.php", "composer.json", "composer.lock", "*.neon"],
+      options: {
+        tabWidth: 4,
+      }
     }
   ]
 };
