@@ -11,10 +11,12 @@ download-external-modules: true
 skip-path:
   # Ignore checks for helm deps as they are mostly impossible to fix without upstream changes
   - charts/[^/]+/charts/
-  # Ignore PHP vendor directory
+  # Ignore language specific directories containing 3rd party dependencies
   - vendor/
+  - node_modules/
 
 # Skip certain checks globally
+# NOTE: Revisit this section periodically to ensure that the checks are still relevant!
 skip-check:
   # "Ensure Terraform module sources use a commit hash"
   # We will not do that just, because Renovate bot is not able to update the commit hashes in the module sources
@@ -27,8 +29,7 @@ skip-check:
   - CKV_GCP_68 # We do not use Shielded Nodes
   - CKV_GCP_69 # GKE Metadata server is enabled
   - CKV_GCP_72 # We do not use Shielded Nodes
-  - CKV_GCP_6 # Outdated @see https://github.com/bridgecrewio/checkov/issues/6102
-  - CKV2_GCP_5 # False positives @see https://github.com/bridgecrewio/checkov/issues/4729
+  - CKV2_GCP_5 # Ensure that Cloud Audit Logging is configured, false positives @see https://github.com/bridgecrewio/checkov/issues/4729
 
   # Disable specific kubernetes checks
   - CKV_K8S_9 # Do not require configuration of readiness probes for all containers as it's not always needed
@@ -36,3 +37,4 @@ skip-check:
   - CKV_K8S_15 # We do not want to set imagePullPolicy to Always as it's not efficient
   - CKV_K8S_21 # False positives for the kubernetes namespace in helm charts @see https://github.com/bridgecrewio/checkov/issues/3910
   - CKV_K8S_35 # For now, we are using secrets in the environment variables
+  - CKV2_K8S_6 # For now, we are not use Network Policies @see https://dealroom.atlassian.net/browse/DRP-6903

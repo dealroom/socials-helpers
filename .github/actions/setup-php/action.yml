@@ -18,7 +18,7 @@ inputs:
   php-version:
     description: PHP version to install (only valid if `install-language` is true or `extensions` are provided)
     required: false
-    default: 8.3
+    default: 8.4
   extensions:
     description: Additional PHP extensions to install (comma separated, e.g. `gd,imagick`)
     required: false
@@ -35,12 +35,12 @@ runs:
   steps:
     - id: extcache
       if: ${{ inputs.extensions != 'none' }}
-      uses: shivammathur/cache-extensions@27b59d272d3a5e5704e01ecfe1fcaf392656a1ce # 1.12.0
+      uses: shivammathur/cache-extensions@bbc38874818912d705835e232803362e231134d0 # 1.12.0
       with:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
         key: ext-cache-1
-    - uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # v4.2.1
+    - uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
       if: ${{ inputs.extensions != 'none' }}
       with:
         path: ${{ steps.extcache.outputs.dir }}
@@ -54,7 +54,8 @@ runs:
         coverage: xdebug
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
-    - uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f # v4.2.1
+        COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ steps.app-token.outputs.token }}"}}'
+    - uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf # v4.2.2
       with:
         path: ${{ github.workspace }}/vendor
         key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock', '*/composer.lock') }}

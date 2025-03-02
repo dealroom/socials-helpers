@@ -8,6 +8,10 @@ inputs:
     description: Configuration file to use for linting
     required: false
     default: .github/super-linter.env
+  config-file-fix:
+    description: Configuration file to use for fixing the linting concerns
+    required: false
+    default: .github/super-linter-fix.env
   external-setup:
     description: Whether to run the external setup action
     required: false
@@ -39,15 +43,26 @@ inputs:
 runs:
   using: composite
   steps:
+    # Load the configuration file into the environment
     - run: grep -o '^[^#]*' ${{ inputs.config-file }} >> "$GITHUB_ENV"
       shell: bash
+    # Load the configuration file for fixing into the environment
+    - run: |
+        if [ -f ${{ inputs.config-file-fix }} ]; then
+          grep -o '^[^#]*' ${{ inputs.config-file-fix }} >> "$GITHUB_ENV"
+        fi
+      shell: bash
+    # Generate the composer auth token for private packages
+    - run: echo "COMPOSER_AUTH={\"github-oauth\":{\"github.com\":\"${{ inputs.github-token }}\"}}" >> "$GITHUB_ENV"
+      shell: bash
+    # Run additional external setup action (if available)
     - if: inputs.external-setup == 'true'
-      id: check_files
+      id: check-files
       uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
       with:
         files: ./.github/actions/setup-linter-external/action.yml
     - uses: ./.github/actions/setup-linter-external
-      if: steps.check_files.outputs.files_exists == 'true'
+      if: steps.check-files.outputs.files_exists == 'true'
       with:
         github-token: ${{ inputs.github-token }}
         extensions: ${{ inputs.extensions }}
