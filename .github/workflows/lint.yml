@@ -84,7 +84,7 @@ jobs:
           external-setup: true
           docs-generate: true
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@85f7611e0f7b53c8573cca84aa0ed4344f6f6a4d # v7.2.1
+        uses: super-linter/super-linter/slim@4e8a7c2bf106c4c766c816b35ec612638dc9b6b2 # v7.3.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -129,7 +129,7 @@ jobs:
           configure-ignores: true
       - name: Fix linting issues
         continue-on-error: true
-        uses: super-linter/super-linter/slim@85f7611e0f7b53c8573cca84aa0ed4344f6f6a4d # v7.2.1
+        uses: super-linter/super-linter/slim@4e8a7c2bf106c4c766c816b35ec612638dc9b6b2 # v7.3.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -138,38 +138,12 @@ jobs:
           VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
           # Do not write summary as we do not need it here
           ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
-          #
-          # Fix mode configuration for specific linters
-          #
-          FIX_CSS_PRETTIER: true
-          FIX_CSS: true
-          FIX_YAML_PRETTIER: true
-          FIX_HTML_PRETTIER: true
-          FIX_JAVASCRIPT_ES: true
-          FIX_JAVASCRIPT_PRETTIER: true
-          FIX_JAVASCRIPT_STANDARD: true
-          FIX_JSON_PRETTIER: true
-          FIX_JSON: true
-          FIX_JSONC_PRETTIER: true
-          FIX_JSONC: true
-          FIX_MARKDOWN_PRETTIER: true
-          FIX_PYTHON_BLACK: true
-          FIX_PYTHON_ISORT: true
-          FIX_PYTHON_PYINK: true
-          FIX_PYTHON_RUFF: true
-          FIX_SHELL_SHFMT: true
-          FIX_SQLFLUFF: true
-          FIX_TERRAFORM_FMT: true
-          FIX_MARKDOWN: true
-          FIX_PROTOBUF: true
-          FIX_GO_MODULES: true
-          FIX_ENV: true
-      - id: check_files_post
+      - id: check-files-post
         uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
         with:
           files: ./.github/actions/post-linter/action.yml
       - uses: ./.github/actions/post-linter
-        if: steps.check_files_post.outputs.files_exists == 'true'
+        if: steps.check-files-post.outputs.files_exists == 'true'
       - name: Commit and push linting fixes
         uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79 # v5.1.0
         with:

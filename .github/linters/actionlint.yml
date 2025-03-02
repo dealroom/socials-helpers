@@ -8,9 +8,3 @@ self-hosted-runner:
     - linux-4-16
     - gha-dev-scale-set
     - gha-prod-scale-set
-
-paths:
-  .github/workflows/reusable_deploy_before.yml:
-    ignore:
-      # Ignore missing reusable workflow file error
-      - 'could not read reusable workflow file for ".+"'
