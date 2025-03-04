@@ -11,8 +11,8 @@ module.exports = {
       files: ["*.js", "*.jsx", "*.ts", "*.tsx"],
       options: {
         trailingComma: "none",
-        semi: false,
-        singleQuote: true,
+        semi: true,
+        singleQuote: false,
       }
     },
     {
