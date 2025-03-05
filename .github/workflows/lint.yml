@@ -81,7 +81,7 @@ jobs:
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
-          external-setup: true
+          external-setup: ${{ github.event.repository.name != 'core-mothership' && false || true }}
           docs-generate: true
       - name: Lint Codebase
         uses: super-linter/super-linter/slim@4e8a7c2bf106c4c766c816b35ec612638dc9b6b2 # v7.3.0
@@ -90,7 +90,10 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           # Required for checkov pulling external modules from private repositories
           GITHUB_PAT: ${{ steps.app-token.outputs.token }}
+          # Configurable PHPStan validation
           VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
+          # Configurable duplicate code detection
+          VALIDATE_JSCPD: ${{ vars.LINT_VALIDATE_JSCPD || null }}
 
   fix-lint-issues:
     needs: pr-labels
@@ -135,9 +138,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           # Required for checkov pulling external modules from private repositories
           GITHUB_PAT: ${{ steps.app-token.outputs.token }}
+          # Configurable PHPStan validation
           VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
-          # Do not write summary as we do not need it here
+          # Do not write summary as we do not need it here, it will be written in the `lint` job
           ENABLE_GITHUB_ACTIONS_STEP_SUMMARY: false
+          # Configurable duplicate code detection
+          VALIDATE_JSCPD: ${{ vars.LINT_VALIDATE_JSCPD || null }}
       - id: check-files-post
         uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
         with:
