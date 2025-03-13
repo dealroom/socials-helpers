@@ -176,18 +176,3 @@ runs:
           echo "*key.json" >> .gitignore
           echo "*.netrc" >> .gitignore
         fi
-    # TODO: Temporary fix to remove unused files from the repository as part of the sync process
-    - if: inputs.configure-ignores == 'true'
-      shell: bash
-      run: |
-        rm -Rf ./.github/actions/helm-configure-v2/
-        rm -Rf ./.github/actions/setup/
-        rm -f ./.github/workflows/release-beta.yml
-        rm -f ./.github/workflows/release-prod.yml
-        rm -f ./.github/workflows/reusable-tests.yml
-        rm -f ./.github/workflows/reusable-build.yml
-        rm -f ./.github/workflows/reusable-deploy.yml
-        rm -f ./.github/workflows/reusable-release-start.yml
-        rm -f ./.github/workflows/reusable-ghcr-cleanup.yml
-        rm -f ./.github/workflows/reusable-helm-test.yml
-        rm -f ./.github/workflows/reusable-terraform.yml
