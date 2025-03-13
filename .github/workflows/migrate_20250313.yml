@@ -1,0 +1,56 @@
+# jscpd:ignore-start
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Migrate (13 March 2025)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  # WARNING: The following job will be executed exactly 1 time (per repository).
+  # The workflow is automatically disabled in the last step.
+  migrate:
+    runs-on: ubuntu-24.04
+    permissions:
+      # To be able to sync GHA files
+      actions: write
+      # To read the repository contents
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Get Application Token
+        id: app-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: metadata:read,contents:write,workflows:write,issues:write,pull_requests:write
+      - name: Remove unused files and folders
+        run: |
+          rm -Rf ./commitlint.config.js
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO_NAME: ${{ github.repository }}
+      - name: Create Migration PR
+        uses: ./.github/actions/github-pull-request
+        with:
+          commit-message: "ci(auto): workflow repository migration"
+          github-token: ${{ steps.app-token.outputs.token }}
+          branch: feature/DEV/repository-migration
+          labels: |
+            sync
+            force-lint
+      - name: Disable itself
+        run: |
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${{ github.workflow }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+# jscpd:ignore-end
