@@ -41,7 +41,7 @@ module.exports = {
   rules: {
     "jira-reference": [2, "always"], // Enforce the presence of a Jira ticket reference
     "body-leading-blank": [1, "always"], // Enforce a blank line between the subject and body
-    "body-max-line-length": [2, "always", 100], // Enforce the maximum line length for the body
+    "body-max-line-length": [2, "always", 180], // Enforce the maximum line length for the body
     "footer-leading-blank": [1, "always"], // Enforce a blank line between the body and footer
     "footer-max-line-length": [2, "always", 100], // Enforce the maximum line length for the footer
     "header-max-length": [2, "always", 100], // Enforce the maximum line length for the header
