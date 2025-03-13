@@ -176,3 +176,8 @@ runs:
           echo "*key.json" >> .gitignore
           echo "*.netrc" >> .gitignore
         fi
+    # TODO: Temporary remove files that are not needed anymore
+    - name: Remove unused files and folders
+      shell: bash
+      run: |
+        rm -Rf ./commitlint.config.js
