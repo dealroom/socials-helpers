@@ -33,7 +33,7 @@ jobs:
           permissions: metadata:read,contents:write,workflows:write,issues:write,pull_requests:write
       - name: Remove unused files and folders
         run: |
-          rm -Rf ./.github/actions/setup-linter-external
+          echo "Deprecated..."
       - name: Create Migration PR
         uses: ./.github/actions/github-pull-request
         with:
