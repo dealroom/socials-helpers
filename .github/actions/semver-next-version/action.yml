@@ -28,6 +28,6 @@ runs:
         skipInvalidTags: true
         fallbackTag: v0.0.0
         # Mapping conventional commits to semver (config-conventional)
-        # @see https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional
+        # @see https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional#type-enum
         minorList: feat
-        patchList: fix, perf, refactor, test, build, ci, chore, docs, style, revert
+        patchList: build, chore, ci, docs, fix, perf, refactor, revert, style, test

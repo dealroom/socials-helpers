@@ -22,7 +22,7 @@ module.exports = {
       }
     },
     {
-      files: ["*.php", "composer.json", "composer.lock", "*.neon"],
+      files: ["composer.json", "composer.lock"],
       options: {
         tabWidth: 4,
       }
