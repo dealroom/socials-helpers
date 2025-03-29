@@ -70,7 +70,7 @@ jobs:
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
           permissions: metadata:read,packages:read,contents:read,workflows:write
       - name: Ensure SHA pinned actions
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@25ed13d0628a1601b4b44048e63cc4328ed03633 # v3.0.22
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@4830be28ce81da52ec70d65c552a7403821d98d4 # v3.0.23
       - name: Check that "do-not-merge" label is not present
         if: contains(needs.pr-labels.outputs.labels, 'do-not-merge')
         run: |
