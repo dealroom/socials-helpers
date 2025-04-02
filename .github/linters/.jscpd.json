@@ -9,7 +9,8 @@
     "**/vendor/**",
     "**/.external_modules/**",
     "**/.terraform/**",
-    "**/README.md"
+    "**/README.md",
+    "**/kyverno-policies/**"
   ],
   "absolute": true
 }
