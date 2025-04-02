@@ -18,7 +18,7 @@ on:
       date:
         description: The date to use as a reference for stale branches and tags
         required: false
-        default: 1 week ago
+        default: 6 weeks ago
 
 permissions: read-all
 
@@ -36,7 +36,7 @@ jobs:
         uses: beatlabs/delete-old-branches-action@4eeeb8740ff8b3cb310296ddd6b43c3387734588 # v0.0.11
         with:
           repo_token: ${{ github.token }}
-          date: ${{ github.event.inputs.date || '4 weeks ago' }}
+          date: ${{ github.event.inputs.date || '6 weeks ago' }}
           dry_run: ${{ github.event.inputs.dry_run || 'false' }}
           delete_tags: true
           # extra_protected_tag_regex matches SemVer with an optional "<anything>/" prefix
