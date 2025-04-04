@@ -21,7 +21,7 @@ runs:
   steps:
     - name: Get Next Version
       id: semver
-      uses: ietf-tools/semver-action@d93d5fbbab3c2e2ec76b0d22abac50e8e853fcd2 # v1.10.0
+      uses: ietf-tools/semver-action@778d1d5b7af80aa43f50104116b8363e7fc0d1ef # v1.10.1
       with:
         token: ${{ inputs.github-token }}
         prefix: ${{ inputs.tag-prefix }}
