@@ -26,6 +26,7 @@ runs:
         token: ${{ inputs.github-token }}
         prefix: ${{ inputs.tag-prefix }}
         skipInvalidTags: true
+        maxTagsToFetch: 100
         fallbackTag: v0.0.0
         # Mapping conventional commits to semver (config-conventional)
         # @see https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional#type-enum
