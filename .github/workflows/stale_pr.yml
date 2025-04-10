@@ -5,8 +5,8 @@ name: Close stale issues and PRs
 
 on:
   schedule:
-    # At 04:47 on Monday.
-    - cron: 47 4 * * 1
+    # At 04:47 on Monday and Thursday.
+    - cron: 47 4 * * 1,4
 
 permissions: read-all
 
@@ -23,8 +23,8 @@ jobs:
     steps:
       - uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9.1.0
         with:
-          stale-pr-message: This PR is stale because it has been open 30 days with no activity. It will be closed in 5 days unless you remove stale label or add a new comment.
+          stale-pr-message: This PR is stale because it has been open for 30 days with no activity. It will be closed within a few days unless you remove the stale label or add a new comment.
           close-pr-message: "Automatically closing stale PR to keep things tidy :broom:"
           days-before-stale: 30
-          days-before-close: 5
+          days-before-close: 3
           stale-issue-label: stale
