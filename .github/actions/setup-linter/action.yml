@@ -43,11 +43,16 @@ inputs:
 runs:
   using: composite
   steps:
-    # Load the configuration file into the environment
-    - run: grep -o '^[^#]*' ${{ inputs.config-file }} >> "$GITHUB_ENV"
+    # Load the configuration file into the environment (if available)
+    - if: inputs.config-file != ''
+      run: |
+        if [ -f ${{ inputs.config-file }} ]; then
+          grep -o '^[^#]*' ${{ inputs.config-file }} >> "$GITHUB_ENV"
+        fi
       shell: bash
-    # Load the configuration file for fixing into the environment
-    - run: |
+    # Load the configuration file for fixing into the environment (if available)
+    - if: inputs.config-file-fix != ''
+      run: |
         if [ -f ${{ inputs.config-file-fix }} ]; then
           grep -o '^[^#]*' ${{ inputs.config-file-fix }} >> "$GITHUB_ENV"
         fi
