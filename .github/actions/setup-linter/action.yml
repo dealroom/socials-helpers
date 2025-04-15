@@ -85,13 +85,13 @@ runs:
             echo "charts/" > .prettierignore
           fi
         fi
-        if [ -f helmfile.yaml ]; then
+        if [ -f helmfile.yaml.gotmpl ]; then
           if [ -f .prettierignore ]; then
-            if ! grep -q "helmfile.yaml" .prettierignore; then
-              echo "helmfile.yaml" >> .prettierignore
+            if ! grep -q "helmfile.yaml.gotmpl" .prettierignore; then
+              echo "helmfile.yaml.gotmpl" >> .prettierignore
             fi
           else
-            echo "helmfile.yaml" > .prettierignore
+            echo "helmfile.yaml.gotmpl" > .prettierignore
           fi
         fi
       env:
