@@ -5,7 +5,7 @@ const excluded = ["(deps)", "(deps-dev)", "(auto)"];
 
 module.exports = {
   // The configuration is based on the Conventional Commits specification (https://www.conventionalcommits.org)
-  helpUrl: "https://dealroom.slite.com/app/docs/q89vt4ocr_mZPC",
+  helpUrl: "https://dealroom.slite.com/app/docs/jauDNa1hZmRkpP",
   parserPreset: {
     parserOpts: {
       headerPattern: /^(\w*)(?:\((.*)\))?!?: (.*)$/,
