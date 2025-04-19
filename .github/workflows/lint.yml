@@ -155,7 +155,7 @@ jobs:
       - uses: ./.github/actions/post-linter
         if: steps.check-files-post.outputs.files_exists == 'true'
       - name: Commit and push linting fixes
-        uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79 # v5.1.0
+        uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 # v5.2.0
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_message: "fix(auto): address linting concerns"
