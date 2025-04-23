@@ -5,11 +5,7 @@
 
 # Socials Helpers
 
-Helper package used for the validation of social links.
-
-## Requirements
-
-This project requires PHP 8.2 or higher with the `mbstring` extension installed.
+The helper package which is used for the validation of social links.
 
 ## Installation
 
