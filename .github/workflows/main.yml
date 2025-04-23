@@ -66,10 +66,8 @@ jobs:
     needs: test-results
     if: ${{
       github.ref == 'refs/heads/main' &&
-      (
-      vars.RELEASE_STRATEGY != 'hashtag' ||
+      vars.RELEASE_STRATEGY == 'hashtag' &&
       !contains(github.event.head_commit.message, '#release')
-      )
       }}
     steps:
       - name: Checkout Repository
