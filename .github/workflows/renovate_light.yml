@@ -4,7 +4,6 @@ on:
   pull_request:
     types:
       - opened
-      - closed
   push:
     branches:
       - main
@@ -33,5 +32,5 @@ jobs:
         with:
           dealroomba-app-id: ${{ secrets.DEALROOMBA_APP_ID }}
           dealroomba-app-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          renovate-autodiscover-filter: ${{ github.repository }} # Explicitly set
-          github-token: ${{ secrets.GITHUB_TOKEN }} # Renamed from ghcr-token
+          renovate-autodiscover-filter: ${{ github.repository }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
