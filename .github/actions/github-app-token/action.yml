@@ -8,9 +8,8 @@ inputs:
     description: GitHub Application private key
     required: true
   permissions:
-    description: Permissions to assign to the generated token
+    description: Permissions to assign to the generated token (by default, all permissions are granted)
     required: false
-    default: metadata:read
 outputs:
   token:
     description: Application token to use for authentication to Github APIs

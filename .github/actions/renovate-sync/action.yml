@@ -8,22 +8,16 @@ inputs:
   dealroomba-app-private-key:
     description: The private key for the Dealroomba GitHub App
     required: true
-  app-token-permissions:
-    description: Permissions for the generated app token
-    required: false
-    default: metadata:read,contents:write,workflows:write,issues:write,pull_requests:write
   gcp-auth-environment:
     description: Environment for GCP authentication
     required: false
     default: development
-  renovate-config-file:
-    description: Path to the Renovate configuration file
-    required: false
-    default: default-self-hosted.json5
   renovate-autodiscover-filter:
-    description: Filter for Renovate autodiscovery (e.g., ${{ github.repository }})
+    description: Filter for Renovate autodiscovery (e.g., a specific repository name)
     required: false
-    default: ${{ github.repository }}
+  github-token:
+    description: GitHub token for authenticating Renovate operations (usually secrets.GITHUB_TOKEN for GHCR)
+    required: true
 
 runs:
   using: composite
@@ -34,20 +28,30 @@ runs:
       with:
         application-id: ${{ inputs.dealroomba-app-id }}
         application-private-key: ${{ inputs.dealroomba-app-private-key }}
-        permissions: ${{ inputs.app-token-permissions }}
     - name: Checkout Repository (with app token)
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         fetch-depth: 0
         token: ${{ steps.app-token.outputs.token }}
         persist-credentials: false
+    - name: Check if gcp-auth action exists
+      id: check-gcp-auth
+      uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
+      with:
+        files: ./.github/actions/gcp-auth/action.yml,./.github/actions/gcp-auth/action.yaml
     - name: Authenticate to Google Cloud
       id: gcp_auth
+      if: steps.check-gcp-auth.outputs.files_exists == 'true'
       uses: ./.github/actions/gcp-auth
       with:
         environment: ${{ inputs.gcp-auth-environment }}
+    - name: Cache Renovate Data
+      uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+      with:
+        path: /home/ubuntu/.cache/renovate
+        key: ${{ runner.os }}-renovate-cache-v1
     - name: Run Renovate
-      uses: renovatebot/github-action@c3216113121a7c690027cd21eaad8a318c58bbcd # v38.1.4
+      uses: renovatebot/github-action@e854b273e774bce1ef8cb05f128b8ce8aee2a887 # v42.0.1
       env:
         RENOVATE_HOST_RULES: |
           [
@@ -64,7 +68,7 @@ runs:
               "hostType": "docker",
               "matchHost": "ghcr.io",
               "username": "${{ github.actor }}",
-              "password": "${{ secrets.GITHUB_TOKEN }}"
+              "password": "${{ inputs.github-token }}"
             },
             {
               "hostType": "git-tags",
@@ -84,10 +88,15 @@ runs:
           ]
         LOG_LEVEL: debug
         RENOVATE_AUTODISCOVER: true
+        RENOVATE_ONBOARDING: false
         RENOVATE_AUTODISCOVER_FILTER: ${{ inputs.renovate-autodiscover-filter }}
         RENOVATE_PLATFORM: github
-        RENOVATE_PLATFORM_COMMIT: true
         RENOVATE_BOT_NAME: dealroomba-app[bot]
+        RENOVATE_CACHE_DIR: /home/ubuntu/.cache/renovate
+        RENOVATE_CACHE_PRIVATE_PACKAGES: true
+        RENOVATE_REPOSITORY_CACHE_TYPE: local
+        RENOVATE_OPTIMIZE_FOR_DISABLED: true
+        RENOVATE_REPOSITORY_CACHE: enabled
       with:
-        configurationFile: ${{ inputs.renovate-config-file }}
+        configurationFile: ./.github/renovate.json5
         token: ${{ steps.app-token.outputs.token }}
