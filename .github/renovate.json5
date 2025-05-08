@@ -10,4 +10,4 @@
     // see https://github.com/dealroom/core-mothership/blob/main/default-self-hosted.json5
     "local>dealroom/core-mothership:default-self-hosted.json5",
   ],
-} 
+}
