@@ -1,0 +1,37 @@
+name: Renovate Sync (Light Version)
+
+on:
+  pull_request:
+    types:
+      - opened
+      - closed
+  push:
+    branches:
+      - main
+  issues:
+    types:
+      - edited
+
+permissions:
+  contents: read
+  id-token: write
+  packages: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  renovate_light:
+    name: Renovate Light Sync
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Run Renovate Sync
+        uses: ./.github/actions/renovate-sync
+        with:
+          dealroomba-app-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          dealroomba-app-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          renovate-autodiscover-filter: ${{ github.repository }} # Explicitly set
+          github-token: ${{ secrets.GITHUB_TOKEN }} # Renamed from ghcr-token
