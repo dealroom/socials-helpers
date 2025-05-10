@@ -12,9 +12,9 @@ on:
       - edited
 
 permissions:
-  contents: read
-  id-token: write
-  packages: read
+  contents: read # Required for checkout
+  packages: read # Required if ghcr.io access uses GITHUB_TOKEN within the composite action
+  id-token: write # Required for GCP Workload Identity Federation
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
