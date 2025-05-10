@@ -31,9 +31,7 @@ runs:
     - name: Checkout Repository (with app token)
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
-        fetch-depth: 0
         token: ${{ steps.app-token.outputs.token }}
-        persist-credentials: false
     - name: Check if gcp-auth action exists
       id: check-gcp-auth
       uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
@@ -55,10 +53,6 @@ runs:
       env:
         RENOVATE_HOST_RULES: |
           [
-            {
-              "matchHost": "github.com",
-              "token": "${{ steps.app-token.outputs.token }}"
-            },
             {
               "matchHost": "europe-docker.pkg.dev",
               "username": "oauth2accesstoken",
