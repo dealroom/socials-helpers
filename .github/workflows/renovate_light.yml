@@ -1,15 +1,12 @@
+# @deprecated
+# This workflow is disabled as it's destroying GitHub rate limits
+# It might be removed in the future.
 name: Renovate Sync (Light Version)
 
 on:
-  pull_request:
-    types:
-      - opened
   push:
     branches:
-      - main
-  issues:
-    types:
-      - edited
+      - non-existent-branch
 
 permissions:
   contents: read # Required for checkout
