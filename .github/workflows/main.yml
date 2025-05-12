@@ -42,9 +42,9 @@ jobs:
       - name: Test
         uses: ./.github/actions/test-php
         with:
-          cc-reporter-id: ${{ secrets.CC_REPORTER_ID }}
-          cc-coverage-location: ${{ github.workspace }}
-          cc-export: true
+          codecov-export: true
+          codecov-token: ${{ secrets.CODECOV_TOKEN }}
+          codecov-coverage-location: ${{ github.workspace }}
           test-command: ${{ vars.TEST_COMMAND || './vendor/bin/phpunit' }}
 
   test-results:
