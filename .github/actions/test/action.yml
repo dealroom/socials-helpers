@@ -9,18 +9,32 @@ inputs:
     description: Test command to run
     required: false
     default: vendor/bin/phpunit
-  cc-export:
+  cc-export: # @deprecated - use codecov-export instead
     description: Whether to enable Code Climate upload
     required: false
     default: false
     options:
       - true
       - false
-  cc-reporter-id:
+  cc-reporter-id: # @deprecated - use codecov-token instead
     description: Code Climate reporter ID
     required: false
-  cc-coverage-location:
+  cc-coverage-location: # @deprecated - use codecov-coverage-location instead
     description: Test coverage location to upload to Code Climate (required if `cc-export` input is true)
+    required: false
+    default: .
+  codecov-export:
+    description: Whether to enable codecov upload
+    required: false
+    default: false
+    options:
+      - true
+      - false
+  codecov-token:
+    description: Codecov token
+    required: false
+  codecov-coverage-location:
+    description: Test coverage location to upload to codecov (required if `codecov-export` input is true)
     required: false
     default: .
   sonar-token:
@@ -30,27 +44,40 @@ runs:
   using: composite
   steps:
     - shell: sh
-      id: cc-config
+      id: coverage-config
       run: |
         COMMAND="${{ inputs.test-command }}"
         LOCATION=""
         if expr "${{ inputs.test-command }}" : ".*phpunit.*" > /dev/null; then
-          COMMAND="${COMMAND} --coverage-clover clover.xml"
-          LOCATION="${{ inputs.cc-coverage-location }}/clover.xml:clover"
+          COMMAND="${COMMAND} --coverage-clover coverage.xml"
+          LOCATION="${{ inputs.cc-coverage-location }}/coverage.xml:clover"
+        elif expr "${{ inputs.test-command }}" : ".*artisan test.*" > /dev/null; then
+          COMMAND="${COMMAND} --coverage-clover=coverage.xml"
+          LOCATION="${{ inputs.cc-coverage-location }}/coverage.xml:clover"
         else
-          echo "skip_cc=true" >> "$GITHUB_OUTPUT"
+          echo "skip_coverage=true" >> "$GITHUB_OUTPUT"
         fi
         echo "command=$COMMAND" >> "$GITHUB_OUTPUT"
         echo "location=$LOCATION" >> "$GITHUB_OUTPUT"
-    - shell: sh
-      if: ${{ inputs.cc-export != 'true' || steps.cc-config.outputs.skip_cc == 'true' }}
+    - shell: sh # coverage disabled or skipped, run the raw command
+      if: ${{ (inputs.codecov-export != 'true' && inputs.cc-export != 'true') || steps.cc-config.outputs.skip_coverage == 'true' }}
       run: ${{ inputs.test-command }}
-    - if: ${{ inputs.cc-export == 'true' && steps.cc-config.outputs.skip_cc != 'true' }}
+    - shell: sh # codecov coverage enabled, run the command with coverage
+      if: ${{ inputs.codecov-export == 'true' && steps.coverage-config.outputs.skip_coverage != 'true' }}
+      run: ${{ steps.coverage-config.outputs.command }}
+      env:
+        XDEBUG_MODE: coverage
+    - uses: codecov/codecov-action@v5
+      if: ${{ inputs.codecov-export == 'true' && steps.coverage-config.outputs.skip_coverage != 'true' }}
+      with:
+        directory: ${{ inputs.codecov-coverage-location }}
+        token: ${{ inputs.codecov-token }}
+    - if: ${{ inputs.cc-export == 'true' && steps.coverage-config.outputs.skip_coverage != 'true' }} # @deprecated - use codecov instead
       uses: paambaati/codeclimate-action@f429536ee076d758a24705203199548125a28ca7 # v9.0.0
       env:
         CC_TEST_REPORTER_ID: ${{ inputs.cc-reporter-id }}
         XDEBUG_MODE: coverage
       with:
-        coverageLocations: ${{ steps.cc-config.outputs.location }}
-        coverageCommand: ${{ steps.cc-config.outputs.command }}
+        coverageLocations: ${{ steps.coverage-config.outputs.location }}
+        coverageCommand: ${{ steps.coverage-config.outputs.command }}
 # jscpd:ignore-end
