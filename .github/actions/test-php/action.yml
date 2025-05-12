@@ -67,7 +67,7 @@ runs:
       run: ${{ steps.coverage-config.outputs.command }}
       env:
         XDEBUG_MODE: coverage
-    - uses: codecov/codecov-action@v5
+    - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
       if: ${{ inputs.codecov-export == 'true' && steps.coverage-config.outputs.skip_coverage != 'true' }}
       with:
         directory: ${{ inputs.codecov-coverage-location }}
