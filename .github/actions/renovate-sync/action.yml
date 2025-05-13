@@ -71,6 +71,11 @@ runs:
               "password": "${{ inputs.github-token }}"
             },
             {
+              "hostType": "github",
+              "matchHost": "github.com",
+              "token": "${{ steps.app-token.outputs.token }}"
+            },
+            {
               "hostType": "git-tags",
               "matchHost": "github.com",
               "token": "${{ steps.app-token.outputs.token }}"
