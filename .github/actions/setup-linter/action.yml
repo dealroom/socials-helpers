@@ -181,3 +181,7 @@ runs:
           echo "*key.json" >> .gitignore
           echo "*.netrc" >> .gitignore
         fi
+    # @deprecated remove this step once renovate_light.yml is removed from all repositories
+    - name: Temporarily remove renovate_light.yml
+      shell: bash
+      run: rm -f ./.github/workflows/renovate_light.yml || true # best effort
