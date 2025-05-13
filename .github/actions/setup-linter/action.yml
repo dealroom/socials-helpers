@@ -181,7 +181,13 @@ runs:
           echo "*key.json" >> .gitignore
           echo "*.netrc" >> .gitignore
         fi
-    # @deprecated remove this step once renovate_light.yml is removed from all repositories
+    # @deprecated START
+    # Remove these steps once removed from all repositories
     - name: Temporarily remove renovate_light.yml
       shell: bash
-      run: rm -f ./.github/workflows/renovate_light.yml || true # best effort
+      run: rm -f ./.github/workflows/renovate_light.yml || true
+    - name: Temporarily remove actions/renovate-sync (non-core-mothership)
+      shell: bash
+      if: github.event.repository.name != 'core-mothership'
+      run: rm -f ./.github/workflows/renovate-sync.yml || true
+    # @deprecated END
