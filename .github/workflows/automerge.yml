@@ -37,8 +37,7 @@ jobs:
       )
       &&
       (
-        github.event.pull_request.user.login == 'dealroomba-app[bot]' ||
-        github.event.pull_request.user.login == 'renovate[bot]'
+        github.event.pull_request.user.login == 'dealroomba-app[bot]'
       )
     steps:
       - name: Checkout Repository
