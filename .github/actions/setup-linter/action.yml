@@ -189,5 +189,5 @@ runs:
     - name: Temporarily remove actions/renovate-sync (non-core-mothership)
       shell: bash
       if: github.event.repository.name != 'core-mothership'
-      run: rm -f ./.github/workflows/renovate-sync.yml || true
+      run: rm -rf ./.github/actions/renovate-sync || true
     # @deprecated END

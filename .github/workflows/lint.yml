@@ -33,8 +33,6 @@ jobs:
           &&
           !contains(steps.pr-labels.outputs.labels, 'sync')
           &&
-          github.event.pull_request.user.login != 'renovate[bot]'
-          &&
           github.event.pull_request.user.login != 'dealroomba-app[bot]'
         )
     permissions:
@@ -69,8 +67,10 @@ jobs:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
           permissions: metadata:read,packages:read,contents:read,workflows:write
-      - name: Ensure SHA pinned actions
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@2d6823da4039243036c86d76f503c84e2ded2517 # v3.0.24
+      - name: Check Action Version Pinning
+        uses: ./.github/actions/github-actions-ensure-semver
+        with:
+          excluded-actions: sgpublic/delete-release-action
       - name: Check that "do-not-merge" label is not present
         if: contains(needs.pr-labels.outputs.labels, 'do-not-merge')
         run: |
@@ -84,7 +84,7 @@ jobs:
           external-setup: ${{ github.event.repository.name != 'core-mothership' && false || true }}
           docs-generate: true
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@4e8a7c2bf106c4c766c816b35ec612638dc9b6b2 # v7.3.0
+        uses: super-linter/super-linter/slim@12150456a73e248bdc94d0794898f94e23127c88 # v7.4.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -134,7 +134,7 @@ jobs:
           configure-ignores: true
       - name: Fix linting issues
         continue-on-error: true
-        uses: super-linter/super-linter/slim@4e8a7c2bf106c4c766c816b35ec612638dc9b6b2 # v7.3.0
+        uses: super-linter/super-linter/slim@12150456a73e248bdc94d0794898f94e23127c88 # v7.4.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -160,6 +160,6 @@ jobs:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_message: "fix(auto): address linting concerns"
           commit_user_name: dealroomba-app[bot]
-          commit_user_email: dealroomba-app[bot]@users.noreply.github.com
-          commit_author: dealroomba-app[bot] <dealroomba-app[bot]@users.noreply.github.com>
+          commit_user_email: 189869926+dealroomba-app[bot]@users.noreply.github.com
+          commit_author: dealroomba-app[bot] <189869926+dealroomba-app[bot]@users.noreply.github.com>
 # jscpd:ignore-end

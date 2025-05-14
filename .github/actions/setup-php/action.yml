@@ -82,7 +82,6 @@ runs:
       run: |
         if [ -f artisan ]; then
           php artisan key:generate
-          php artisan optimize:clear
         fi
     # install npm dependencies (if applicable)
     - shell: sh

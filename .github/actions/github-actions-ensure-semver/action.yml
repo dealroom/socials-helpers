@@ -1,0 +1,17 @@
+name: GitHub Actions Ensure Semver
+description: Checks GitHub Action usages for proper patch version pinning or up-to-date version comments, allowing exclusions. Fails if non-compliant actions are found.
+inputs:
+  excluded-actions:
+    description: Comma-separated list of actions to exclude from the check (e.g., actions/checkout,sgpublic/delete-release-action). Action names should be exact as they appear after "uses:".
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - name: Check action version pinning and comments
+      shell: bash
+      run: |
+        chmod +x ${{ github.action_path }}/check_versions.sh
+        ${{ github.action_path }}/check_versions.sh
+      env:
+        INPUT_EXCLUDED_ACTIONS: ${{ inputs.excluded-actions }}
