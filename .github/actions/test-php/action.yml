@@ -42,7 +42,7 @@ runs:
         fi
         echo "command=$COMMAND" >> "$GITHUB_OUTPUT"
     - shell: sh # coverage disabled or skipped, run the raw command
-      if: ${{ inputs.codecov-export != 'true' || steps.cc-config.outputs.skip_coverage == 'true' }}
+      if: ${{ inputs.codecov-export != 'true' || steps.coverage-config.outputs.skip_coverage == 'true' }}
       run: ${{ inputs.test-command }}
     - shell: sh # codecov coverage enabled, run the command with coverage
       if: ${{ inputs.codecov-export == 'true' && steps.coverage-config.outputs.skip_coverage != 'true' }}
