@@ -70,7 +70,7 @@ jobs:
       - name: Check Action Version Pinning
         uses: ./.github/actions/github-actions-ensure-semver
         with:
-          excluded-actions: sgpublic/delete-release-action
+          excluded-actions: sgpublic/delete-release-action,wangyoucao577/go-release-action
       - name: Check that "do-not-merge" label is not present
         if: contains(needs.pr-labels.outputs.labels, 'do-not-merge')
         run: |
