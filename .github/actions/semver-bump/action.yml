@@ -40,7 +40,7 @@ runs:
         OLD_TAG=$(echo "${{ steps.semver.outputs.current }}" | sed 's/^v//')
         echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
         echo "old_tag=$OLD_TAG" >> "$GITHUB_OUTPUT"
-    - uses: richardrigutins/replace-in-files@80f28b2314cc4900984548a9f4ddf3c67a2dd900 # v2.1.10
+    - uses: richardrigutins/replace-in-files@2a25bd9af1ddff87f61609dfe88956b1ffe84593 # v2.1.11
       with:
         files: ${{ inputs.version-files }}
         search-text: ${{ steps.clean-version.outputs.old_tag }}
