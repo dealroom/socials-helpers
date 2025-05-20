@@ -182,7 +182,7 @@ runs:
           echo "*.netrc" >> .gitignore
         fi
     # @deprecated START
-    # Remove these steps once removed from all repositories
+    # You can remove these steps once they executed in all repositories
     - name: Temporarily remove renovate_light.yml
       shell: bash
       run: rm -f ./.github/workflows/renovate_light.yml || true
@@ -190,4 +190,11 @@ runs:
       shell: bash
       if: github.event.repository.name != 'core-mothership'
       run: rm -rf ./.github/actions/renovate-sync || true
+    - name: Temporarily remove removed actions
+      shell: bash
+      run: |
+        rm -rf ./.github/actions/terraform-generate-apply-matrix || true
+        rm -rf ./.github/actions/terraform-generate-plan-matrix || true
+        rm -rf ./.github/actions/terraform-list-core-modules || true
+        rm -rf ./.github/actions/terraform-list-modules-ns || true
     # @deprecated END
