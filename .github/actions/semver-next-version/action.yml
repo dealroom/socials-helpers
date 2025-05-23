@@ -1,3 +1,6 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
 name: Semver Get Next Version
 description: Get the next version based on the latest tag
 inputs:
@@ -19,6 +22,39 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Get latest tag
+      id: previous-tag
+      uses: WyriHaximus/github-action-get-previous-tag@04e8485ecb6487243907e330d522ff60f02283ce # v1.4.0
+      with:
+        fallback: v0.0.0
+        prefix: ${{ inputs.tag-prefix }}
+    - name: Prepare Initial Tag Vars
+      id: prepare-initial-vars
+      shell: bash
+      env:
+        INPUT_TAG_PREFIX: ${{ inputs.tag-prefix }}
+      run: |
+        FORMATTED_TAG_PREFIX=""
+        if [[ -n "$INPUT_TAG_PREFIX" && "$INPUT_TAG_PREFIX" != */ ]]; then
+          FORMATTED_TAG_PREFIX="${INPUT_TAG_PREFIX}/"
+        elif [[ -n "$INPUT_TAG_PREFIX" ]]; then
+          FORMATTED_TAG_PREFIX="$INPUT_TAG_PREFIX"
+        fi
+        INITIAL_VERSION="v0.0.0"
+        FULL_TAG_NAME="${FORMATTED_TAG_PREFIX}${INITIAL_VERSION}"
+        echo "formatted_prefix=$FORMATTED_TAG_PREFIX" >> $GITHUB_OUTPUT
+        echo "initial_version=$INITIAL_VERSION" >> $GITHUB_OUTPUT
+        echo "full_tag_name=$FULL_TAG_NAME" >> $GITHUB_OUTPUT
+    - name: Create initial tag (if not found)
+      if: ${{ steps.previous-tag.outputs.tag == 'v0.0.0' }}
+      env:
+        FULL_TAG_NAME: ${{ steps.prepare-initial-vars.outputs.full_tag_name }}
+      shell: bash
+      run: |
+        echo "No tags found. Creating initial tag: ${FULL_TAG_NAME}"
+        OLDEST_COMMIT=$(git rev-list --max-parents=0 HEAD)
+        git tag "${FULL_TAG_NAME}" $OLDEST_COMMIT
+        git push origin "${FULL_TAG_NAME}"
     - name: Get Next Version
       id: semver
       uses: ietf-tools/semver-action@778d1d5b7af80aa43f50104116b8363e7fc0d1ef # v1.10.1
@@ -27,8 +63,17 @@ runs:
         prefix: ${{ inputs.tag-prefix }}
         skipInvalidTags: true
         maxTagsToFetch: 100
-        fallbackTag: v0.0.0
+        fallbackTag: ${{ steps.prepare-initial-vars.outputs.full_tag_name }}
         # Mapping conventional commits to semver (config-conventional)
         # @see https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional#type-enum
         minorList: feat
         patchList: build, chore, ci, docs, fix, perf, refactor, revert, style, test
+    - name: Delete temporary tag (if created)
+      if: ${{ steps.previous-tag.outputs.tag == 'v0.0.0' }}
+      env:
+        FULL_TAG_NAME: ${{ steps.prepare-initial-vars.outputs.full_tag_name }}
+      shell: bash
+      run: |
+        echo "Deleting temporary initial tag: ${FULL_TAG_NAME}"
+        git tag -d "${FULL_TAG_NAME}"
+        git push origin :"${FULL_TAG_NAME}"

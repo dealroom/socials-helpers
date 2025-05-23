@@ -1,3 +1,6 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
 name: GitHub Actions Ensure Semver
 description: Checks GitHub Action usages for proper patch version pinning or up-to-date version comments, allowing exclusions. Fails if non-compliant actions are found.
 inputs:
@@ -11,7 +14,7 @@ runs:
     - name: Check action version pinning and comments
       shell: bash
       run: |
-        chmod +x ${{ github.action_path }}/check_versions.sh
-        ${{ github.action_path }}/check_versions.sh
+        chmod +x ${{ github.action_path }}/scripts/check_versions.sh
+        ${{ github.action_path }}/scripts/check_versions.sh
       env:
         INPUT_EXCLUDED_ACTIONS: ${{ inputs.excluded-actions }}
