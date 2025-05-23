@@ -181,22 +181,3 @@ runs:
           echo "*key.json" >> .gitignore
           echo "*.netrc" >> .gitignore
         fi
-    # @deprecated START
-    # You can remove these steps once they executed in all repositories
-    - name: Temporarily remove removed actions
-      shell: bash
-      run: |
-        rm -rf ./.github/actions/terraform-all || true
-        rm -rf ./.github/actions/terraform-approval-apply || true
-        rm -rf ./.github/actions/terraform-generate-apply-matrix || true
-        rm -rf ./.github/actions/terraform-generate-plan-matrix || true
-        rm -rf ./.github/actions/terraform-list-core-modules || true
-        rm -rf ./.github/actions/terraform-list-modules || true
-        rm -rf ./.github/actions/terraform-list-modules-ns || true
-        rm -rf ./.github/actions/setup-terraform || true
-    - name: Temporarily remove reusable workflows
-      shell: bash
-      run: |
-        rm -rf ./.github/workflows/reusable-chart-test.yml
-        rm -rf ./.github/workflows/reusable_terraform.yml
-    # @deprecated END
