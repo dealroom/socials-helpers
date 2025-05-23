@@ -197,4 +197,8 @@ runs:
         rm -rf ./.github/actions/terraform-generate-plan-matrix || true
         rm -rf ./.github/actions/terraform-list-core-modules || true
         rm -rf ./.github/actions/terraform-list-modules-ns || true
+    - name: Temporarily remove reusable-chart-test.yml
+      shell: bash
+      run: |
+        rm -rf ./.github/workflows/reusable-chart-test.yml
     # @deprecated END
