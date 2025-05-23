@@ -183,22 +183,20 @@ runs:
         fi
     # @deprecated START
     # You can remove these steps once they executed in all repositories
-    - name: Temporarily remove renovate_light.yml
-      shell: bash
-      run: rm -f ./.github/workflows/renovate_light.yml || true
-    - name: Temporarily remove actions/renovate-sync (non-core-mothership)
-      shell: bash
-      if: github.event.repository.name != 'core-mothership'
-      run: rm -rf ./.github/actions/renovate-sync || true
     - name: Temporarily remove removed actions
       shell: bash
       run: |
+        rm -rf ./.github/actions/terraform-all || true
+        rm -rf ./.github/actions/terraform-approval-apply || true
         rm -rf ./.github/actions/terraform-generate-apply-matrix || true
         rm -rf ./.github/actions/terraform-generate-plan-matrix || true
         rm -rf ./.github/actions/terraform-list-core-modules || true
+        rm -rf ./.github/actions/terraform-list-modules || true
         rm -rf ./.github/actions/terraform-list-modules-ns || true
-    - name: Temporarily remove reusable-chart-test.yml
+        rm -rf ./.github/actions/setup-terraform || true
+    - name: Temporarily remove reusable workflows
       shell: bash
       run: |
         rm -rf ./.github/workflows/reusable-chart-test.yml
+        rm -rf ./.github/workflows/reusable_terraform.yml
     # @deprecated END
