@@ -1,3 +1,6 @@
+# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
 name: Get App Token
 description: Get an application token for authenticating to Github APIs
 inputs:
