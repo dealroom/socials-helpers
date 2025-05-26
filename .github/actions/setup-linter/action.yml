@@ -181,3 +181,15 @@ runs:
           echo "*key.json" >> .gitignore
           echo "*.netrc" >> .gitignore
         fi
+    # @deprecated START
+    # You can remove these steps once they executed in all repositories
+    - name: Temporarily remove removed actions
+      shell: bash
+      run: |
+        rm -rf ./.github/actions/build-push-docker-image || true
+    - name: Temporarily remove reusable workflows
+      shell: bash
+      run: |
+        rm -rf ./.github/workflows/reusable_build.yml || true
+        rm -rf ./.github/workflows/reusable_ghcr_cleanup.yml || true
+    # @deprecated END
