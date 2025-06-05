@@ -1,4 +1,4 @@
-// Auto-synced file, managed by dealroom/core-mothership
+// Auto-synced file, managed by dealroom/mothership
 // The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
 module.exports = {

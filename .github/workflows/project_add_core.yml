@@ -1,4 +1,4 @@
-# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
 # jscpd:ignore-start
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   add-to-project:
-    if: github.event.repository.name != 'core-mothership'
+    if: github.event.repository.name != 'mothership'
     uses: ./.github/workflows/reusable_add_to_project.yml
     with:
       # @see https://github.com/orgs/dealroom/projects/6
