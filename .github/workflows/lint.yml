@@ -1,5 +1,5 @@
 # jscpd:ignore-start
-# Auto-synced file, managed by [dealroom/core-mothership](https://github.com/dealroom/core-mothership)
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
 name: Lint
@@ -81,7 +81,7 @@ jobs:
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
-          external-setup: ${{ github.event.repository.name != 'core-mothership' && false || true }}
+          external-setup: ${{ github.event.repository.name != 'mothership' && false || true }}
           docs-generate: true
       - name: Lint Codebase
         uses: super-linter/super-linter/slim@12150456a73e248bdc94d0794898f94e23127c88 # v7.4.0

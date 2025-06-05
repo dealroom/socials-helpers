@@ -1,7 +1,7 @@
 # Linters Configuration
 
 > [!WARNING] Linters config are managed by
-> [dealroom/core-mothership](https://github.com/dealroom/core-mothership).  
+> [dealroom/mothership](https://github.com/dealroom/mothership).  
 > The changes must be made in the mothership repository otherwise they will be
 > overwritten on the next sync.  
 > Do not edit by hand!
