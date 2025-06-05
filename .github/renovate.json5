@@ -6,8 +6,8 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: [
-    // We are extending from shared config here to centralize renovate management
-    // see https://github.com/dealroom/core-mothership/blob/main/default-self-hosted.json5
-    "local>dealroom/core-mothership:default-self-hosted.json5",
+    // We are extending from shared config here to enable centralised Renovate management
+    // see https://github.com/dealroom/mothership/blob/main/default-self-hosted.json5
+    "local>dealroom/mothership:default-self-hosted.json5",
   ],
 }
