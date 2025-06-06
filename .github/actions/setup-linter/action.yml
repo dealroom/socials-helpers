@@ -72,10 +72,6 @@ runs:
         github-token: ${{ inputs.github-token }}
         extensions: ${{ inputs.extensions }}
         docs-generate: ${{ inputs.docs-generate }}
-    # Workaround for SHA detection by force-feeding the base SHA into the environment
-    # @see https://github.com/super-linter/super-linter/issues/6316
-    - run: echo "GITHUB_BEFORE_SHA=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_ENV"
-      shell: bash
     # Configure .prettierignore file to ignore chart and helmfile files if helm is detected
     - if: inputs.configure-ignores == 'true'
       shell: bash
