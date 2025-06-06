@@ -189,6 +189,7 @@ runs:
       run: |
         rm -rf ./.github/actions/build-push-docker-image || true
         rm -rf ./.github/actions/setup-yarn || true
+        rm -rf ./.github/actions/setup-linter-external || true
     - name: Temporarily remove reusable workflows
       if: github.event.repository.name != 'mothership'
       shell: bash
