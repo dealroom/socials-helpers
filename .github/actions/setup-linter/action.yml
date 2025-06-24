@@ -172,10 +172,14 @@ runs:
           if ! grep -q "^*.netrc" .gitignore; then
               echo "*.netrc" >> .gitignore
           fi
+          if ! grep -q "^*output.txt" .gitignore; then
+            echo "*output.txt" >> .gitignore
+          fi
         else
           echo "gha-creds-*" > .gitignore
           echo "*key.json" >> .gitignore
           echo "*.netrc" >> .gitignore
+          echo "*output.txt" >> .gitignore
         fi
     # @deprecated START
     # You can remove these steps once they have been executed in all repositories
