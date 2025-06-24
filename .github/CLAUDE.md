@@ -72,6 +72,35 @@ jobs:
 
 ## Workflow Patterns
 
+### Spacing Rules
+
+**Between job steps**: NO space
+
+```yaml
+steps:
+  - name: First step
+    run: echo "first"
+  - name: Second step
+    run: echo "second"
+```
+
+**Between individual jobs**: 1 space
+
+```yaml
+jobs:
+  first-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step
+        run: echo "first job"
+
+  second-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Step
+        run: echo "second job"
+```
+
 ### Concurrency
 
 ```yaml
