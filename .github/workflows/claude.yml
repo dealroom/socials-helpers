@@ -29,7 +29,9 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read # To checkout the repository
-      id-token: write # To retrieve the OIDC token
+      pull-requests: write # To create pull requests
+      issues: write # To comment on issues
+      id-token: write # To retrieve the OIDC token for the claude-code-action
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -48,25 +50,15 @@ jobs:
             echo "authorized=false" >> "$GITHUB_OUTPUT"
             echo "User ${{ github.actor }} has $PERMISSION access - not authorized (need write or admin)"
           fi
-      - name: Get Application Token
-        if: steps.check-access.outputs.authorized == 'true'
-        id: app-token
-        uses: ./.github/actions/github-app-token
-        with:
-          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
-          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: metadata:read,contents:write,pull_requests:write,issues:write
       - name: Run Claude Code
         if: steps.check-access.outputs.authorized == 'true'
         uses: anthropics/claude-code-action@ebbd9e9be4686249a2952e1a558bbaba07524380 # v0.0.24
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ steps.app-token.outputs.token }}
           max_turns: 200
           timeout_minutes: 30
-          allowed_tools: "read_file,edit_file,list_dir,grep_search,codebase_search,run_terminal_cmd,file_search,search_replace,delete_file"
           custom_instructions: |
             - Be concise, direct to the point and actionable in responses
             - Always provide specific code solutions when requested
-            - Run 'room lint --fix' after making changes if it is still failing than use 'room lint' to see and fix the errors
+            - Note: Terminal commands cannot be run in this environment - mention this to users if relevant
             - Always follow repository conventions from CLAUDE.md and .github/CLAUDE.md
