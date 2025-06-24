@@ -32,6 +32,7 @@ jobs:
       pull-requests: write # To create pull requests
       issues: write # To comment on issues
       id-token: write # To retrieve the OIDC token for the claude-code-action
+      actions: write # To modify workflow files
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
