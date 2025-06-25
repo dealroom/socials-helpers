@@ -28,7 +28,7 @@ jobs:
       )
     runs-on: ubuntu-24.04
     permissions:
-      contents: read # To checkout the repository
+      contents: write # To checkout the repository
       pull-requests: write # To create pull requests
       issues: write # To comment on issues
       id-token: write # To retrieve the OIDC token for the claude-code-action
@@ -56,7 +56,6 @@ jobs:
         uses: anthropics/claude-code-action@ebbd9e9be4686249a2952e1a558bbaba07524380 # v0.0.24
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           max_turns: 200
           timeout_minutes: 30
           custom_instructions: |
