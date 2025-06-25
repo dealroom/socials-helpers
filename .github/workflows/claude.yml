@@ -51,6 +51,22 @@ jobs:
             echo "authorized=false" >> "$GITHUB_OUTPUT"
             echo "User ${{ github.actor }} has $PERMISSION access - not authorized (need write or admin)"
           fi
+      - name: Parse allowed tools from settings
+        id: parse-tools
+        run: |
+          # Read the allowed tools from .claude/settings.local.json
+          if [ -f ".claude/settings.local.json" ]; then
+            # Extract allowed tools and format them for the action
+            ALLOWED_TOOLS=$(jq -r '.permissions.allow[]' .claude/settings.local.json | tr '\n' ',' | sed 's/,$//')
+            # Add additional tools needed for the GitHub Action environment
+            ALLOWED_TOOLS="${ALLOWED_TOOLS},Edit,MultiEdit,Write,Task,TodoRead,TodoWrite"
+            echo "allowed_tools=${ALLOWED_TOOLS}" >> "$GITHUB_OUTPUT"
+            echo "Found allowed tools from settings.local.json"
+          else
+            # Default set of tools if settings file doesn't exist
+            echo "allowed_tools=Bash(git:*),Bash(npm:*),View,Glob(*),Grep(*),Read(*),Edit,MultiEdit,Write,Task,TodoRead,TodoWrite" >> "$GITHUB_OUTPUT"
+            echo "Using default allowed tools"
+          fi
       - name: Run Claude Code
         if: steps.check-access.outputs.authorized == 'true'
         uses: anthropics/claude-code-action@ebbd9e9be4686249a2952e1a558bbaba07524380 # v0.0.24
@@ -58,8 +74,8 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           max_turns: 200
           timeout_minutes: 30
+          allowed_tools: ${{ steps.parse-tools.outputs.allowed_tools }}
           custom_instructions: |
             - Be concise, direct to the point and actionable in responses
             - Always provide specific code solutions when requested
-            - Note: Terminal commands cannot be run in this environment - mention this to users if relevant
             - Always follow repository conventions from CLAUDE.md and .github/CLAUDE.md
