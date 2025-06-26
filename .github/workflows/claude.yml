@@ -16,6 +16,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}-${{ github.event.comment.id || github.event.review.id || github.event.issue.id || github.run_id }}
   cancel-in-progress: false
 
+env:
+  # renovate: datasource=github-releases depName=docker/compose
+  DOCKER_COMPOSE_VERSION: v2.37.3
+  # renovate: datasource=github-releases depName=dealroom/room
+  ROOM_CLI_VERSION: v1.278.0
+
 jobs:
   claude:
     if: |
@@ -37,7 +43,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          fetch-depth: 1
+          fetch-depth: 0 # Room CLI needs full git history
       - name: Check repository access
         id: check-access
         run: |
@@ -64,9 +70,37 @@ jobs:
             echo "Found allowed tools from settings.local.json"
           else
             # Default set of tools if settings file doesn't exist
-            echo "allowed_tools=Bash(git:*),Bash(npm:*),View,Glob(*),Grep(*),Read(*),Edit,MultiEdit,Write,Task,TodoRead,TodoWrite" >> "$GITHUB_OUTPUT"
+            echo "allowed_tools=Bash(git:*),View,Glob(*),Grep(*),Read(*),Edit,MultiEdit,Write,Task,TodoRead,TodoWrite" >> "$GITHUB_OUTPUT"
             echo "Using default allowed tools"
           fi
+      - name: Set up Docker Compose
+        uses: docker/setup-compose-action@364cc21a5de5b1ee4a7f5f9d3fa374ce0ccde746 # v1.2.0
+        with:
+          version: ${{ env.DOCKER_COMPOSE_VERSION }}
+      - name: Get GitHub App Token
+        if: steps.check-access.outputs.authorized == 'true'
+        id: app-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: contents:read,metadata:read
+      - name: Install Room CLI
+        if: steps.check-access.outputs.authorized == 'true'
+        env:
+          # Use GitHub App token for private repo access, fallback to PAT or GITHUB_TOKEN
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.DEALROOM_PAT || secrets.GITHUB_TOKEN }}
+        run: |
+          FILENAME="room-${ROOM_CLI_VERSION}-linux-amd64"
+          echo "Looking for asset: ${FILENAME}"
+          # Download from private repo using gh CLI with GitHub App token
+          gh release download "${ROOM_CLI_VERSION}" \
+              --repo dealroom/room \
+              --pattern "${FILENAME}" \
+              --output room
+          chmod +x room
+          mv room /usr/local/bin/room
+          room -v
       - name: Run Claude Code
         if: steps.check-access.outputs.authorized == 'true'
         uses: anthropics/claude-code-action@ece712ea816f4853a4c2ebb2455f60c24a5c704c # v0.0.25
@@ -78,4 +112,6 @@ jobs:
           custom_instructions: |
             - Be concise, direct to the point and actionable in responses
             - Always provide specific code solutions when requested
-            - Always follow repository conventions from CLAUDE.md and .github/CLAUDE.md
+            - Use `room lint` command to fix linting issues automatically
+            - Use `room lint exec {cmd}` to run arbitrary commands inside the linting environment with correct linter versions
+            - `docker compose` (v2 syntax) is available and preferred for containerized workflows, especially when docker-compose.yml exists
