@@ -115,3 +115,4 @@ jobs:
             - Use `room lint` command to fix linting issues automatically
             - Use `room lint exec {cmd}` to run arbitrary commands inside the linting environment with correct linter versions
             - `docker compose` (v2 syntax) is available and preferred for containerized workflows, especially when docker-compose.yml exists
+            - When encountering complex problems that require deep reasoning, use the word "think" to enable extended thinking mode
