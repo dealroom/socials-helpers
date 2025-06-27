@@ -115,10 +115,44 @@ room lint --fix
 room lint exec {command}
 
 # Examples of room lint exec usage
-room lint exec "eslint --fix src/"
-room lint exec "prettier --write ."
-room lint exec "terraform fmt -recursive"
+room lint exec eslint --fix src/
+room lint exec prettier --write .
+room lint exec terraform fmt -recursive
+room lint exec golangci-lint run --fix
+room lint exec black --check .
+room lint exec flake8
 ```
+
+**IMPORTANT**: Always use `room lint exec` when running linters to ensure:
+
+- Correct linter versions are used (matching CI/CD)
+- Proper configuration files are loaded
+- Consistent results across different environments
+- No version conflicts with locally installed tools
+
+Never run linters directly (e.g., `eslint`, `prettier`, `golangci-lint`) outside the container as this may:
+
+- Use different versions than what CI/CD expects
+- Load different or missing configuration files
+- Produce inconsistent results
+- Cause false positives or miss real issues
+
+#### The `room lint exec` Command
+
+The `room lint exec` command allows you to run any command inside the super-linter container environment. This is crucial for:
+
+1. **Running specific linters**: Execute individual linters with the exact versions used in CI/CD
+2. **Custom lint commands**: Run linters with specific flags or on specific files
+3. **Debugging linting issues**: Investigate why certain files fail linting
+4. **Format code**: Use formatters like prettier, black, or terraform fmt
+
+Usage syntax:
+
+```bash
+room lint exec [COMMAND...]
+```
+
+The command runs in the `/github/workspace` directory which is mapped to your project root.
 
 #### Benefits
 
