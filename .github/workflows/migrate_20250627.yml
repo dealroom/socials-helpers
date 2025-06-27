@@ -1,0 +1,183 @@
+# jscpd:ignore-start
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Migrate (27 June 2025)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  migrate:
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write # To modify workflow files
+      contents: write # To checkout the repository
+      pull-requests: write # To create pull requests
+      issues: write # To comment on issues
+      id-token: write # To retrieve the OIDC token for the claude-code-action
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - name: Get Application Token
+        id: app-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: metadata:read,contents:write,workflows:write,issues:write,pull_requests:write
+      - name: Generate CLAUDE.md with comprehensive project analysis
+        id: claude-analysis
+        uses: anthropics/claude-code-base-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          allowed_tools: "Write,View,GlobTool,GrepTool,BatchTool,Bash(git:*),Bash(ls:*)"
+          prompt: |
+            You are replicating the Claude Code `/init` command. Analyse this codebase comprehensively and create a CLAUDE.md file containing essential project information for agentic coding agents.
+
+            ## ANALYSIS REQUIREMENTS:
+
+            **1. CODEBASE DISCOVERY:**
+            - Scan the entire repository structure using available tools (EXCLUDE .github folder - it has separate workflows)
+            - Identify the primary programming language(s) and frameworks
+            - Detect package managers (npm, yarn, pnpm, pip, cargo, go mod, etc.)
+            - Find configuration files (package.json, requirements.txt, Cargo.toml, etc.)
+            - Locate build tools and task runners
+            - Identify testing frameworks and test directories
+            - Discover documentation patterns and README files
+            - Check for existing development guidelines (.cursorrules, .cursorignore, etc.)
+
+            **2. DEVELOPMENT WORKFLOW ANALYSIS:**
+            - Extract build commands from package.json scripts, Makefile, or other build files
+            - Identify test commands (unit tests, integration tests, e2e tests)
+            - Find linting and formatting commands (eslint, prettier, black, rustfmt, etc.)
+            - Discover typecheck commands (tsc, mypy, etc.)
+            - Locate deployment or start/serve commands
+            - Identify dependency management commands
+
+            **3. CODE STYLE AND CONVENTIONS:**
+            - Analyze existing code to determine:
+              - Indentation style (tabs vs spaces, 2 vs 4 spaces)
+              - Naming conventions (camelCase, snake_case, PascalCase)
+              - Import organization patterns
+              - File organization structure
+              - Comment and documentation styles
+              - Error handling patterns
+              - Preferred libraries and frameworks
+
+            **4. PROJECT CONTEXT:**
+            - Determine project type (web app, API, library, CLI tool, mobile app, etc.)
+            - Identify key technologies and their versions
+            - Understand the project's architecture and main components
+            - Note any special development requirements or constraints
+
+            ## OUTPUT FORMAT:
+
+            Create a CLAUDE.md file that follows this structure (approximately 20-30 lines):
+
+            ```markdown
+            # [Project Name] - Development Guide
+
+            ## Project Overview
+            [Brief description of what this project is and its main purpose]
+
+            ## Technology Stack
+            - **Language**: [Primary language and version]
+            - **Framework**: [Main framework if applicable]
+            - **Package Manager**: [npm/yarn/pnpm/pip/cargo/etc.]
+            - **[Other key technologies]**: [versions/details]
+
+            ## Development Commands
+            ```bash
+            # Build
+            [build command]
+
+            # Test
+            [test command]
+            [single test command if different]
+
+            # Lint
+            [lint command]
+
+            # Format
+            [format command]
+
+            # Type Check
+            [typecheck command if applicable]
+
+            # Start/Serve
+            [dev server command]
+
+            # Install Dependencies
+            [install command]
+            ```
+
+            ## Code Style Guidelines
+            - **Indentation**: [tabs/2 spaces/4 spaces]
+            - **Naming**: [camelCase/snake_case/PascalCase for different contexts]
+            - **Imports**: [organization style, absolute vs relative paths]
+            - **Comments**: [preferred comment style and when to use them]
+            - **Error Handling**: [preferred error handling patterns]
+            - **[Language-specific conventions]**: [any specific style rules]
+
+            ## Project Structure
+            - `[key directory]`: [purpose]
+            - `[key file]`: [purpose]
+            [Other important structural notes]
+
+            ## Development Notes
+            - [Any special setup requirements]
+            - [Important development considerations]
+            - [Common gotchas or important patterns to follow]
+
+            ## Additional Instructions
+            - see @README.md for more information specific to this project
+            - see @.claude/mothership-instructions.md for global instructions required to be followed
+            ```
+
+            ## CRITICAL INSTRUCTIONS:
+
+            1. **Use ALL available tools** to thoroughly analyze the codebase
+            2. **Actually inspect files** - don't make assumptions about commands or structure
+            3. **Extract real commands** from actual config files (package.json, Makefile, etc.)
+            4. **Observe actual code patterns** to determine style guidelines
+            5. **Keep it concise but comprehensive** - focus on actionable information
+            6. **If CLAUDE.md already exists**, analyze it and improve/update it rather than replacing it
+            7. **Make it team-friendly** - this file should help any developer understand the project quickly
+            8. **Focus on commands agents will need** - prioritize build, test, lint, and format commands
+            9. **Include single test commands** if they differ from running all tests
+            10. **Add version constraints** where they matter for compatibility
+            11. **Skip .github folder analysis** - it has separate workflow-specific documentation
+
+            ## ANALYSIS APPROACH:
+
+            Start by using BatchTool or multiple tool calls to:
+            1. Get overall project structure with GlobTool (exclude .github folder)
+            2. Read key configuration files (package.json, requirements.txt, etc.)
+            3. Examine a few representative source files for style patterns
+            4. Check for existing documentation or style guides
+            5. Look for CI/CD configurations that might reveal commands (outside .github)
+            6. Synthesize findings into the CLAUDE.md format
+
+            Remember: This file will be used by AI coding agents (including Claude Code) to understand your project. Make it accurate, actionable, and comprehensive enough to guide effective development assistance.
+      - name: Create Migration PR
+        uses: ./.github/actions/github-pull-request
+        with:
+          commit-message: "ci(auto): workflow repository migration"
+          github-token: ${{ steps.app-token.outputs.token }}
+          branch: feature/DEV/repository-migration
+          labels: |
+            sync
+            force-lint
+      - name: Disable itself
+        run: |
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${{ github.workflow }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+# jscpd:ignore-end
