@@ -54,7 +54,7 @@ room lint --fix
 
 - Uses PSR-4 autoloading with `Dealroom\SocialsHelpers\` namespace
 - Each platform has dedicated normalizer extending `AbstractNormalizer`
-- Normalizers use regex patterns to extract social media handles/IDs
+- Normalizers use regular expression patterns to extract social media handles/IDs
 - URL validation includes platform-specific rules (e.g., Twitter handle length)
 - Test coverage configured via PHPUnit with coverage reporting
 
