@@ -181,21 +181,3 @@ runs:
           echo "*.netrc" >> .gitignore
           echo "*output.txt" >> .gitignore
         fi
-    # @deprecated START
-    # You can remove these steps once they have been executed in all repositories
-    - name: Temporarily remove removed actions
-      if: github.event.repository.name != 'mothership'
-      shell: bash
-      run: |
-        rm -rf ./.github/actions/build-push-docker-image || true
-        rm -rf ./.github/actions/setup-yarn || true
-        rm -rf ./.github/actions/setup-linter-external || true
-    - name: Temporarily remove reusable workflows
-      if: github.event.repository.name != 'mothership'
-      shell: bash
-      run: |
-        rm -rf ./.github/workflows/reusable_build.yml || true
-        rm -rf ./.github/workflows/reusable_ghcr_cleanup.yml || true
-        rm -rf ./.github/project_add_core.yml || true
-        rm -rf ./.github/project_add_platform.yml || true
-    # @deprecated END
