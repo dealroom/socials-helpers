@@ -43,14 +43,21 @@ runs:
         OLD_TAG=$(echo "${{ steps.semver.outputs.current }}" | sed 's/^v//')
         echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
         echo "old_tag=$OLD_TAG" >> "$GITHUB_OUTPUT"
-    - uses: richardrigutins/replace-in-files@682074fb0712f6eb2b7950a239bb86f8b12436dc # v2.1.12
-      with:
-        files: ${{ inputs.version-files }}
-        search-text: ${{ steps.clean-version.outputs.old_tag }}
-        replacement-text: ${{ steps.clean-version.outputs.new_tag }}
+    - name: Sync and Update Versions
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        chmod +x ${{ github.action_path }}/scripts/update_versions.sh
+        ${{ github.action_path }}/scripts/update_versions.sh \
+          "${{ inputs.version-files }}" \
+          "${{ steps.clean-version.outputs.old_tag }}" \
+          "${{ steps.clean-version.outputs.new_tag }}" \
+          "${{ steps.semver.outputs.current }}" \
+          "${{ steps.semver.outputs.next }}"
     - if: ${{ inputs.extra-cmd != '' }}
       run: |
-        ${{ steps.create-pr.outputs.extra-cmd }}
+        ${{ inputs.extra-cmd }}
       shell: bash
     - id: create-pr
       uses: ./.github/actions/github-pull-request
