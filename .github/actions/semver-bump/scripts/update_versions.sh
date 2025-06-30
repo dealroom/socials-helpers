@@ -8,8 +8,6 @@ NEW_VERSION="$3"
 CURRENT_GIT_TAG="$4"
 NEXT_GIT_TAG="$5"
 
-# --- Helper functions ---
-
 # Function to compare semver versions (handles v prefix)
 # Returns 0 if v1=v2, 1 if v1>v2, 2 if v1<v2
 compare_versions() {
@@ -39,8 +37,6 @@ compare_versions() {
   fi
 }
 
-# --- Main script ---
-
 echo "=== Version Sync & Update ==="
 echo "Current Git tag: $CURRENT_GIT_TAG"
 echo "Next version: $NEXT_GIT_TAG"
@@ -59,13 +55,47 @@ fi
 
 # 2. Check for higher versions in files before attempting to update
 HIGHEST_FILE_VERSION=""
-IFS=',' read -ra FILE_ARRAY <<<"$FILES_INPUT"
-for file in "${FILE_ARRAY[@]}"; do
-  file=$(echo "$file" | xargs) # Trim whitespace
-  if [[ ! -f "$file" ]]; then
-    continue
-  fi
+FILE_ARRAY=()
 
+# Enable extended globbing for the entire operation
+shopt -s nullglob globstar extglob
+
+# Handle the input as a single pattern that may contain commas in braces
+# This properly handles patterns like "**/{main.go,README.md}" or "*.json,VERSION"
+if [[ "$FILES_INPUT" == *"{"*"}"* ]]; then
+  # Pattern contains braces, treat as single pattern
+  declare -a expanded_files
+  eval "expanded_files=($FILES_INPUT)"
+  for file in "${expanded_files[@]}"; do
+    if [[ -f "$file" ]]; then
+      FILE_ARRAY+=("$file")
+    fi
+  done
+else
+  # No braces, safe to split by comma
+  IFS=',' read -ra FILE_PATTERNS <<<"$FILES_INPUT"
+  for pattern in "${FILE_PATTERNS[@]}"; do
+    pattern=$(echo "$pattern" | xargs) # Trim whitespace
+    for file in $pattern; do
+      if [[ -f "$file" ]]; then
+        FILE_ARRAY+=("$file")
+      fi
+    done
+  done
+fi
+
+shopt -u nullglob globstar extglob
+
+# If no files found, exit gracefully
+if [[ ${#FILE_ARRAY[@]} -eq 0 ]]; then
+  echo "⚠️  No files found matching patterns: $FILES_INPUT"
+  echo "   Skipping version update."
+  exit 0
+fi
+
+echo "  Found ${#FILE_ARRAY[@]} file(s) to check"
+
+for file in "${FILE_ARRAY[@]}"; do
   FILE_VERSION=""
   # Extract version from JSON files with a '.version' key
   if [[ "$file" =~ \.json$ ]] && jq -e '.version' "$file" >/dev/null 2>&1; then
@@ -110,12 +140,6 @@ echo ""
 # 3. Update versions in files
 echo "=== Updating Files ==="
 for file in "${FILE_ARRAY[@]}"; do
-  file=$(echo "$file" | xargs)
-  if [[ ! -f "$file" ]]; then
-    echo "- Skipping non-existent file: $file"
-    continue
-  fi
-
   echo "- Processing $file"
   # Use a different temp file for each processed file to avoid race conditions
   TMP_FILE=$(mktemp)
