@@ -41,7 +41,10 @@ jobs:
     steps:
       - name: Get PR labels
         id: pr-labels
-        uses: joerick/pr-labels-action@0543b277721e852d821c6738d449f2f4dea03d5f # v1.0.9
+        run: |
+          labels="${{ join(github.event.pull_request.labels.*.name, ' ') }}"
+          echo "PR labels: $labels"
+          echo "labels=$labels" >> "$GITHUB_OUTPUT"
 
   lint:
     needs: pr-labels
