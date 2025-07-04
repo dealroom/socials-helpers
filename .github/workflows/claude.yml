@@ -103,7 +103,7 @@ jobs:
           room -v
       - name: Run Claude Code
         if: steps.check-access.outputs.authorized == 'true'
-        uses: anthropics/claude-code-action@00f9595fb44d49fdc15049286d89247d29a08f2b # v0.0.27
+        uses: anthropics/claude-code-action@aa28d465c5331a8835092447d4e8623e883e5c93 # v0.0.28
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           max_turns: 200
