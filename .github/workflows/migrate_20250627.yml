@@ -34,7 +34,7 @@ jobs:
           permissions: metadata:read,contents:write,workflows:write,issues:write,pull_requests:write
       - name: Generate CLAUDE.md with comprehensive project analysis
         id: claude-analysis
-        uses: anthropics/claude-code-base-action@a835717b36becf75584224421f4094aae288cad7 # v0.0.31
+        uses: anthropics/claude-code-base-action@3560d21b41bd19b1d3ac6c9000af378903d8df0e # v0.0.32
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           allowed_tools: "Write,View,GlobTool,GrepTool,BatchTool,Bash(git:*),Bash(ls:*)"
