@@ -46,9 +46,7 @@ runs:
             - 'terraform/**'
           charts:
             - 'charts/**'
-          github:
-            - '.github/**'
-          non-github:
+          non-github-files:
             - '**'
             - '!.github/**'
         base: ${{ steps.base.outputs.BASE }}
@@ -57,10 +55,10 @@ runs:
       run: |
         echo "terraform=${{ steps.changes.outputs.terraform }}" >> $GITHUB_OUTPUT
         echo "charts=${{ steps.changes.outputs.charts }}" >> $GITHUB_OUTPUT
-        # github-only is true when .github files changed but no non-.github files changed
-        if [ "${{ steps.changes.outputs.github }}" == "true" ] && [ "${{ steps.changes.outputs.non-github }}" != "true" ]; then
-          echo "github-only=true" >> $GITHUB_OUTPUT
-        else
+        # github-only is true when no files outside .github changed
+        if [ "${{ steps.changes.outputs.non-github-files }}" == "true" ]; then
           echo "github-only=false" >> $GITHUB_OUTPUT
+        else
+          echo "github-only=true" >> $GITHUB_OUTPUT
         fi
       shell: bash
