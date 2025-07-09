@@ -1,0 +1,66 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Check Repository Changes
+description: Checks if there are any changes in the terraform or charts directory
+outputs:
+  terraform:
+    description: true if there are changes in the terraform directory
+    value: ${{ steps.repository-changes.outputs.terraform }}
+  charts:
+    description: true if there are changes in the charts directory
+    value: ${{ steps.repository-changes.outputs.charts }}
+  github-only:
+    description: true if only .github/ directory files changed
+    value: ${{ steps.repository-changes.outputs.github-only }}
+runs:
+  using: composite
+  steps:
+    - if: github.event_name == 'release'
+      id: last-tag
+      uses: WyriHaximus/github-action-get-previous-tag@04e8485ecb6487243907e330d522ff60f02283ce # v1.4.0
+    - id: base
+      if: github.event_name != 'pull_request'
+      # If there is a previous tag, use that as the base
+      # Otherwise, use the default branch as the base
+      run: |
+        if [ "${{ steps.last-tag.outputs.tag }}" != "" ]; then
+          NUM_TAGS=2
+          TAG=$(git tag --sort=-creatordate | head -n $NUM_TAGS | tail -n 1)
+          while [ $(git rev-parse $TAG^{commit}) == ${{ github.sha }} ]; do
+            ((NUM_TAGS++))
+            TAG=$(git tag --sort=-creatordate | head -n $NUM_TAGS | tail -n 1)
+          done
+          echo "BASE=$TAG" >> $GITHUB_OUTPUT
+          echo "REF=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+        else
+          echo "BASE=${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
+          echo "REF=${{ github.ref }}" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+    - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+      id: changes
+      with:
+        filters: |
+          terraform:
+            - 'terraform/**'
+          charts:
+            - 'charts/**'
+          github:
+            - '.github/**'
+          non-github:
+            - '**'
+            - '!.github/**'
+        base: ${{ steps.base.outputs.BASE }}
+        ref: ${{ steps.base.outputs.REF }}
+    - id: repository-changes
+      run: |
+        echo "terraform=${{ steps.changes.outputs.terraform }}" >> $GITHUB_OUTPUT
+        echo "charts=${{ steps.changes.outputs.charts }}" >> $GITHUB_OUTPUT
+        # github-only is true when .github files changed but no non-.github files changed
+        if [ "${{ steps.changes.outputs.github }}" == "true" ] && [ "${{ steps.changes.outputs.non-github }}" != "true" ]; then
+          echo "github-only=true" >> $GITHUB_OUTPUT
+        else
+          echo "github-only=false" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
