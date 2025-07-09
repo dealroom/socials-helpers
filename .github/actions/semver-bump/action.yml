@@ -29,27 +29,20 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Check if only .github files changed
-      id: check-github-only
+    - name: Check repository changes
+      id: repo-changes
+      uses: ./.github/actions/repository-changes
+    - name: Check if should skip release
+      id: check-skip
       shell: bash
       run: |
-        # Get the list of changed files between HEAD^ and HEAD
-        CHANGED_FILES=$(git diff --name-only HEAD^ HEAD 2>/dev/null || echo "")
-        # If no files changed, skip release
-        if [ -z "$CHANGED_FILES" ]; then
-          echo "skip_release=true" >> "$GITHUB_OUTPUT"
-          echo "No files changed, skipping version bump"
-          exit 0
-        fi
-        # Check if any changed file is *not* in the .github/ directory
-        # If grep finds any line that does NOT start with ".github/", it means other files changed.
-        if echo "$CHANGED_FILES" | grep -qv "^.github/"; then
-          echo "skip_release=false" >> "$GITHUB_OUTPUT"
-          echo "Files outside .github/ changed, proceeding with version bump"
-        else
+        if [ "${{ steps.repo-changes.outputs.github-only }}" == "true" ]; then
           echo "skip_release=true" >> "$GITHUB_OUTPUT"
           echo "Only .github/ files changed, skipping version bump"
           exit 0
+        else
+          echo "skip_release=false" >> "$GITHUB_OUTPUT"
+          echo "Files outside .github/ changed, proceeding with version bump"
         fi
     - name: Get Next Version
       id: semver
@@ -82,7 +75,7 @@ runs:
         ${{ inputs.extra-cmd }}
       shell: bash
     - id: create-pr
-      if: steps.check-github-only.outputs.skip_release != 'true'
+      if: steps.check-skip.outputs.skip_release != 'true'
       uses: ./.github/actions/github-pull-request
       with:
         github-token: ${{ inputs.github-token }}

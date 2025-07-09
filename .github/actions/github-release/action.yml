@@ -15,13 +15,26 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Check repository changes
+      id: repo-changes
+      uses: ./.github/actions/repository-changes
+    - name: Check if should skip release
+      id: check-skip
+      shell: bash
+      run: |
+        if [ "${{ steps.repo-changes.outputs.github-only }}" == "true" ]; then
+          echo "Only .github/ files changed, skipping release creation"
+          exit 0
+        fi
     - name: Get Next Version
       id: semver
+      if: steps.repo-changes.outputs.github-only != 'true'
       uses: ./.github/actions/semver-next-version
       with:
         github-token: ${{ inputs.github-token }}
         tag-prefix: ${{ inputs.tag-prefix }}
     - uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
+      if: steps.repo-changes.outputs.github-only != 'true'
       with:
         generateReleaseNotes: true
         token: ${{ inputs.github-token }}
