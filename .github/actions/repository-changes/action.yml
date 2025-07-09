@@ -46,7 +46,7 @@ runs:
             - 'terraform/**'
           charts:
             - 'charts/**'
-          non-github-files:
+          non-github:
             - '**'
             - '!.github/**'
         base: ${{ steps.base.outputs.BASE }}
@@ -55,10 +55,29 @@ runs:
       run: |
         echo "terraform=${{ steps.changes.outputs.terraform }}" >> $GITHUB_OUTPUT
         echo "charts=${{ steps.changes.outputs.charts }}" >> $GITHUB_OUTPUT
-        # github-only is true when no files outside .github changed
-        if [ "${{ steps.changes.outputs.non-github-files }}" == "true" ]; then
-          echo "github-only=false" >> $GITHUB_OUTPUT
+
+        # Use git to directly check what files changed
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          BASE_REF="${{ github.event.pull_request.base.sha }}"
+          HEAD_REF="${{ github.event.pull_request.head.sha }}"
         else
-          echo "github-only=true" >> $GITHUB_OUTPUT
+          BASE_REF="${{ steps.base.outputs.BASE }}"
+          HEAD_REF="${{ github.sha }}"
         fi
+
+        # Get all changed files
+        CHANGED_FILES=$(git diff --name-only ${BASE_REF}...${HEAD_REF} 2>/dev/null || git diff --name-only HEAD^ HEAD 2>/dev/null || echo "")
+
+        # Check if any non-.github files changed
+        GITHUB_ONLY=true
+        if [ -n "$CHANGED_FILES" ]; then
+          while IFS= read -r file; do
+            if [[ ! "$file" =~ ^\.github/ ]]; then
+              GITHUB_ONLY=false
+              break
+            fi
+          done <<< "$CHANGED_FILES"
+        fi
+
+        echo "github-only=$GITHUB_ONLY" >> $GITHUB_OUTPUT
       shell: bash
