@@ -2,82 +2,52 @@
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
 name: Check Repository Changes
-description: Checks if there are any changes in the terraform or charts directory
+description: Checks if there are any changes in the terraform, charts, or only in the .github directory
 outputs:
   terraform:
     description: true if there are changes in the terraform directory
-    value: ${{ steps.repository-changes.outputs.terraform }}
+    value: ${{ steps.changes.outputs.terraform }}
   charts:
     description: true if there are changes in the charts directory
-    value: ${{ steps.repository-changes.outputs.charts }}
+    value: ${{ steps.changes.outputs.charts }}
   github-only:
     description: true if only .github/ directory files changed
-    value: ${{ steps.repository-changes.outputs.github-only }}
+    value: ${{ steps.check-github-only.outputs.result }}
 runs:
   using: composite
   steps:
-    - if: github.event_name == 'release'
+    - name: Get previous tag
       id: last-tag
+      # This runs for any tag event (releases, manual tag pushes, etc.)
+      if: github.ref_type == 'tag'
       uses: WyriHaximus/github-action-get-previous-tag@04e8485ecb6487243907e330d522ff60f02283ce # v1.4.0
-    - id: base
-      if: github.event_name != 'pull_request'
-      # If there is a previous tag, use that as the base
-      # Otherwise, use the default branch as the base
-      run: |
-        if [ "${{ steps.last-tag.outputs.tag }}" != "" ]; then
-          NUM_TAGS=2
-          TAG=$(git tag --sort=-creatordate | head -n $NUM_TAGS | tail -n 1)
-          while [ $(git rev-parse $TAG^{commit}) == ${{ github.sha }} ]; do
-            ((NUM_TAGS++))
-            TAG=$(git tag --sort=-creatordate | head -n $NUM_TAGS | tail -n 1)
-          done
-          echo "BASE=$TAG" >> $GITHUB_OUTPUT
-          echo "REF=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-        else
-          echo "BASE=${{ github.event.repository.default_branch }}" >> $GITHUB_OUTPUT
-          echo "REF=${{ github.ref }}" >> $GITHUB_OUTPUT
-        fi
-      shell: bash
-    - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+
+    - name: Calculate changed paths
       id: changes
+      uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
       with:
+        # For tag pushes/releases, compare with the previous tag.
+        # For branch pushes and pull requests, the action automatically determines the correct base.
+        base: ${{ github.ref_type == 'tag' && steps.last-tag.outputs.tag || '' }}
         filters: |
           terraform:
             - 'terraform/**'
           charts:
             - 'charts/**'
-          non-github:
+          github:
+            - '.github/**'
+          # This filter is true if any file *outside* of the .github directory has changed.
+          non_github:
             - '**'
             - '!.github/**'
-        base: ${{ steps.base.outputs.BASE }}
-        ref: ${{ steps.base.outputs.REF }}
-    - id: repository-changes
-      run: |
-        echo "terraform=${{ steps.changes.outputs.terraform }}" >> $GITHUB_OUTPUT
-        echo "charts=${{ steps.changes.outputs.charts }}" >> $GITHUB_OUTPUT
-
-        # Use git to directly check what files changed
-        if [ "${{ github.event_name }}" == "pull_request" ]; then
-          BASE_REF="${{ github.event.pull_request.base.sha }}"
-          HEAD_REF="${{ github.event.pull_request.head.sha }}"
-        else
-          BASE_REF="${{ steps.base.outputs.BASE }}"
-          HEAD_REF="${{ github.sha }}"
-        fi
-
-        # Get all changed files
-        CHANGED_FILES=$(git diff --name-only ${BASE_REF}...${HEAD_REF} 2>/dev/null || git diff --name-only HEAD^ HEAD 2>/dev/null || echo "")
-
-        # Check if any non-.github files changed
-        GITHUB_ONLY=true
-        if [ -n "$CHANGED_FILES" ]; then
-          while IFS= read -r file; do
-            if [[ ! "$file" =~ ^\.github/ ]]; then
-              GITHUB_ONLY=false
-              break
-            fi
-          done <<< "$CHANGED_FILES"
-        fi
-
-        echo "github-only=$GITHUB_ONLY" >> $GITHUB_OUTPUT
+    - name: Determine if only .github files changed
+      id: check-github-only
       shell: bash
+      run: |
+        # This condition is met if files within '.github/' have changed,
+        # but no files outside of that directory have changed.
+        if [[ "${{ steps.changes.outputs.github }}" == "true" && "${{ steps.changes.outputs.non_github }}" == "false" ]]; then
+          echo "result=true" >> $GITHUB_OUTPUT
+        else
+          echo "result=false" >> $GITHUB_OUTPUT
+        fi
