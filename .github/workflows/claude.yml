@@ -106,7 +106,7 @@ jobs:
           room -v
       - name: Run Claude Code
         if: steps.check-access.outputs.authorized == 'true'
-        uses: anthropics/claude-code-action@cefe963a6b4ae0e511c59b9d6cb6b7b5923714a1 # v0.0.32
+        uses: anthropics/claude-code-action@dfa92d695228cdc22697d203b91e4104e7e84ae8 # v0.0.37
         env:
           BASH_DEFAULT_TIMEOUT_MS: 300000
           BASH_MAX_TIMEOUT_MS: 900000
