@@ -191,7 +191,7 @@ Essential patterns and conventions for GitHub Actions in this repository.
 - **Never hardcode** secrets or tokens in workflow files
 - **Never use relative paths** without proper context
 - **Never omit shell type** in composite action steps
-- **Never put complex bash** directly in workflow YAML (extract to scripts)
+- **Never put complex Bash** directly in workflow YAML (extract to scripts)
 - **Never pin actions** to moving tags (always use commit SHAs)
 
 ## Required Patterns to Follow
