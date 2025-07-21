@@ -118,7 +118,7 @@ room lint exec {command}
 room lint exec eslint --fix src/
 room lint exec prettier --write .
 room lint exec terraform fmt -recursive
-room lint exec golangci-lint run --fix
+room lint exec golangci-lint run --config .github/linters/.golangci.yml --fix
 room lint exec black --check .
 room lint exec flake8
 ```
@@ -173,6 +173,18 @@ The tool handles these linting categories:
 - RENOVATE
 - And more depending on project languages
 
+#### EditorConfig Issues
+
+EditorConfig issues cannot be automatically fixed with `room lint --fix`. Common issues and manual fixes:
+
+```bash
+# Fix line endings (CRLF to LF)
+sed -i 's/\r$//' filename.txt
+
+# Add missing newline at end of file
+echo "" >> filename.txt
+```
+
 ### Docker and Docker Compose
 
 Docker and Docker Compose are available in the Claude workflow environment and should be preferred for containerized operations.
@@ -224,8 +236,10 @@ docker compose ps
 
 - Use `room lint` for automatic linting fixes
 - Use `room lint exec {cmd}` for commands in linting environment
-- Prefer Docker/Docker Compose when containerization files exist
-- Use `docker compose` (v2 syntax) instead of `docker-compose`
+- Use `room sonar --json` for machine-readable quality gate data with actionable insights
+- Use `room sonar --main --json` to view results for the main branch
+- Prompt user to run `room sonar --setup-token` to configure SonarCloud authentication if the command is failing
+- Prefer `docker compose` (v2 syntax) when containerization files exist
 
 ## PR Requirements
 

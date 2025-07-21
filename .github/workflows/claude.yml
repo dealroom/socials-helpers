@@ -50,6 +50,7 @@ jobs:
       - name: Check repository access
         id: check-access
         run: |
+          # checkov:skip=CKV_GHA_3: Using GitHub's built-in GITHUB_TOKEN for API authentication is secure
           RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission")
           PERMISSION=$(echo "$RESPONSE" | jq -r .permission)
