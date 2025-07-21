@@ -50,6 +50,7 @@ jobs:
     needs: pr-labels
     if: ${{ needs.pr-labels.outputs.should-lint }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       # To read the repository
       contents: read
@@ -104,6 +105,7 @@ jobs:
     needs: pr-labels
     if: ${{ needs.pr-labels.outputs.should-lint }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       # To write linting fixes
       contents: write
