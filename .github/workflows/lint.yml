@@ -88,7 +88,7 @@ jobs:
           external-setup: ${{ github.event.repository.name != 'mothership' && false || true }}
           docs-generate: true
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@12150456a73e248bdc94d0794898f94e23127c88 # v7.4.0
+        uses: super-linter/super-linter/slim@5119dcd8011e92182ce8219d9e9efc82f16fddb6 # v8.0.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -139,7 +139,7 @@ jobs:
           configure-ignores: true
       - name: Fix linting issues
         continue-on-error: true
-        uses: super-linter/super-linter/slim@12150456a73e248bdc94d0794898f94e23127c88 # v7.4.0
+        uses: super-linter/super-linter/slim@5119dcd8011e92182ce8219d9e9efc82f16fddb6 # v8.0.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
