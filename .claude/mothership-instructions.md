@@ -61,7 +61,6 @@ All commits MUST follow this specification to pass the linter:
    "Generated with" line or "Co-Authored-By" line.
 
 7. **Use existing Jira tickets**: When creating new commits, reuse existing DRP-XXXX ticket numbers from:
-
    - Branch name
    - PR title
    - PR description
@@ -69,7 +68,6 @@ All commits MUST follow this specification to pass the linter:
    - Commits between current branch and HEAD
 
    Priority order (highest to lowest):
-
    - PR title
    - Branch name
    - PR description
