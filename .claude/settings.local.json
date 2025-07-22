@@ -86,6 +86,9 @@
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git ls-files:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git rebase:*)",
       "Bash(git reflog:*)",
       "Bash(git remote:-v*)",
       "Bash(git remote:show*)",
@@ -233,9 +236,7 @@
       "Task",
       "TodoRead",
       "TodoWrite",
-      "Write",
-      "Bash(gh run list:*)",
-      "Bash(gh run view:*)"
+      "Write"
     ],
     "deny": [
       "Bash(7z x:*)",
