@@ -233,7 +233,9 @@
       "Task",
       "TodoRead",
       "TodoWrite",
-      "Write"
+      "Write",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)"
     ],
     "deny": [
       "Bash(7z x:*)",
