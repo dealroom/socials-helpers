@@ -46,7 +46,7 @@ runs:
         path: ${{ steps.extcache.outputs.dir }}
         key: ${{ steps.extcache.outputs.key }}
         restore-keys: ${{ steps.extcache.outputs.key }}
-    - uses: shivammathur/setup-php@ccf2c627fe61b1b4d924adfcbd19d661a18133a0 # 2.35.2
+    - uses: shivammathur/setup-php@20529878ed81ef8e78ddf08b480401e6101a850f # 2.35.3
       if: ${{ inputs.install-language == 'true' || inputs.extensions != 'none' }}
       with:
         php-version: ${{ inputs.php-version }}
