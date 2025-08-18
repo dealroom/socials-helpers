@@ -47,24 +47,19 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0 # Room CLI needs full git history
-      - name: Check for Docker files
-        id: check-docker
-        run: |
-          if [ -f "docker-compose.yml" ] || [ -f "docker-compose.yaml" ] || [ -f "Dockerfile" ]; then
-            echo "needs_gcp=true" >> "$GITHUB_OUTPUT"
-            echo "Docker files found - GCP authentication will be performed"
-          else
-            echo "needs_gcp=false" >> "$GITHUB_OUTPUT"
-            echo "No Docker files found - skipping GCP authentication"
-          fi
+      - name: Check if gcp-auth action exists
+        id: check-gcp-auth
+        uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
+        with:
+          files: ./.github/actions/gcp-auth/action.yml
       - name: Authenticate to Google Cloud
-        if: steps.check-docker.outputs.needs_gcp == 'true'
+        if: steps.check-gcp-auth.outputs.files_exists == 'true'
         id: gcp-auth
         uses: ./.github/actions/gcp-auth
         with:
           environment: development
       - name: Authenticate Docker to GAR
-        if: steps.check-docker.outputs.needs_gcp == 'true'
+        if: steps.check-gcp-auth.outputs.files_exists == 'true'
         uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
         with:
           registry: europe-docker.pkg.dev
