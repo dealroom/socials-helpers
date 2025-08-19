@@ -20,5 +20,7 @@ jobs:
     with:
       # @see https://github.com/orgs/dealroom/projects/5
       project-number: 5
-    secrets: inherit
+    secrets:
+      DEALROOMBA_APP_ID: ${{ secrets.DEALROOMBA_APP_ID }}
+      DEALROOMBA_APP_PRIVATE_KEY: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
 # jscpd:ignore-end
