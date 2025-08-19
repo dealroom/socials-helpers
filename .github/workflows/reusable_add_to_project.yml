@@ -11,6 +11,13 @@ on:
         description: The number of the GitHub project where to add the PR (@see https://github.com/orgs/dealroom/projects)
         required: false
         default: 5 # Platform
+    secrets:
+      DEALROOMBA_APP_ID:
+        required: true
+        description: Dealroomba App ID for GitHub authentication
+      DEALROOMBA_APP_PRIVATE_KEY:
+        required: true
+        description: Dealroomba App Private Key for GitHub authentication
 
 permissions:
   contents: read
