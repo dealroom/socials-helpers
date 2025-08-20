@@ -46,3 +46,18 @@ jobs:
     uses: ./.github/workflows/reusable_security_kyverno.yml
     with:
       exit-code: "0"
+
+  security-check-results:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Security Checks Result
+    needs: [checkov, trivy, kyverno]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Aggregate Security Results
+        uses: ./.github/actions/test-results
+        with:
+          needs: ${{ toJson(needs) }}
