@@ -1,0 +1,71 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Security Scanning
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  packages: read
+  id-token: write
+
+jobs:
+  # PR/Push jobs - continuous checking with soft fail
+  checkov-pr:
+    name: Checkov IaC Scan (PR/Push)
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/reusable_security_checkov.yml
+    with:
+      soft-fail: false
+
+  trivy-pr:
+    name: Trivy Vulnerability Scan (PR/Push)
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/reusable_security_trivy.yml
+    with:
+      severity: CRITICAL,HIGH,MEDIUM
+      exit-code: "1"
+
+  kyverno-pr:
+    name: Kyverno Policy Check (PR/Push)
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    permissions:
+      contents: read
+      pull-requests: write
+      packages: read
+      id-token: write
+    uses: ./.github/workflows/reusable_security_kyverno.yml
+    with:
+      exit-code: "1"
+
+  security-check-results:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Security Checks Result
+    needs: [checkov-pr, trivy-pr, kyverno-pr]
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Aggregate Security Results
+        uses: ./.github/actions/test-results
+        with:
+          needs: ${{ toJson(needs) }}
