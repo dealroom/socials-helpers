@@ -38,3 +38,6 @@ skip-check:
   - CKV_K8S_21 # False positives for the kubernetes namespace in helm charts @see https://github.com/bridgecrewio/checkov/issues/3910
   - CKV_K8S_35 # For now, we are using secrets in the environment variables
   - CKV2_K8S_6 # For now, we are not use Network Policies @see https://dealroom.atlassian.net/browse/DRP-6903
+
+  # Disable specific Docker checks
+  - CKV_DOCKER_2 # Adding HEALTHCHECK is mostly useless as we are running containers in Kubernetes
