@@ -1,0 +1,223 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: GitHub PR Comment
+description: Create or update a PR comment with workflow results.
+inputs:
+  github-token:
+    description: GitHub token for API access.
+    required: true
+  comment-identifier:
+    description: A unique identifier for the comment or, in 'grouped' mode, for the comment section.
+    required: true
+  comment-body:
+    description: The comment body content (markdown supported).
+    required: true
+  comment-tag:
+    description: A tag to group related comments together. Required for 'grouped' mode.
+    required: false
+    default: ""
+  comment-title:
+    description: Title for this comment section when using 'grouped' mode.
+    required: false
+    default: ""
+  mode:
+    description: '"single" (default) posts one comment per action. "grouped" combines comments with the same `comment-tag` into a single, sectioned comment.'
+    required: false
+    default: single
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+          echo "Skipping PR comment: This action only runs on pull_request events."
+          exit 0
+        fi
+    - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      if: github.event_name == 'pull_request'
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const { owner, repo } = context.repo;
+          const issue_number = context.issue.number;
+
+          // --- Inputs ---
+          const identifier = '${{ inputs.comment-identifier }}';
+          const body = ${{ toJSON(inputs.comment-body) }};
+          const mode = '${{ inputs.mode }}';
+          const tag = '${{ inputs.comment-tag }}';
+          const title = ${{ toJSON(inputs.comment-title) }};
+
+          // --- Helper Functions ---
+
+          /**
+           * Finds a comment in the PR that includes a specific string identifier.
+           * Uses pagination to handle PRs with many comments.
+           * @param {string} id - The string to search for in the comment body.
+           * @returns {Promise<object|undefined>} The comment object or undefined if not found.
+           */
+          async function findComment(id) {
+            for await (const { data: comments } of github.paginate.iterator(
+              github.rest.issues.listComments,
+              { owner, repo, issue_number }
+            )) {
+              const comment = comments.find(c => c.body.includes(id));
+              if (comment) return comment;
+            }
+            return undefined;
+          }
+
+          // --- Single Mode Logic ---
+
+          if (mode === 'single') {
+            const commentIdentifier = `<!-- comment-id:${identifier} -->`;
+            const commentBody = `${body}\n${commentIdentifier}`;
+            const comment = await findComment(commentIdentifier);
+            if (comment) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: comment.id, body: commentBody });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body: commentBody });
+            }
+            return;
+          }
+
+          // --- Grouped Mode Logic ---
+
+          if (mode === 'grouped') {
+            if (!tag) {
+              core.setFailed("Input 'comment-tag' is required for 'grouped' mode.");
+              return;
+            }
+
+            const groupIdentifier = `<!-- grouped-comment:${tag} -->`;
+
+            /**
+             * Parses a compound comment body into a Map of its sections.
+             * @param {string} commentBody - The full body of the grouped comment.
+             * @returns {Map<string, string>} A map of section IDs to their content.
+             */
+            const parseSections = (commentBody) => {
+              const sections = new Map();
+
+              // Use the full comment body since there's no footer
+              const mainContent = commentBody;
+
+              // Find all section markers first
+              const sectionRegex = /<!-- section-id:(\S+) -->/g;
+              const markers = [];
+              let match;
+
+              // Collect all section markers with their positions
+              while ((match = sectionRegex.exec(mainContent)) !== null) {
+                markers.push({
+                  id: match[1],
+                  start: match.index + match[0].length,
+                  markerStart: match.index
+                });
+              }
+
+              // Extract content for each section
+              for (let i = 0; i < markers.length; i++) {
+                const marker = markers[i];
+                const endIndex = (i + 1 < markers.length) ? markers[i + 1].markerStart : mainContent.length;
+
+                let content = mainContent.substring(marker.start, endIndex).trim();
+                // Remove any trailing separator from the content
+                content = content.replace(/\n---\s*$/, '').trim();
+                if (content) {
+                  sections.set(marker.id, content);
+                }
+              }
+
+              return sections;
+            };
+
+            /**
+             * Builds the grouped comment body from sections.
+             * @param {Map<string, string>} sections - Map of section IDs to content.
+             * @param {string|null} existingBody - The existing comment body to extract order from.
+             * @returns {string} The complete comment body.
+             */
+            const buildBody = (sections, existingBody = null) => {
+              let newBody = groupIdentifier + '\n\n';
+              // Add top-level header for security reports
+              if (tag === 'security') {
+                newBody += '## 🛡️ Security & Vulnerability Report\n\n';
+              }
+              const rendered = new Set();
+
+              // Preserve section order from existing comment or use natural order
+              const existingOrder = [];
+              const sectionRegex = /<!-- section-id:(\S+) -->/g;
+              let match;
+              if (existingBody) {
+                while ((match = sectionRegex.exec(existingBody)) !== null) {
+                  existingOrder.push(match[1]);
+                }
+              }
+
+              // Use existing order if available, otherwise natural order
+              const sectionOrder = existingOrder.length > 0 ? existingOrder : Array.from(sections.keys());
+
+              const append = (id, content) => {
+                // Add horizontal separator between sections (but not before the first one)
+                if (rendered.size > 0) {
+                  newBody += `---\n\n`;
+                }
+                newBody += `<!-- section-id:${id} -->\n${content}\n\n`;
+                rendered.add(id);
+              };
+
+              sectionOrder.forEach(id => {
+                if (sections.has(id)) append(id, sections.get(id));
+              });
+              sections.forEach((content, id) => {
+                if (!rendered.has(id)) append(id, content);
+              });
+
+              return newBody;
+            };
+
+            /**
+             * Attempts to create or update the grouped comment. This function is designed
+             * to be retried to handle race conditions from parallel jobs.
+             */
+            const attemptUpdate = async () => {
+              const existingComment = await findComment(groupIdentifier);
+              const sections = existingComment ? parseSections(existingComment.body) : new Map();
+
+              const newSectionContent = title ? `### ${title}\n\n${body}` : body;
+              sections.set(identifier, newSectionContent);
+
+              const newBody = buildBody(sections, existingComment ? existingComment.body : null);
+
+              if (existingComment) {
+                if (existingComment.body.trim() === newBody.trim()) {
+                  console.log("Skipping update: comment content is unchanged.");
+                  return;
+                }
+                await github.rest.issues.updateComment({ owner, repo, comment_id: existingComment.id, body: newBody });
+              } else {
+                await github.rest.issues.createComment({ owner, repo, issue_number, body: newBody });
+              }
+            };
+
+            // Retry logic to handle race conditions in parallel workflows.
+            const maxRetries = 3;
+            for (let i = 0; i < maxRetries; i++) {
+              try {
+                await attemptUpdate();
+                console.log("Successfully created/updated grouped comment.");
+                return;
+              } catch (error) {
+                if (i < maxRetries - 1) {
+                  const delay = Math.pow(2, i + 1) * 1000;
+                  console.log(`Attempt ${i + 1} failed with error: ${error.message}. Retrying in ${delay/1000}s...`);
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                } else {
+                  core.setFailed(`Failed to update comment after ${maxRetries} attempts: ${error.message}`);
+                }
+              }
+            }
+          }

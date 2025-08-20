@@ -1,0 +1,153 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Reusable Trivy Scan
+
+on:
+  workflow_call:
+    inputs:
+      severity:
+        description: Severities to include (CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN)
+        required: false
+        type: string
+        default: CRITICAL,HIGH
+      exit-code:
+        description: Exit code when vulnerabilities are found
+        required: false
+        type: string
+        default: "1"
+    outputs:
+      sbom_path:
+        description: Path to the generated CycloneDX SBOM file
+        value: ${{ jobs.trivy-scan.outputs.sbom_path }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  # renovate: datasource=github-releases depName=aquasecurity/trivy
+  TRIVY_VERSION: v0.64.1
+
+jobs:
+  trivy-scan:
+    name: Trivy Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    outputs:
+      sbom_path: ${{ steps.sbom.outputs.sbom_path }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Setup linter (generates .trivyignore)
+        uses: ./.github/actions/setup-linter
+        with:
+          configure-ignores: true
+      - name: Run Trivy vulnerability scanner in repo mode
+        id: trivy
+        uses: aquasecurity/trivy-action@5681af892cd0f4997658e2bacc62bd0a894cf564 # v0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          output: trivy-results.txt
+          severity: ${{ inputs.severity }}
+          exit-code: ${{ inputs.exit-code }}
+          ignore-unfixed: true
+          trivyignores: .trivyignore
+          hide-progress: false
+          version: ${{ env.TRIVY_VERSION }}
+        env:
+          TRIVY_DISABLE_VEX_NOTICE: "true"
+        continue-on-error: true
+      - name: Display Trivy results
+        if: always()
+        run: |
+          if [ -f trivy-results.txt ]; then
+            echo "=== Trivy Scan Results ==="
+            cat trivy-results.txt
+          else
+            echo "No Trivy results file found"
+          fi
+      - name: Check Trivy results and fail
+        if: always() && steps.trivy.outcome == 'failure' && inputs.exit-code == '1'
+        run: |
+          echo "Trivy scan found vulnerabilities. Failing workflow as requested."
+          exit 1
+      - name: Generate SBOM with Trivy
+        id: sbom
+        if: always()
+        run: |
+          trivy fs . --format cyclonedx --output sbom.json --severity ${{ inputs.severity }}
+          echo "sbom_path=sbom.json" >> "$GITHUB_OUTPUT"
+        env:
+          TRIVY_DISABLE_VEX_NOTICE: "true"
+      - name: Generate comment body
+        id: comment
+        if: always()
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          script: |
+            const fs = require('fs');
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            let comment = '';
+            if ('${{ steps.trivy.outcome }}' === 'success') {
+              comment += '✅ **No vulnerabilities found!**\n\n';
+              comment += `**SBOM:** [Download from workflow artifacts](${runUrl}#artifacts)`;
+            } else {
+              comment += '⚠️ **Vulnerabilities detected**\n\n';
+              if (fs.existsSync('trivy-results.txt')) {
+                const report = fs.readFileSync('trivy-results.txt', 'utf8');
+                const lines = report.split('\n');
+                // Extract summary if available
+                const totalLine = lines.find(line => line.includes('Total:'));
+                if (totalLine) {
+                  comment += `**Summary:** ${totalLine.trim()}\n\n`;
+                }
+                // Add detailed report
+                comment += '<details>\n<summary>Click to see detailed report</summary>\n\n';
+                comment += '```\n';
+                if (report.length > 5000) {
+                  comment += report.substring(0, 5000);
+                  comment += '\n```\n</details>\n\n';
+                  comment += `_Report truncated. [View full report in workflow artifacts](${runUrl}#artifacts)_\n\n`;
+                } else {
+                  comment += report;
+                  comment += '\n```\n</details>\n\n';
+                }
+              } else {
+                comment += `_[View detailed report in workflow artifacts](${runUrl}#artifacts)_\n\n`;
+              }
+              comment += `**SBOM:** [Download from workflow artifacts](${runUrl}#artifacts)`;
+            }
+            // Ensure we always output something
+            if (!comment) {
+              comment = '⚠️ **Error generating scan report**\n\nPlease check the workflow logs for details.';
+            }
+            core.setOutput('comment_body', comment);
+      - name: Comment PR with scan results
+        if: always()
+        uses: ./.github/actions/github-pr-comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-identifier: "trivy-scan-results"
+          comment-tag: "security"
+          comment-title: "🔒 Dependency Scan"
+          mode: "grouped"
+          comment-body: ${{ steps.comment.outputs.comment_body }}
+      - name: Upload SBOM artifact
+        if: success() || failure()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: trivy-sbom
+          path: sbom.json
+          retention-days: 30
+      - name: Upload Trivy results artifact
+        if: success() || failure()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: trivy-results
+          path: trivy-results.txt
+          retention-days: 30
