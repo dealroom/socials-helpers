@@ -1,0 +1,91 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Reusable Checkov Scan
+
+on:
+  workflow_call:
+    inputs:
+      soft-fail:
+        description: Whether to fail the workflow if issues are found
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      report_path:
+        description: Path to the generated Checkov report
+        value: ${{ jobs.checkov-scan.outputs.report_path }}
+      checkov_result:
+        description: Result of the Checkov scan (pass/fail)
+        value: ${{ jobs.checkov-scan.outputs.checkov_result }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  # renovate: datasource=github-releases depName=bridgecrewio/checkov
+  CHECKOV_VERSION: 3.2.287
+
+jobs:
+  checkov-scan:
+    name: Checkov IaC Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    outputs:
+      report_path: ${{ steps.scan.outputs.report_path }}
+      checkov_result: ${{ steps.scan.outputs.checkov_result }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Run Checkov scan
+        id: scan
+        shell: bash
+        run: |
+          # Run Checkov with specified version
+          if [[ "${{ inputs.soft-fail }}" == "true" ]]; then
+            docker run --rm -t -v "${{ github.workspace }}":/tf --workdir /tf \
+              bridgecrew/checkov:${{ env.CHECKOV_VERSION }} \
+              --directory /tf \
+              --output cli \
+              --config-file /tf/.github/linters/.checkov.yaml \
+              --skip-framework secrets \
+              --soft-fail || CHECKOV_EXIT_CODE=$?
+          else
+            docker run --rm -t -v "${{ github.workspace }}":/tf --workdir /tf \
+              bridgecrew/checkov:${{ env.CHECKOV_VERSION }} \
+              --directory /tf \
+              --output cli \
+              --config-file /tf/.github/linters/.checkov.yaml \
+              --skip-framework secrets || CHECKOV_EXIT_CODE=$?
+          fi
+          # If soft_fail is false and Checkov found issues, fail the step
+          if [[ "${{ inputs.soft-fail }}" == "false" && -n "${CHECKOV_EXIT_CODE}" ]]; then
+            exit "${CHECKOV_EXIT_CODE}"
+          fi
+      - name: Set outputs
+        id: set-outputs
+        shell: bash
+        run: |
+          # Set report path for CLI format
+          echo "report_path=checkov-report.cli" >> "$GITHUB_OUTPUT"
+          # Set scan result
+          if [[ "${{ steps.scan.outcome }}" == "success" ]]; then
+            echo "checkov_result=pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "checkov_result=fail" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Comment PR with scan results
+        if: always()
+        uses: ./.github/actions/github-pr-comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-identifier: "checkov-scan-results"
+          comment-tag: "security"
+          comment-title: "🔍 Checkov Security Scan"
+          mode: "grouped"
+          comment-body: |
+            ${{ steps.scan.outcome == 'success' && '✅ **All security checks passed!**' || format('❌ **Security issues found**
+            📋 **Detailed results:** [View in workflow logs](https://github.com/{0}/actions/runs/{1}) - look for "Checkov IaC Security Scan" job', github.repository, github.run_id) }}

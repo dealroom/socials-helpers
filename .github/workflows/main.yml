@@ -12,6 +12,15 @@ permissions:
   statuses: write
 
 jobs:
+  security:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/reusable_security.yml
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+      packages: read
+
   tests:
     name: Run Tests (PHP ${{ matrix.php-version }})
     runs-on: ubuntu-24.04
@@ -63,7 +72,7 @@ jobs:
   bump-version:
     name: Bump version
     runs-on: ubuntu-24.04
-    needs: test-results
+    needs: [test-results, security]
     if: ${{
       github.ref == 'refs/heads/main' &&
       vars.RELEASE_STRATEGY == 'hashtag' &&
@@ -88,7 +97,7 @@ jobs:
 
   release:
     runs-on: ubuntu-24.04
-    needs: test-results
+    needs: [test-results, security]
     name: Release
     if: ${{
       github.ref == 'refs/heads/main' &&

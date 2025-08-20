@@ -1,0 +1,210 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Reusable Kyverno Security Check
+
+on:
+  workflow_call:
+    inputs:
+      exit-code:
+        description: Exit code when violations are found (0 for soft fail, 1 for hard fail)
+        required: false
+        default: "1"
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  packages: read
+  pull-requests: write
+
+env:
+  # renovate: datasource=github-releases depName=kyverno/kyverno
+  KYVERNO_CLI_VERSION: v1.13.4
+
+jobs:
+  repository-changes:
+    name: Check Chart Changes
+    runs-on: ubuntu-24.04
+    outputs:
+      charts: ${{ steps.changes.outputs.charts }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+      - name: Check changes
+        id: changes
+        uses: ./.github/actions/repository-changes
+
+  kyverno-check:
+    name: Kyverno Check ${{ matrix.env }}
+    if: ${{ needs.repository-changes.outputs.charts == 'true' }}
+    needs: repository-changes
+    runs-on: ${{ matrix.runner-type }}
+    strategy:
+      matrix:
+        include:
+          - env: develop
+            runner-type: gha-dev-scale-set
+          - env: staging
+            runner-type: gha-dev-scale-set
+          - env: beta
+            runner-type: gha-prod-scale-set
+          - env: production
+            runner-type: gha-prod-scale-set
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+      pull-requests: write
+    steps:
+      - run: |
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            .github/actions
+            .github/scripts
+            .github/kyverno-policies
+            helmfile.yaml.gotmpl
+            charts/
+      - name: Check if current environment is used by application
+        id: detect-env
+        run: |
+          chmod +x ${{ env.GITHUB_WORKSPACE }}/.github/scripts/check-if-environment-is-used/script.sh
+          ${{ env.GITHUB_WORKSPACE }}/.github/scripts/check-if-environment-is-used/script.sh
+        env:
+          ENVIRONMENT: ${{ matrix.env }}
+      # Fix "fatal: detected dubious ownership in the repository at '/__w/<user>/<repo>'"
+      - name: Configure git safe directory
+        run: |
+          git config --global --add safe.directory "$(pwd)"
+      - name: Run Kyverno policy check
+        id: kyverno
+        uses: ./.github/actions/kyverno-check
+        if: ${{ steps.detect-env.outputs.ENV_FOUND == 'true' }}
+        with:
+          environment: ${{ matrix.env }}
+          policies-path: .github/kyverno-policies
+          fail-on-violations: ${{ inputs.exit-code == '1' && 'true' || 'false' }}
+          kyverno-cli-version: ${{ env.KYVERNO_CLI_VERSION }}
+      - name: Upload results
+        if: always() && steps.detect-env.outputs.ENV_FOUND == 'true'
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: kyverno-results-${{ matrix.env }}
+          path: |
+            kyverno-results.json
+          retention-days: 1
+      - name: Create results summary
+        if: always() && steps.detect-env.outputs.ENV_FOUND == 'true'
+        shell: bash
+        run: |
+          # Create a simple JSON with the results
+          cat > kyverno-summary-${{ matrix.env }}.json <<EOF
+          {
+            "environment": "${{ matrix.env }}",
+            "passes": "${{ steps.kyverno.outputs.passes || 0 }}",
+            "violations": "${{ steps.kyverno.outputs.violations || 0 }}",
+            "has_violations": "${{ steps.kyverno.outputs.has-violations || false }}"
+          }
+          EOF
+      - name: Upload summary
+        if: always() && steps.detect-env.outputs.ENV_FOUND == 'true'
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: kyverno-summary-${{ matrix.env }}
+          path: kyverno-summary-${{ matrix.env }}.json
+          retention-days: 1
+
+  kyverno-summary:
+    name: Kyverno Summary
+    needs: [repository-changes, kyverno-check]
+    runs-on: ubuntu-24.04
+    if: always() && needs.repository-changes.outputs.charts == 'true'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - name: Download all artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          pattern: kyverno-summary-*
+          path: kyverno-summaries
+      - name: Generate Summary Comment
+        id: summary
+        shell: bash
+        run: |
+          # Aggregate results from all environments
+          TOTAL_PASSES=0
+          TOTAL_VIOLATIONS=0
+          ENV_RESULTS=""
+
+          # Read results from artifacts
+          for summary_file in kyverno-summaries/*/kyverno-summary-*.json; do
+            if [ -f "$summary_file" ]; then
+              echo "Processing: $summary_file"
+
+              # Parse JSON values
+              ENV=$(jq -r '.environment' "$summary_file")
+              PASSES=$(jq -r '.passes' "$summary_file")
+              VIOLATIONS=$(jq -r '.violations' "$summary_file")
+
+              # Add to totals
+              TOTAL_PASSES=$((TOTAL_PASSES + PASSES))
+              TOTAL_VIOLATIONS=$((TOTAL_VIOLATIONS + VIOLATIONS))
+
+              # Add to results table
+              if [ "$VIOLATIONS" -gt 0 ]; then
+                ENV_RESULTS="${ENV_RESULTS}| ${ENV} | ❌ ${PASSES} passed, ${VIOLATIONS} failed |\n"
+              else
+                ENV_RESULTS="${ENV_RESULTS}| ${ENV} | ✅ ${PASSES} passed |\n"
+              fi
+            fi
+          done
+
+          # If no results found, check if artifacts exist
+          if [ -z "$ENV_RESULTS" ]; then
+            echo "No Kyverno summary artifacts found"
+            ENV_RESULTS="| No environments tested | - |\n"
+          fi
+
+          # Generate comment body
+          {
+            echo "comment-body<<EOF"
+            echo "**Summary:** ${TOTAL_PASSES} passed, ${TOTAL_VIOLATIONS} failed"
+            echo ""
+            echo "| Environment | Status |"
+            echo "|-------------|--------|"
+            echo -e "$ENV_RESULTS"
+            echo ""
+            if [ "$TOTAL_VIOLATIONS" -gt 0 ]; then
+              echo "❌ Policy Violations Found"
+              echo ""
+              echo "📋 **[View detailed violation report in workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})**"
+              echo ""
+              echo "_Click on the failed \"Kyverno Check\" jobs for each environment to see specific policy violations._"
+            else
+              echo "✅ All Policies Passed"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+      - name: Post Summary Comment
+        if: github.event_name == 'pull_request' && steps.summary.outputs.comment-body != ''
+        uses: ./.github/actions/github-pr-comment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-identifier: kyverno-summary
+          comment-tag: security
+          comment-title: "📋 Kyverno Policy Validation"
+          comment-body: ${{ steps.summary.outputs.comment-body }}
+          mode: grouped
+      - name: Aggregate Test Results
+        uses: ./.github/actions/test-results
+        with:
+          needs: ${{ toJson(needs) }}
