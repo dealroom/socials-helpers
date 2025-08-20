@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   security:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reusable_security.yml
     permissions:
       contents: read
