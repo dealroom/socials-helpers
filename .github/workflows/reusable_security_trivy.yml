@@ -84,6 +84,10 @@ jobs:
           echo "sbom_path=sbom.json" >> "$GITHUB_OUTPUT"
         env:
           TRIVY_DISABLE_VEX_NOTICE: "true"
+      - name: Generate timestamp
+        id: timestamp
+        if: always()
+        run: echo "timestamp=$(date +%s)" >> "$GITHUB_OUTPUT"
       - name: Generate comment body
         id: comment
         if: always()
@@ -141,13 +145,13 @@ jobs:
         if: success() || failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: trivy-sbom-${{ github.run_id }}-${{ github.run_attempt }}
+          name: trivy-sbom-${{ github.run_id }}-${{ steps.timestamp.outputs.timestamp }}
           path: sbom.json
           retention-days: 30
       - name: Upload Trivy results artifact
         if: success() || failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: trivy-results-${{ github.run_id }}-${{ github.run_attempt }}
+          name: trivy-results-${{ github.run_id }}-${{ steps.timestamp.outputs.timestamp }}
           path: trivy-results.txt
           retention-days: 30
