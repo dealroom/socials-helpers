@@ -44,6 +44,24 @@ runs:
           BASE_REF="${{ github.event.before }}"
           HEAD_REF="${{ github.sha }}"
         fi
+
+        # Handle case where BASE_REF is all zeros (first push to new branch)
+        if [[ "$BASE_REF" == "0000000000000000000000000000000000000000" ]]; then
+          echo "Detected first push to new branch. Comparing against default branch."
+          BASE_REF="${{ github.event.repository.default_branch || 'main' }}"
+          # Fetch the default branch if it doesn't exist locally
+          git fetch origin "$BASE_REF" || true
+          BASE_REF="origin/$BASE_REF"
+        fi
+
+        # Check if we can create a valid revision range
+        if ! git rev-list "${BASE_REF}".."${HEAD_REF}" >/dev/null 2>&1; then
+          echo "Cannot create revision range between ${BASE_REF} and ${HEAD_REF}. Using default branch."
+          DEFAULT_BRANCH="${{ github.event.repository.default_branch || 'main' }}"
+          git fetch origin "$DEFAULT_BRANCH" || true
+          BASE_REF="origin/$DEFAULT_BRANCH"
+        fi
+
         if [[ -z "$CHANGED_FILES" ]]; then
           echo "Calculating diff between BASE: ${BASE_REF} and HEAD: ${HEAD_REF}"
           CHANGED_FILES=$(git diff --name-only "${BASE_REF}".."${HEAD_REF}")
