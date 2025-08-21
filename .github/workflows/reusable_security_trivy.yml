@@ -27,7 +27,7 @@ permissions:
 
 env:
   # renovate: datasource=github-releases depName=aquasecurity/trivy
-  TRIVY_VERSION: v0.64.1
+  TRIVY_VERSION: v0.65.0
 
 jobs:
   trivy-scan:
@@ -47,7 +47,7 @@ jobs:
           configure-ignores: true
       - name: Run Trivy vulnerability scanner in repo mode
         id: trivy
-        uses: aquasecurity/trivy-action@5681af892cd0f4997658e2bacc62bd0a894cf564 # v0.28.0
+        uses: aquasecurity/trivy-action@dc5a429b52fcf669ce959baa2c2dd26090d2a6c4 # v0.32.0
         with:
           scan-type: fs
           scan-ref: .

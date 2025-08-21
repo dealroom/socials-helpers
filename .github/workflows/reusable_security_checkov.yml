@@ -24,7 +24,7 @@ permissions:
   pull-requests: write
 
 env:
-  # renovate: datasource=github-releases depName=bridgecrewio/checkov
+  # renovate: datasource=docker depName=bridgecrew/checkov
   CHECKOV_VERSION: 3.2.287
 
 jobs:

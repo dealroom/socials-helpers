@@ -11,6 +11,10 @@ permissions:
   contents: write
   statuses: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   security:
     uses: ./.github/workflows/reusable_security.yml
@@ -27,9 +31,6 @@ jobs:
       fail-fast: false
       matrix:
         php-version: [8.3, 8.4]
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ matrix.php-version }}
-      cancel-in-progress: true
     steps:
       - name: Checkout Repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
