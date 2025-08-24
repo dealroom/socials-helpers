@@ -93,7 +93,7 @@ jobs:
           kyverno-cli-version: ${{ env.KYVERNO_CLI_VERSION }}
       - name: Upload results
         if: always() && steps.detect-env.outputs.ENV_FOUND == 'true'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: kyverno-results-${{ matrix.env }}
           path: |
@@ -114,7 +114,7 @@ jobs:
           EOF
       - name: Upload summary
         if: always() && steps.detect-env.outputs.ENV_FOUND == 'true'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: kyverno-summary-${{ matrix.env }}
           path: kyverno-summary-${{ matrix.env }}.json
