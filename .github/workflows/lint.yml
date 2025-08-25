@@ -41,8 +41,11 @@ jobs:
     steps:
       - name: Get PR labels
         id: pr-labels
+        env:
+          PR_LABELS_JSON: ${{ toJson(github.event.pull_request.labels) }}
         run: |
-          labels="${{ join(github.event.pull_request.labels.*.name, ' ') }}"
+          # Use jq to safely extract and join label names
+          labels=$(echo "$PR_LABELS_JSON" | jq -r '.[].name' | tr '\n' ' ')
           echo "PR labels: $labels"
           echo "labels=$labels" >> "$GITHUB_OUTPUT"
 
@@ -64,6 +67,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Get Application Token
         id: app-token
         uses: ./.github/actions/github-app-token
@@ -88,7 +92,7 @@ jobs:
           external-setup: ${{ github.event.repository.name != 'mothership' && false || true }}
           docs-generate: true
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@5119dcd8011e92182ce8219d9e9efc82f16fddb6 # v8.0.0
+        uses: super-linter/super-linter/slim@ffde3b2b33b745cb612d787f669ef9442b1339a6 # v8.1.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -118,6 +122,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Get Application Token
         id: app-token
         uses: ./.github/actions/github-app-token
@@ -130,6 +135,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
       - name: Setup linting process
         uses: ./.github/actions/setup-linter
         with:
@@ -139,7 +145,7 @@ jobs:
           configure-ignores: true
       - name: Fix linting issues
         continue-on-error: true
-        uses: super-linter/super-linter/slim@5119dcd8011e92182ce8219d9e9efc82f16fddb6 # v8.0.0
+        uses: super-linter/super-linter/slim@ffde3b2b33b745cb612d787f669ef9442b1339a6 # v8.1.0
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}

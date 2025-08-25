@@ -33,6 +33,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Check changes
         id: changes
         uses: ./.github/actions/repository-changes
@@ -71,6 +72,7 @@ jobs:
             .github/kyverno-policies
             helmfile.yaml.gotmpl
             charts/
+          persist-credentials: false
       - name: Check if current environment is used by application
         id: detect-env
         run: |
@@ -102,16 +104,20 @@ jobs:
       - name: Create results summary
         if: always() && steps.detect-env.outputs.ENV_FOUND == 'true'
         shell: bash
+        env:
+          KYVERNO_PASSES: ${{ steps.kyverno.outputs.passes || 0 }}
+          KYVERNO_VIOLATIONS: ${{ steps.kyverno.outputs.violations || 0 }}
+          KYVERNO_HAS_VIOLATIONS: ${{ steps.kyverno.outputs.has-violations || false }}
         run: |
           # Create a simple JSON with the results
-          cat > kyverno-summary-${{ matrix.env }}.json <<EOF
-          {
-            "environment": "${{ matrix.env }}",
-            "passes": "${{ steps.kyverno.outputs.passes || 0 }}",
-            "violations": "${{ steps.kyverno.outputs.violations || 0 }}",
-            "has_violations": "${{ steps.kyverno.outputs.has-violations || false }}"
-          }
-          EOF
+          # Using jq to safely create JSON to avoid injection
+          jq -n \
+            --arg env "${{ matrix.env }}" \
+            --arg passes "$KYVERNO_PASSES" \
+            --arg violations "$KYVERNO_VIOLATIONS" \
+            --arg has_violations "$KYVERNO_HAS_VIOLATIONS" \
+            '{environment: $env, passes: $passes, violations: $violations, has_violations: $has_violations}' \
+            > kyverno-summary-${{ matrix.env }}.json
       - name: Upload summary
         if: always() && steps.detect-env.outputs.ENV_FOUND == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -131,6 +137,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
       - name: Download all artifacts
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
         with:

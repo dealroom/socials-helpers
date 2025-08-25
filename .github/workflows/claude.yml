@@ -47,6 +47,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0 # Room CLI needs full git history
+          persist-credentials: false
       - name: Check if gcp-auth action exists
         id: check-gcp-auth
         uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
@@ -77,14 +78,14 @@ jobs:
         run: |
           # checkov:skip=CKV_GHA_3: Using GitHub's built-in GITHUB_TOKEN for API authentication is secure
           RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/${{ github.repository }}/collaborators/${{ github.actor }}/permission")
+            "https://api.github.com/repos/${{ github.repository }}/collaborators/${GITHUB_ACTOR}/permission")
           PERMISSION=$(echo "$RESPONSE" | jq -r .permission)
           if [[ "$PERMISSION" == "admin" || "$PERMISSION" == "write" ]]; then
             echo "authorized=true" >> "$GITHUB_OUTPUT"
-            echo "User ${{ github.actor }} has $PERMISSION access - authorized"
+            echo "User ${GITHUB_ACTOR} has $PERMISSION access - authorized"
           else
             echo "authorized=false" >> "$GITHUB_OUTPUT"
-            echo "User ${{ github.actor }} has $PERMISSION access - not authorized (need write or admin)"
+            echo "User ${GITHUB_ACTOR} has $PERMISSION access - not authorized (need write or admin)"
           fi
       - name: Parse allowed tools from settings
         id: parse-tools

@@ -40,6 +40,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
       - name: Run Checkov scan
         id: scan
         shell: bash
@@ -72,11 +74,13 @@ jobs:
           # Set report path for CLI format
           echo "report_path=checkov-report.cli" >> "$GITHUB_OUTPUT"
           # Set scan result
-          if [[ "${{ steps.scan.outcome }}" == "success" ]]; then
+          if [[ "${STEPS_SCAN_OUTCOME}" == "success" ]]; then
             echo "checkov_result=pass" >> "$GITHUB_OUTPUT"
           else
             echo "checkov_result=fail" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          STEPS_SCAN_OUTCOME: ${{ steps.scan.outcome }}
       - name: Comment PR with scan results
         if: always()
         uses: ./.github/actions/github-pr-comment
