@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Get Application Token
         id: app-token
         uses: ./.github/actions/github-app-token
@@ -39,7 +40,8 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           allowed_tools: "Write,View,GlobTool,GrepTool,BatchTool,Bash(git:*),Bash(ls:*)"
           prompt: |
-            You are replicating the Claude Code `/init` command. Analyse this codebase comprehensively and create a CLAUDE.md file containing essential project information for agentic coding agents.
+            You are replicating the Claude Code `/init` command. Analyse this codebase comprehensively and create
+            a CLAUDE.md file containing essential project information for agentic coding agents.
 
             ## ANALYSIS REQUIREMENTS:
 
@@ -165,7 +167,8 @@ jobs:
             5. Look for CI/CD configurations that might reveal commands (outside .github)
             6. Synthesize findings into the CLAUDE.md format
 
-            Remember: This file will be used by AI coding agents (including Claude Code) to understand your project. Make it accurate, actionable, and comprehensive enough to guide effective development assistance.
+            Remember: This file will be used by AI coding agents (including Claude Code) to understand your project.
+            Make it accurate, actionable, and comprehensive enough to guide effective development assistance.
       - name: Create Migration PR
         uses: ./.github/actions/github-pull-request
         with:
@@ -177,7 +180,7 @@ jobs:
             force-lint
       - name: Disable itself
         run: |
-          gh workflow disable -R "$GITHUB_REPOSITORY" "${{ github.workflow }}"
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${GITHUB_WORKFLOW}"
         env:
           GH_TOKEN: ${{ github.token }}
 # jscpd:ignore-end

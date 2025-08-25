@@ -6,11 +6,6 @@ name: Test & Release
 
 on: [push, pull_request]
 
-permissions:
-  pull-requests: write
-  contents: write
-  statuses: write
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -27,6 +22,8 @@ jobs:
   tests:
     name: Run Tests (PHP ${{ matrix.php-version }})
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read # For checkout
     strategy:
       fail-fast: false
       matrix:
@@ -34,6 +31,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
       - name: Get Application Token
         id: app-token
         uses: ./.github/actions/github-app-token
@@ -61,9 +60,13 @@ jobs:
     runs-on: ubuntu-24.04
     name: Test Final Results
     needs: tests
+    permissions:
+      contents: read # For checkout
     steps:
       - name: Checkout Repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
       - name: Aggregate Test Results
         uses: ./.github/actions/test-results
         with:
@@ -73,6 +76,9 @@ jobs:
     name: Bump version
     runs-on: ubuntu-24.04
     needs: [test-results, security]
+    permissions:
+      contents: write # For version bump commits
+      pull-requests: write # For creating PRs
     if: ${{
       github.ref == 'refs/heads/main' &&
       vars.RELEASE_STRATEGY == 'hashtag' &&
@@ -83,6 +89,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Get Application Token
         id: app-token
         uses: ./.github/actions/github-app-token
@@ -99,6 +106,8 @@ jobs:
     runs-on: ubuntu-24.04
     needs: [test-results, security]
     name: Release
+    permissions:
+      contents: write # For creating releases
     if: ${{
       github.ref == 'refs/heads/main' &&
       (vars.RELEASE_STRATEGY != 'hashtag' || contains(github.event.head_commit.message, '#release'))
@@ -111,6 +120,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Get Application Token
         id: app-token
         uses: ./.github/actions/github-app-token

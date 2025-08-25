@@ -26,6 +26,7 @@ jobs:
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Get Application Token
         id: app-token
         uses: ./.github/actions/github-app-token
@@ -60,7 +61,7 @@ jobs:
             force-lint
       - name: Disable itself
         run: |
-          gh workflow disable -R "$GITHUB_REPOSITORY" "${{ github.workflow }}"
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${GITHUB_WORKFLOW}"
         env:
           GH_TOKEN: ${{ github.token }}
 # jscpd:ignore-end
