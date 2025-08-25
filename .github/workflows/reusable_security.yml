@@ -22,7 +22,7 @@ jobs:
       packages: read
     uses: ./.github/workflows/reusable_security_checkov.yml
     with:
-      soft-fail: true
+      soft-fail: false
 
   trivy:
     name: Trivy Vulnerability Scan
