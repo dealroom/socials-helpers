@@ -41,3 +41,6 @@ skip-check:
 
   # Disable specific Docker checks
   - CKV_DOCKER_2 # Adding HEALTHCHECK is mostly useless as we are running containers in Kubernetes
+
+  # Disable specific GHA checks
+  - CKV2_GHA_1 # This is producing false-positives if all jobs have appropriate job-level job-permissions

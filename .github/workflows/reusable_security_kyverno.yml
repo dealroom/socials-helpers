@@ -37,6 +37,8 @@ jobs:
       - name: Check changes
         id: changes
         uses: ./.github/actions/repository-changes
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   kyverno-check:
     name: Kyverno Check ${{ matrix.env }}
