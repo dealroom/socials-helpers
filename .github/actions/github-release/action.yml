@@ -18,6 +18,8 @@ runs:
     - name: Check repository changes
       id: repo-changes
       uses: ./.github/actions/repository-changes
+      with:
+        github-token: ${{ inputs.github-token }}
     - name: Check if should skip release
       id: check-skip
       shell: bash
