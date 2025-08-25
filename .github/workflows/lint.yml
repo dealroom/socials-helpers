@@ -135,7 +135,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
-          persist-credentials: false
+          persist-credentials: true # zizmor: ignore[persist-credentials] - Required for git-auto-commit-action to push changes
       - name: Setup linting process
         uses: ./.github/actions/setup-linter
         with:
