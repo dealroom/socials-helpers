@@ -34,7 +34,6 @@ jobs:
     uses: ./.github/workflows/reusable_security_trivy.yml
     with:
       severity: CRITICAL,HIGH,MEDIUM
-      exit-code: "0"
 
   kyverno:
     name: Kyverno Policy Check
@@ -44,8 +43,6 @@ jobs:
       id-token: write
       packages: read
     uses: ./.github/workflows/reusable_security_kyverno.yml
-    with:
-      exit-code: "0"
 
   security-check-results:
     if: ${{ always() }}
