@@ -49,12 +49,23 @@ runs:
       if: ${{ steps.previous-tag.outputs.tag == 'v0.0.0' }}
       env:
         FULL_TAG_NAME: ${{ steps.prepare-initial-vars.outputs.full_tag_name }}
+        GH_TOKEN: ${{ inputs.github-token }}
       shell: bash
       run: |
         echo "No tags found. Creating initial tag: ${FULL_TAG_NAME}"
         OLDEST_COMMIT=$(git rev-list --max-parents=0 HEAD)
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
         git tag "${FULL_TAG_NAME}" $OLDEST_COMMIT
-        git push origin "${FULL_TAG_NAME}"
+
+        # Use GitHub CLI for authenticated push
+        gh api repos/${GITHUB_REPOSITORY}/git/refs \
+          -X POST \
+          -F ref="refs/tags/${FULL_TAG_NAME}" \
+          -F sha="${OLDEST_COMMIT}"
+
+        # Fetch the newly created tag so semver-action can see it
+        git fetch origin tag "${FULL_TAG_NAME}"
     - name: Get Next Version
       id: semver
       uses: ietf-tools/semver-action@000ddb2ebacad350ff2a15382a344dc05ea4c0a4 # v1.10.2
@@ -72,8 +83,12 @@ runs:
       if: ${{ steps.previous-tag.outputs.tag == 'v0.0.0' }}
       env:
         FULL_TAG_NAME: ${{ steps.prepare-initial-vars.outputs.full_tag_name }}
+        GH_TOKEN: ${{ inputs.github-token }}
       shell: bash
       run: |
         echo "Deleting temporary initial tag: ${FULL_TAG_NAME}"
         git tag -d "${FULL_TAG_NAME}"
-        git push origin :"${FULL_TAG_NAME}"
+
+        # Use GitHub CLI for authenticated deletion
+        gh api repos/${GITHUB_REPOSITORY}/git/refs/tags/${FULL_TAG_NAME} \
+          -X DELETE || echo "Tag may have already been deleted"
