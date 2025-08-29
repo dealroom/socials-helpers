@@ -131,20 +131,17 @@ jobs:
         if: steps.check-access.outputs.authorized == 'true'
         uses: anthropics/claude-code-action@0c127307fa529d701bc1f0f8f9c0bea881c49a9b # v1.0.2
         env:
+          #  Sets the default timeout for long-running bash commands
           BASH_DEFAULT_TIMEOUT_MS: 300000
+          # Sets the maximum timeout that the model can request for a long-running bash command
           BASH_MAX_TIMEOUT_MS: 900000
+          # Allow access to private repositories in Go
           GOPRIVATE: github.com/dealroom/*
           GONOSUMDB: github.com/dealroom/*
           GONOPROXY: github.com/dealroom/*
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          max_turns: 300
-          timeout_minutes: 45
-          allowed_tools: ${{ steps.parse-tools.outputs.allowed_tools }}
-          custom_instructions: |
-            - Be concise, direct to the point and actionable in responses
-            - Always provide specific code solutions when requested
-            - Use `room lint` command to fix linting issues automatically
-            - Use `room lint exec {cmd}` to run arbitrary commands inside the linting environment with correct linter versions
-            - `docker compose` (v2 syntax) is available and preferred for containerized workflows, especially when docker-compose.yml exists
-            - When encountering complex problems that require deep reasoning, use the word "think" to enable extended thinking mode
+          claude_args: |
+            --max-turns 300
+            --allowedTools ${{ steps.parse-tools.outputs.allowed_tools }}
+            --system-prompt "- Be concise, direct to the point and actionable in responses\n- Always provide specific code solutions when requested\n- Use \`room lint\` command to fix linting issues automatically\n- Use \`room lint exec {cmd}\` to run arbitrary commands inside the linting environment with correct linter versions\n- \`docker compose\` (v2 syntax) is available and preferred for containerized workflows, especially when docker-compose.yml exists\n- When encountering complex problems that require deep reasoning, use the word \"think\" to enable extended thinking mode"
