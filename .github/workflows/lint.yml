@@ -98,7 +98,9 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           # Required for zizmor extra features
           # @see https://github.com/zizmorcore/zizmor/blob/d75933e72da16b3899fefede82ac3dfd8abaf041/docs/snippets/help.txt#L17
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          # Update: Temporarily DISABLED due to excessive usage of GitHub rate limits
+          # @see https://github.com/zizmorcore/zizmor/pull/1132 (re-enable once released in 1.13.0)
+          # GH_TOKEN: ${{ steps.app-token.outputs.token }}
           # Configurable PHPStan validation
           VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
           # Configurable duplicate code detection
@@ -152,7 +154,9 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           # Required for zizmor extra features
           # @see https://github.com/zizmorcore/zizmor/blob/d75933e72da16b3899fefede82ac3dfd8abaf041/docs/snippets/help.txt#L17
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          # Update: Temporarily DISABLED due to excessive usage of GitHub rate limits
+          # @see https://github.com/zizmorcore/zizmor/pull/1132 (re-enable once released in 1.13.0)
+          # GH_TOKEN: ${{ steps.app-token.outputs.token }}
           # Configurable PHPStan validation
           VALIDATE_PHP_PHPSTAN: ${{ vars.LINT_VALIDATE_PHPSTAN || null }}
           # Do not write summary as we do not need it here, it will be written in the `lint` job
