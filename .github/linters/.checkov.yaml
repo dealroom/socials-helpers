@@ -5,8 +5,8 @@
 # Don't report passed checks in output
 quiet: true
 
-# Download external modules
-download-external-modules: true
+# Download external modules - disabled to avoid scanning third-party code
+download-external-modules: false
 
 skip-path:
   # Ignore checks for helm deps as they are mostly impossible to fix without upstream changes
@@ -14,9 +14,6 @@ skip-path:
   # Ignore language specific directories containing 3rd party dependencies
   - vendor/
   - node_modules/
-  # Ignore external terraform modules downloaded by checkov
-  - .external_modules/
-  - .*/.external_modules/
 
 # Skip certain checks globally
 # NOTE: Revisit this section periodically to ensure that the checks are still relevant!
