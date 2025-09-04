@@ -25,12 +25,13 @@ permissions:
 
 env:
   # renovate: datasource=docker depName=bridgecrew/checkov
-  CHECKOV_VERSION: 3.2.287
+  CHECKOV_VERSION: 3.2.469
 
 jobs:
   checkov-scan:
     name: Checkov IaC Security Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
       pull-requests: write
