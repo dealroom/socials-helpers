@@ -14,6 +14,9 @@ skip-path:
   # Ignore language specific directories containing 3rd party dependencies
   - vendor/
   - node_modules/
+  # Ignore external terraform modules downloaded by checkov
+  - .external_modules/
+  - .*/.external_modules/
 
 # Skip certain checks globally
 # NOTE: Revisit this section periodically to ensure that the checks are still relevant!
