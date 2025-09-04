@@ -10,7 +10,7 @@ download-external-modules: true
 
 skip-path:
   # Ignore checks for helm deps as they are mostly impossible to fix without upstream changes
-  - charts/*/charts/
+  - charts/.*/charts/
   # Ignore language specific directories containing 3rd party dependencies
   - vendor/
   - node_modules/
