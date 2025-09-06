@@ -94,12 +94,12 @@ jobs:
             # Extract allowed tools and format them for the action
             ALLOWED_TOOLS=$(jq -r '.permissions.allow[]' .claude/settings.local.json | tr '\n' ',' | sed 's/,$//')
             # Add additional tools needed for the GitHub Action environment
-            ALLOWED_TOOLS="${ALLOWED_TOOLS},Edit,MultiEdit,Write,Task,TodoRead,TodoWrite"
+            ALLOWED_TOOLS="${ALLOWED_TOOLS},Edit,MultiEdit,Write,Task,TodoRead,TodoWrite,WebSearch,WebFetch"
             echo "allowed_tools=${ALLOWED_TOOLS}" >> "$GITHUB_OUTPUT"
             echo "Found allowed tools from settings.local.json"
           else
             # Default set of tools if settings file doesn't exist
-            echo "allowed_tools=Bash(git:*),View,Glob(*),Grep(*),Read(*),Edit,MultiEdit,Write,Task,TodoRead,TodoWrite" >> "$GITHUB_OUTPUT"
+            echo "allowed_tools=Bash(git:*),View,Glob(*),Grep(*),Read(*),Edit,MultiEdit,Write,Task,TodoRead,TodoWrite,WebSearch,WebFetch" >> "$GITHUB_OUTPUT"
             echo "Using default allowed tools"
           fi
       - name: Get GitHub App Token
@@ -109,7 +109,7 @@ jobs:
         with:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: contents:read,metadata:read
+          permissions: contents:read,metadata:read,actions:read
       - name: Configure Git for private repositories
         if: steps.check-access.outputs.authorized == 'true' && steps.app-token.outputs.token != ''
         run: |
