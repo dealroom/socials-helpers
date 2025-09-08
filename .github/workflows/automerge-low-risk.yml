@@ -1,0 +1,243 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Automerge Low Risk PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  issue_comment:
+    types: [created, edited, deleted]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+  pull_request_review_comment:
+    types: [created, edited, deleted]
+
+permissions: read-all
+
+env:
+  BOT_USERNAMES: "copilot-pull-request-reviewer[bot],cursor[bot]"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number || github.ref }}-${{ github.event.label.name }}
+  cancel-in-progress: true
+
+jobs:
+  check-bot-reviews:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
+    if: |
+      !failure()
+      &&
+      !cancelled()
+      &&
+      (
+        (
+          github.event_name == 'pull_request'
+          &&
+          github.event.pull_request.user.type != 'Bot'
+          &&
+          contains(github.event.pull_request.labels.*.name, 'low-risk')
+        )
+        ||
+        (
+          github.event_name == 'issue_comment'
+          &&
+          github.event.issue.pull_request != null
+          &&
+          github.event.issue.user.type != 'Bot'
+          &&
+          contains(github.event.issue.labels.*.name, 'low-risk')
+        )
+        ||
+        (
+          (github.event_name == 'pull_request_review' || github.event_name == 'pull_request_review_comment')
+          &&
+          github.event.pull_request.user.type != 'Bot'
+          &&
+          contains(github.event.pull_request.labels.*.name, 'low-risk')
+        )
+      )
+    steps:
+      - name: Determine PR Number
+        id: pr-number
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" || "${{ github.event_name }}" == "pull_request_review" || "${{ github.event_name }}" == "pull_request_review_comment" ]]; then
+            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.event_name }}" == "issue_comment" ]]; then
+            echo "number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Check Organization Membership
+        id: check-org-member
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            let prAuthor;
+            if (context.eventName === 'pull_request' || context.eventName === 'pull_request_review' || context.eventName === 'pull_request_review_comment') {
+              prAuthor = context.payload.pull_request.user.login;
+            } else if (context.eventName === 'issue_comment' && context.payload.issue.pull_request) {
+              prAuthor = context.payload.issue.user.login;
+            } else {
+              core.setFailed('Unable to determine PR author');
+              return;
+            }
+            try {
+              await github.rest.orgs.checkMembershipForUser({
+                org: owner,
+                username: prAuthor
+              });
+              core.setOutput('is-member', 'true');
+            } catch (error) {
+              if (error.status === 404) {
+                core.setOutput('is-member', 'false');
+                core.setFailed(`PR author ${prAuthor} is not a member of the ${owner} organization. Auto-merge is not allowed for external contributors.`);
+              } else {
+                core.setFailed(`Failed to check organization membership: ${error.message}`);
+              }
+            }
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true # zizmor:ignore[persist-credentials] - Need auth for git fetch in next step
+      - name: Block changes to .github directory
+        if: github.event_name == 'pull_request' && github.event.pull_request.base.ref != ''
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          # Validate BASE_REF to prevent shell injection and path traversal
+          # Pattern explanation:
+          # - Must start with alphanumeric character
+          # - Can contain alphanumeric, underscore, hyphen, and forward slash
+          # - Dots are only allowed within segments (not at start/end)
+          # - Prevents dangerous patterns like "..", "/..", "../", etc.
+          if [[ ! "${BASE_REF}" =~ ^[A-Za-z0-9][A-Za-z0-9_/-]*(\.[A-Za-z0-9_/-]+)*$ ]]; then
+            echo "::error::Invalid base ref: '${BASE_REF}'."
+            echo "Branch names must:"
+            echo "  - Start with a letter or number"
+            echo "  - Contain only letters, numbers, '_', '-', '/', and '.'"
+            echo "  - Not have dots at the beginning or end of segments"
+            echo "  - Not contain consecutive dots (..)"
+            exit 1
+          fi
+          # Fetch the base branch, handling existing local branch
+          git fetch origin "${BASE_REF}:remotes/origin/${BASE_REF}" --force
+          if ! git diff --quiet "origin/${BASE_REF}" HEAD -- .github/; then
+            echo "::error::Changes to the '.github/' directory are not allowed for auto-merge."
+            echo "This PR requires manual review by the Platform Engineering team."
+            echo ""
+            echo "Files changed in .github/:"
+            git diff --name-only "origin/${BASE_REF}" HEAD -- .github/
+            exit 1
+          fi
+      - name: Get Approver Application Token
+        id: get-approver-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOM_APPROVER_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOM_APPROVER_PRIVATE_KEY }}
+          permissions: metadata:read,contents:write,pull_requests:write,checks:read
+      - name: Wait for Bot Reviews
+        id: wait-for-bots
+        uses: ./.github/actions/automerge-wait
+        with:
+          github-token: ${{ steps.get-approver-token.outputs.token }}
+          bot-usernames: ${{ env.BOT_USERNAMES }}
+          timeout-seconds: "300"
+          poll-interval-seconds: "5"
+      - name: Check Bot Review Issues
+        id: check-bot-issues
+        uses: ./.github/actions/automerge-detect-issues
+        with:
+          github-token: ${{ steps.get-approver-token.outputs.token }}
+          check-unresolved: "true"
+      - name: Enable Pull Request Automerge (squash)
+        if: |
+          steps.check-bot-issues.outputs.has-issues != 'true'
+          && steps.wait-for-bots.outputs.pending-checks == ''
+          && steps.wait-for-bots.outputs.bots-reviewed != ''
+        run: |
+          gh pr merge --auto \
+            --squash \
+            -R ${{ github.repository }} \
+            --delete-branch \
+            "${STEPS_PR_NUMBER_OUTPUTS_NUMBER}"
+        env:
+          GH_TOKEN: ${{ steps.get-approver-token.outputs.token }}
+          STEPS_PR_NUMBER_OUTPUTS_NUMBER: ${{ steps.pr-number.outputs.number }}
+      - name: Disable Pull Request Automerge
+        if: |
+          steps.check-bot-issues.outputs.has-issues == 'true'
+          || steps.wait-for-bots.outputs.pending-checks != ''
+        run: |
+          gh pr merge --disable-auto \
+            -R ${{ github.repository }} \
+            "${STEPS_PR_NUMBER_OUTPUTS_NUMBER}" || true
+        env:
+          GH_TOKEN: ${{ steps.get-approver-token.outputs.token }}
+          STEPS_PR_NUMBER_OUTPUTS_NUMBER: ${{ steps.pr-number.outputs.number }}
+      - name: Post Comment About Bot Review Status
+        if: |
+          steps.wait-for-bots.outputs.bots-reviewed != ''
+          || steps.check-bot-issues.outputs.has-issues == 'true'
+        uses: ./.github/actions/github-pr-comment
+        with:
+          github-token: ${{ steps.get-approver-token.outputs.token }}
+          comment-identifier: bot-review-status
+          comment-body: |
+            ## 🤖 Bot Review Status
+
+            ${{ steps.check-bot-issues.outputs.has-issues == 'true' && '> ⚠️ **Code review bots have identified potential issues with this PR that need to be addressed.**' || '> ✅ **Code review bots have completed their analysis.**' }}
+
+            ### 📊 Summary
+
+            - **Total issues found:** `${{ steps.check-bot-issues.outputs.issue-count || '0' }}`
+            - **Bots that reviewed:** ${{ steps.wait-for-bots.outputs.bots-reviewed || '`None requested`' }}
+
+            ${{ steps.check-bot-issues.outputs.has-issues == 'true' && format('### 🚨 Issues Found
+
+            {0}
+
+            ---
+
+            **⚡ Action required:** Please address these issues before the PR can be auto-merged. The auto-merge has been disabled.', steps.check-bot-issues.outputs.issue-summary) || '### ✅ Status
+
+            **No issues found!** This PR is ready for auto-merge if all other conditions are met.' }}
+      - name: Post Comment About Pending Checks
+        if: |
+          steps.wait-for-bots.outputs.pending-checks != ''
+          && steps.check-bot-issues.outputs.has-issues != 'true'
+        uses: ./.github/actions/github-pr-comment
+        with:
+          github-token: ${{ steps.get-approver-token.outputs.token }}
+          comment-identifier: bot-pending-checks
+          comment-body: |
+            ## ⏳ Waiting for Bot Checks
+
+            The following bot checks are still pending and must complete before this PR can be auto-merged:
+
+            **Pending checks:** ${{ steps.wait-for-bots.outputs.pending-checks }}
+
+            The workflow briefly checked but these checks have not completed yet. Once the checks complete:
+            - Remove and re-add the `low-risk` label to re-run the workflow, or
+            - Close and reopen the PR to trigger the workflow
+      - name: Auto Approve PR
+        if: |
+          steps.check-bot-issues.outputs.has-issues != 'true'
+          && steps.wait-for-bots.outputs.pending-checks == ''
+          && steps.wait-for-bots.outputs.bots-reviewed != ''
+        uses: hmarr/auto-approve-action@f0939ea97e9205ef24d872e76833fa908a770363 # v4.0.0
+        with:
+          review-message: |
+            Auto approved (low-risk update)! 🚀
+
+            This PR has been automatically approved because:
+            - It contains the `low-risk` label
+            - All bot checks have passed
+            - No issues were identified by code review bots

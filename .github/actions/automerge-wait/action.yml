@@ -1,0 +1,163 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Automerge Wait for Reviews
+description: Wait for code review bots to complete their analysis
+inputs:
+  github-token:
+    description: GitHub token for API access
+    required: true
+  bot-usernames:
+    description: Comma-separated list of bot usernames to wait for
+    required: false
+    default: "copilot-pull-request-reviewer[bot],cursor[bot]"
+  bot-check-names:
+    description: Comma-separated list of bot check names/patterns to wait for
+    required: false
+    default: "cursor,copilot"
+  timeout-seconds:
+    description: Maximum time to wait for bot reviews (in seconds)
+    required: false
+    default: "300"
+  poll-interval-seconds:
+    description: Time between polling attempts (in seconds)
+    required: false
+    default: "5"
+outputs:
+  bots-reviewed:
+    description: Comma-separated list of bots that have reviewed
+    value: ${{ steps.wait-for-reviews.outputs.bots-reviewed }}
+  pending-checks:
+    description: Comma-separated list of pending bot checks (if timeout)
+    value: ${{ steps.wait-for-reviews.outputs.pending-checks }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      id: wait-for-reviews
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const owner = context.repo.owner;
+          const repo = context.repo.repo;
+          const pull_number = context.payload.pull_request ? context.payload.pull_request.number : context.issue.number;
+
+          // Parse inputs
+          const botUsernames = '${{ inputs.bot-usernames }}'.split(',').map(s => s.trim());
+          const botCheckNames = '${{ inputs.bot-check-names }}'.split(',').map(s => s.trim().toLowerCase());
+          const timeoutSeconds = parseInt('${{ inputs.timeout-seconds }}');
+          const pollIntervalSeconds = parseInt('${{ inputs.poll-interval-seconds }}');
+
+          // Define pending statuses
+          const PENDING_STATUSES = ['queued', 'in_progress', 'requested', 'waiting', 'pending'];
+
+          // Helper function to check if a check run is a pending bot check
+          const isPendingBotCheck = (check) => {
+            const checkNameLower = check.name.toLowerCase();
+            const appSlugLower = (check.app?.slug || '').toLowerCase();
+
+            const isBotCheck = botCheckNames.some(botName =>
+              checkNameLower.includes(botName) || appSlugLower.includes(botName)
+            );
+
+            const isPending = PENDING_STATUSES.includes(check.status);
+
+            return isBotCheck && isPending;
+          };
+
+          const startTime = Date.now();
+          const maxWaitTime = timeoutSeconds * 1000;
+          const pollInterval = pollIntervalSeconds * 1000;
+          const foundReviews = new Set();
+
+          // Get PR details for head SHA
+          const { data: pr } = await github.rest.pulls.get({
+            owner,
+            repo,
+            pull_number
+          });
+
+          // Polling loop
+          while (Date.now() - startTime < maxWaitTime) {
+            // First check for pending bot CI checks
+            const { data: checkRuns } = await github.rest.checks.listForRef({
+              owner,
+              repo,
+              ref: pr.head.sha,
+              per_page: 100
+            });
+
+            const pendingBotChecks = checkRuns.check_runs.filter(isPendingBotCheck);
+
+            if (pendingBotChecks.length > 0) {
+              await new Promise(resolve => setTimeout(resolve, pollInterval));
+              continue;
+            }
+
+            // Get all reviews
+            const reviews = await github.paginate(
+              github.rest.pulls.listReviews,
+              {
+                owner,
+                repo,
+                pull_number
+              }
+            );
+
+            for (const review of reviews) {
+              if (review.user && botUsernames.includes(review.user.login)) {
+                foundReviews.add(review.user.login);
+              }
+            }
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner,
+                repo,
+                issue_number: pull_number
+              }
+            );
+
+            for (const comment of comments) {
+              if (comment.user && botUsernames.includes(comment.user.login)) {
+                foundReviews.add(comment.user.login);
+              }
+            }
+
+            const reviewComments = await github.paginate(
+              github.rest.pulls.listReviewComments,
+              {
+                owner,
+                repo,
+                pull_number
+              }
+            );
+
+            for (const comment of reviewComments) {
+              if (comment.user && botUsernames.includes(comment.user.login)) {
+                foundReviews.add(comment.user.login);
+              }
+            }
+
+            if (foundReviews.size > 0 && pendingBotChecks.length === 0) {
+              core.setOutput('bots-reviewed', Array.from(foundReviews).join(', '));
+              core.setOutput('pending-checks', '');
+              return;
+            }
+            await new Promise(resolve => setTimeout(resolve, pollInterval));
+          }
+
+          const { data: finalCheckRuns } = await github.rest.checks.listForRef({
+            owner,
+            repo,
+            ref: pr.head.sha,
+            per_page: 100
+          });
+
+          const pendingChecks = finalCheckRuns.check_runs.filter(isPendingBotCheck);
+
+          const finalBots = Array.from(foundReviews);
+          const pendingCheckNames = pendingChecks.map(c => c.name);
+          core.setOutput('bots-reviewed', finalBots.join(', '));
+          core.setOutput('pending-checks', pendingCheckNames.join(', '));
