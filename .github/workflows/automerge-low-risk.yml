@@ -234,6 +234,7 @@ jobs:
           && steps.wait-for-bots.outputs.bots-reviewed != ''
         uses: hmarr/auto-approve-action@f0939ea97e9205ef24d872e76833fa908a770363 # v4.0.0
         with:
+          pull-request-number: ${{ steps.pr-number.outputs.number }}
           review-message: |
             Auto approved (low-risk update)! 🚀
 
