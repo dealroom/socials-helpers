@@ -25,7 +25,7 @@ inputs:
     default: "5"
 outputs:
   bots-reviewed:
-    description: Comma-separated list of bots that have reviewed
+    description: Comma-separated list of bots that have reviewed (includes both GitHub usernames and app slugs/check names; identifier types may be mixed)
     value: ${{ steps.wait-for-reviews.outputs.bots-reviewed }}
   pending-checks:
     description: Comma-separated list of pending bot checks (if timeout)
@@ -51,24 +51,60 @@ runs:
           // Define pending statuses
           const PENDING_STATUSES = ['queued', 'in_progress', 'requested', 'waiting', 'pending'];
 
-          // Helper function to check if a check run is a pending bot check
-          const isPendingBotCheck = (check) => {
+          // Helper function to check if a check run is from a bot
+          const isBotCheck = (check) => {
             const checkNameLower = check.name.toLowerCase();
             const appSlugLower = (check.app?.slug || '').toLowerCase();
 
-            const isBotCheck = botCheckNames.some(botName =>
+            return botCheckNames.some(botName =>
               checkNameLower.includes(botName) || appSlugLower.includes(botName)
             );
+          };
 
+          // Helper function to check if a check run is a pending bot check
+          const isPendingBotCheck = (check) => {
             const isPending = PENDING_STATUSES.includes(check.status);
+            return isBotCheck(check) && isPending;
+          };
 
-            return isBotCheck && isPending;
+          // Helper function to get elapsed seconds
+          const getElapsedSeconds = () => Math.floor((Date.now() - startTime) / 1000);
+
+          // Helper function to filter completed bot check runs
+          const getCompletedBotCheckRuns = (checkRuns) => {
+            return checkRuns.filter(check =>
+              isBotCheck(check) && check.status === 'completed'
+            );
+          };
+
+          // Helper function to combine bot arrays from different sources
+          const combineBotArrays = (reviewBots, checkBots) => {
+            return [
+              ...Array.from(reviewBots), // Bot usernames from reviews/comments
+              ...Array.from(checkBots)    // App slugs from CI checks
+            ];
+          };
+
+          // Helper function to track completed bot checks
+          const trackCompletedBotChecks = (checkRuns, checkBots) => {
+            const completedBotCheckRuns = getCompletedBotCheckRuns(checkRuns);
+            for (const check of completedBotCheckRuns) {
+              if (check.app?.slug) {
+                checkBots.add(check.app.slug);
+              }
+            }
           };
 
           const startTime = Date.now();
           const maxWaitTime = timeoutSeconds * 1000;
           const pollInterval = pollIntervalSeconds * 1000;
-          const foundReviews = new Set();
+          // Track bots separately by identifier type:
+          // - foundReviewBots: GitHub usernames from reviews/comments (e.g., "copilot-pull-request-reviewer[bot]")
+          // - foundCheckBots: App slugs from CI checks (e.g., "github-actions", "cursor")
+          // This separation ensures that each bot is identified consistently according to its source (review/comment vs CI check),
+          // and avoids mixing usernames with app slugs, which are distinct identifier types.
+          const foundReviewBots = new Set(); // Bot usernames from reviews/comments
+          const foundCheckBots = new Set();  // App slugs from CI checks
 
           // Get PR details for head SHA
           const { data: pr } = await github.rest.pulls.get({
@@ -79,6 +115,7 @@ runs:
 
           // Polling loop
           while (Date.now() - startTime < maxWaitTime) {
+            const elapsedSeconds = getElapsedSeconds();
             // First check for pending bot CI checks
             const { data: checkRuns } = await github.rest.checks.listForRef({
               owner,
@@ -88,8 +125,12 @@ runs:
             });
 
             const pendingBotChecks = checkRuns.check_runs.filter(isPendingBotCheck);
+            // Track completed bot checks
+            trackCompletedBotChecks(checkRuns.check_runs, foundCheckBots);
 
             if (pendingBotChecks.length > 0) {
+              const pendingNames = pendingBotChecks.map(c => c.name).join(', ');
+              console.log(`[${elapsedSeconds}s] Waiting for: ${pendingNames}`);
               await new Promise(resolve => setTimeout(resolve, pollInterval));
               continue;
             }
@@ -106,7 +147,7 @@ runs:
 
             for (const review of reviews) {
               if (review.user && botUsernames.includes(review.user.login)) {
-                foundReviews.add(review.user.login);
+                foundReviewBots.add(review.user.login);
               }
             }
 
@@ -121,7 +162,7 @@ runs:
 
             for (const comment of comments) {
               if (comment.user && botUsernames.includes(comment.user.login)) {
-                foundReviews.add(comment.user.login);
+                foundReviewBots.add(comment.user.login);
               }
             }
 
@@ -136,17 +177,24 @@ runs:
 
             for (const comment of reviewComments) {
               if (comment.user && botUsernames.includes(comment.user.login)) {
-                foundReviews.add(comment.user.login);
+                foundReviewBots.add(comment.user.login);
               }
             }
 
-            if (foundReviews.size > 0 && pendingBotChecks.length === 0) {
-              core.setOutput('bots-reviewed', Array.from(foundReviews).join(', '));
+            const totalBotsFound = foundReviewBots.size + foundCheckBots.size;
+            if (totalBotsFound > 0 && pendingBotChecks.length === 0) {
+              // Format output with consistent identifiers
+              const allBots = combineBotArrays(foundReviewBots, foundCheckBots);
+              console.log(`[${elapsedSeconds}s] All checks complete. Bots: ${allBots.join(', ')}`);
+              core.setOutput('bots-reviewed', allBots.join(', '));
               core.setOutput('pending-checks', '');
               return;
             }
+
             await new Promise(resolve => setTimeout(resolve, pollInterval));
           }
+
+          console.log(`[${timeoutSeconds}s] Timeout reached`);
 
           const { data: finalCheckRuns } = await github.rest.checks.listForRef({
             owner,
@@ -156,8 +204,11 @@ runs:
           });
 
           const pendingChecks = finalCheckRuns.check_runs.filter(isPendingBotCheck);
+          // Track final completed bot checks
+          trackCompletedBotChecks(finalCheckRuns.check_runs, foundCheckBots);
 
-          const finalBots = Array.from(foundReviews);
           const pendingCheckNames = pendingChecks.map(c => c.name);
-          core.setOutput('bots-reviewed', finalBots.join(', '));
+          // Format final output with all found bots
+          const allBots = combineBotArrays(foundReviewBots, foundCheckBots);
+          core.setOutput('bots-reviewed', allBots.join(', '));
           core.setOutput('pending-checks', pendingCheckNames.join(', '));

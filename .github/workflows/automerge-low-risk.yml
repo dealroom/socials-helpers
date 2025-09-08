@@ -150,7 +150,7 @@ jobs:
           github-token: ${{ steps.get-approver-token.outputs.token }}
           bot-usernames: ${{ env.BOT_USERNAMES }}
           timeout-seconds: "300"
-          poll-interval-seconds: "5"
+          poll-interval-seconds: "15"
       - name: Check Bot Review Issues
         id: check-bot-issues
         uses: ./.github/actions/automerge-detect-issues
@@ -193,7 +193,7 @@ jobs:
           comment-body: |
             ## 🤖 Bot Review Status
 
-            ${{ steps.check-bot-issues.outputs.has-issues == 'true' && '> ⚠️ **Code review bots have identified potential issues with this PR that need to be addressed.**' || '> ✅ **Code review bots have completed their analysis.**' }}
+            ${{ steps.check-bot-issues.outputs.has-issues == 'true' && '⚠️ **Code review bots have identified potential issues with this PR that need to be addressed.**' || '✅ **Code review bots have completed their analysis.**' }}
 
             ### 📊 Summary
 
