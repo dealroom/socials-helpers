@@ -1,0 +1,86 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Automerge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions: read-all
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event.label.name }}
+  cancel-in-progress: true
+
+jobs:
+  automerge:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      # To auto-approve the PR, we need to write to the PR
+      pull-requests: write
+      repository-projects: write
+    if: |
+      !failure()
+      &&
+      !cancelled()
+      &&
+      (
+        contains(github.event.pull_request.labels.*.name, 'dependencies')
+        ||
+        contains(github.event.pull_request.labels.*.name, 'sync')
+        ||
+        contains(github.event.pull_request.labels.*.name, 'security')
+        ||
+        contains(github.event.pull_request.labels.*.name, 'low-risk')
+      )
+      &&
+      (
+        github.event.pull_request.user.login == 'dealroomba-app[bot]'
+      )
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Get Approver Application Token
+        id: get-approver-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOM_APPROVER_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOM_APPROVER_PRIVATE_KEY }}
+          permissions: metadata:read,contents:write,pull_requests:write
+      - name: Enable Pull Request Automerge (squash)
+        run: |
+          gh pr merge --auto \
+            --squash \
+            -R ${{ github.repository }} \
+            -d \
+            ${{ github.event.pull_request.number }}
+        env:
+          # Cannot use default GITHUB_TOKEN because other workflows will be not triggered
+          # @see https://github.com/orgs/community/discussions/55906#discussioncomment-5946239
+          GH_TOKEN: ${{ steps.get-approver-token.outputs.token }}
+      - name: Get PR labels
+        id: pr-labels
+        env:
+          PR_LABELS_JSON: ${{ toJson(github.event.pull_request.labels) }}
+        run: |
+          # Use jq to safely extract and join label names
+          labels=$(echo "$PR_LABELS_JSON" | jq -r '.[].name' | tr '\n' ' ')
+          echo "PR labels: $labels"
+          echo "labels=$labels" >> "$GITHUB_OUTPUT"
+      - uses: hmarr/auto-approve-action@f0939ea97e9205ef24d872e76833fa908a770363 # v4.0.0
+        id: auto-approve
+        name: Auto approve low risk changes
+        if: |
+          contains(steps.pr-labels.outputs.labels, 'update-minor')
+          ||
+          contains(steps.pr-labels.outputs.labels, 'update-patch')
+          ||
+          contains(steps.pr-labels.outputs.labels, 'sync')
+          ||
+          contains(steps.pr-labels.outputs.labels, 'low-risk')
+        with:
+          review-message: "Auto approved (low risk update)! :+1: :rocket:"

@@ -1,0 +1,227 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Automerge Detect Issues
+description: Check if code review bots have identified any issues or unresolved conversations
+inputs:
+  github-token:
+    description: GitHub token for API access
+    required: true
+  bot-usernames:
+    description: Comma-separated list of bot usernames to check
+    required: false
+    default: "copilot-pull-request-reviewer[bot],cursor[bot]"
+  check-unresolved:
+    description: Whether to check for unresolved review threads (requires GraphQL)
+    required: false
+    default: "true"
+outputs:
+  has-issues:
+    description: Whether any bot has identified issues (true/false)
+    value: ${{ steps.check-issues.outputs.has-issues }}
+  issue-count:
+    description: Total number of issues found
+    value: ${{ steps.check-issues.outputs.issue-count }}
+  issue-summary:
+    description: Summary of issues found
+    value: ${{ steps.check-issues.outputs.issue-summary }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      id: check-issues
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const owner = context.repo.owner;
+          const repo = context.repo.repo;
+          const pull_number = context.payload.pull_request ? context.payload.pull_request.number : context.issue.number;
+
+          const botUsernames = '${{ inputs.bot-usernames }}'.split(',').map(s => s.trim()).filter(s => s);
+          const checkUnresolved = '${{ inputs.check-unresolved }}' === 'true';
+
+          // Initialize variables
+          let totalIssues = 0;
+          const issueSummary = [];
+          let graphqlSuccess = false;
+
+          // Helper function to check if user is Copilot
+          const isCopilotUser = (username) => {
+            return username === 'copilot-pull-request-reviewer' || username === 'copilot-pull-request-reviewer[bot]';
+          };
+
+          // Get PR details including last commit timestamp
+          const { data: pr } = await github.rest.pulls.get({
+            owner,
+            repo,
+            pull_number
+          });
+
+          const { data: commits } = await github.rest.pulls.listCommits({
+            owner,
+            repo,
+            pull_number
+          });
+
+          const lastCommit = commits[commits.length - 1];
+          const lastCommitDate = new Date(lastCommit.commit.committer.date);
+
+          if (checkUnresolved) {
+
+            const query = `
+              query($owner: String!, $repo: String!, $number: Int!) {
+                repository(owner: $owner, name: $repo) {
+                  pullRequest(number: $number) {
+                    reviewThreads(first: 100) {
+                      pageInfo {
+                        hasNextPage
+                      }
+                      nodes {
+                        id
+                        isResolved
+                        isOutdated
+                        comments(first: 100) {
+                          nodes {
+                            id
+                            databaseId
+                            author {
+                              login
+                            }
+                            body
+                            createdAt
+                            updatedAt
+                            url
+                          }
+                        }
+                      }
+                    }
+                    reviews(first: 100) {
+                      pageInfo {
+                        hasNextPage
+                      }
+                      nodes {
+                        id
+                        author {
+                          login
+                        }
+                        createdAt
+                        submittedAt
+                      }
+                    }
+                  }
+                }
+              }
+            `;
+
+            try {
+              const result = await github.graphql(query, {
+                owner,
+                repo,
+                number: pull_number
+              });
+
+              // Check if this PR has too many review threads to be considered low-risk
+              if (result.repository.pullRequest.reviewThreads.pageInfo.hasNextPage) {
+                core.setFailed('This PR has more than 100 review threads, indicating it is not low-risk and requires manual review.');
+                return;
+              }
+
+              // Check if this PR has too many reviews to be considered low-risk
+              if (result.repository.pullRequest.reviews.pageInfo.hasNextPage) {
+                core.setFailed('This PR has more than 100 reviews, indicating it is not low-risk and requires manual review.');
+                return;
+              }
+
+              const reviewThreads = result.repository.pullRequest.reviewThreads.nodes;
+              const reviews = result.repository.pullRequest.reviews.nodes;
+              graphqlSuccess = true;
+
+              // Find the latest Copilot review
+              let latestCopilotReview = null;
+              let latestCopilotReviewDate = null;
+              let copilotReviewCount = 0;
+
+              for (const review of reviews) {
+                if (review.author && isCopilotUser(review.author.login)) {
+                  copilotReviewCount++;
+                  const reviewDate = new Date(review.submittedAt || review.createdAt);
+                  if (!latestCopilotReview || reviewDate > latestCopilotReviewDate) {
+                    latestCopilotReview = review;
+                    latestCopilotReviewDate = reviewDate;
+                  }
+                }
+              }
+
+
+              // Find the latest Copilot activity (review or comment)
+              let latestCopilotActivityDate = latestCopilotReview ? new Date(latestCopilotReview.submittedAt || latestCopilotReview.createdAt) : null;
+              let latestCopilotActivityUser = latestCopilotReview ? latestCopilotReview.author.login : null;
+              let hasCopilotActivity = !!latestCopilotReview;
+
+              // Check all threads for Copilot comments to find the latest one
+              for (const thread of reviewThreads) {
+                const copilotComments = thread.comments.nodes.filter(comment =>
+                  comment.author && isCopilotUser(comment.author.login)
+                );
+
+                for (const comment of copilotComments) {
+                  hasCopilotActivity = true;
+                  const commentDate = new Date(comment.updatedAt || comment.createdAt);
+                  if (!latestCopilotActivityDate || commentDate > latestCopilotActivityDate) {
+                    latestCopilotActivityDate = commentDate;
+                    latestCopilotActivityUser = comment.author.login;
+                  }
+                }
+              }
+
+              // Check if Copilot review covers the current head commit (by timestamp, since commitId is not available)
+              let copilotReviewIsOutdated = false;
+              // Add a buffer of 2 minutes (120,000 ms) to account for clock skew/race conditions
+              const TIMESTAMP_BUFFER_MS = 2 * 60 * 1000;
+              if (hasCopilotActivity && latestCopilotActivityDate && (latestCopilotActivityDate.getTime() + TIMESTAMP_BUFFER_MS) < lastCommitDate.getTime()) {
+                copilotReviewIsOutdated = true;
+              }
+              if (copilotReviewIsOutdated) {
+                totalIssues++;
+                const copilotUsername = latestCopilotActivityUser || 'copilot-pull-request-reviewer';
+                issueSummary.push(`[${copilotUsername}] Latest Copilot review does not cover the current commit. Please request a new Copilot review.`);
+              }
+
+              // Process all threads
+              for (const thread of reviewThreads) {
+                const hasBotComments = thread.comments.nodes.some(comment =>
+                  comment.author && botUsernames.includes(comment.author.login)
+                );
+
+                if (hasBotComments) {
+                  if (!thread.isResolved && !thread.isOutdated) {
+                    const botComments = thread.comments.nodes.filter(comment =>
+                      comment.author && botUsernames.includes(comment.author.login)
+                    );
+
+                    totalIssues++;
+                    const botLogins = [...new Set(botComments.map(c => c.author.login))];
+                    const firstComment = botComments[0];
+                    const commentPreview = firstComment.body.substring(0, 100).replace(/\n/g, ' ');
+                    const commentUrl = firstComment.url || '';
+
+                    if (commentUrl) {
+                      issueSummary.push(`[${botLogins.join(', ')}] Unresolved thread: "${commentPreview}..." - [View comment](${commentUrl})`);
+                    } else {
+                      issueSummary.push(`[${botLogins.join(', ')}] Unresolved thread: "${commentPreview}..."`);
+                    }
+                  }
+                }
+              }
+
+            } catch (error) {
+              console.error('GraphQL query failed:', error.message);
+              core.setFailed('Failed to check for unresolved review threads. Manual review required.');
+              return;
+            }
+          }
+
+          const hasIssues = totalIssues > 0;
+          core.setOutput('has-issues', String(hasIssues));
+          core.setOutput('issue-count', String(totalIssues));
+          core.setOutput('issue-summary', issueSummary.join('\n'));
