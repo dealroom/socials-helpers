@@ -24,12 +24,42 @@ runs:
       id: get-previous-tag
       if: github.ref_type == 'tag'
       uses: WyriHaximus/github-action-get-previous-tag@04e8485ecb6487243907e330d522ff60f02283ce # v1.4.0
+    - name: Determine base and head references
+      id: refs
+      shell: bash
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          # For PRs
+          echo "base=" >> "$GITHUB_OUTPUT"  # paths-filter handles PR base automatically
+          echo "base_ref=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+          echo "head_ref=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
+        elif [[ "${{ github.ref_type }}" == "tag" ]]; then
+          # For tags, use the previous tag
+          PREVIOUS_TAG="${{ steps.get-previous-tag.outputs.tag }}"
+          echo "base=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
+          echo "base_ref=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
+          echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+        elif [[ -n "${{ github.event.before }}" ]] && [[ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+          # For push events with valid before SHA
+          echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+          echo "base_ref=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+          echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+        else
+          # For all other events (release, workflow_dispatch, schedule, etc.) or first push
+          # Use the default branch as base
+          DEFAULT_BRANCH="${{ github.event.repository.default_branch || 'main' }}"
+          echo "base=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "base_ref=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          # Fetch the default branch if needed
+          git fetch origin "$DEFAULT_BRANCH" || true
+        fi
     - name: Use paths-filter for terraform and charts
       id: filter
       uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
       with:
         token: ${{ inputs.github-token }}
-        base: ${{ github.ref_type == 'tag' && steps.get-previous-tag.outputs.tag || '' }}
+        base: ${{ steps.refs.outputs.base }}
         filters: |
           terraform:
             - 'terraform/**'
@@ -39,26 +69,8 @@ runs:
       id: manual-check
       shell: bash
       run: |
-        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-          BASE_REF="${{ github.event.pull_request.base.sha }}"
-          HEAD_REF="${{ github.event.pull_request.head.sha }}"
-        elif [[ "${{ github.ref_type }}" == "tag" ]]; then
-          BASE_REF="${{ steps.get-previous-tag.outputs.tag }}"
-          HEAD_REF="${{ github.sha }}"
-        else
-          BASE_REF="${{ github.event.before }}"
-          HEAD_REF="${{ github.sha }}"
-        fi
-
-        # Handle case where BASE_REF is all zeros (first push to new branch)
-        if [[ "$BASE_REF" == "0000000000000000000000000000000000000000" ]]; then
-          echo "Detected first push to new branch. Comparing against default branch."
-          BASE_REF="${{ github.event.repository.default_branch || 'main' }}"
-          # Fetch the default branch if it doesn't exist locally
-          git fetch origin "$BASE_REF" || true
-          BASE_REF="origin/$BASE_REF"
-        fi
-
+        BASE_REF="${{ steps.refs.outputs.base_ref }}"
+        HEAD_REF="${{ steps.refs.outputs.head_ref }}"
         # Check if we can create a valid revision range
         if ! git rev-list "${BASE_REF}".."${HEAD_REF}" >/dev/null 2>&1; then
           echo "Cannot create revision range between ${BASE_REF} and ${HEAD_REF}. Using default branch."
@@ -66,7 +78,6 @@ runs:
           git fetch origin "$DEFAULT_BRANCH" || true
           BASE_REF="origin/$DEFAULT_BRANCH"
         fi
-
         if [[ -z "$CHANGED_FILES" ]]; then
           echo "Calculating diff between BASE: ${BASE_REF} and HEAD: ${HEAD_REF}"
           CHANGED_FILES=$(git diff --name-only "${BASE_REF}".."${HEAD_REF}")
