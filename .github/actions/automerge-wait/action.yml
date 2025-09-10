@@ -181,8 +181,16 @@ runs:
               }
             }
 
+            // Check if we have any bot checks that are expected but haven't started yet
+            const allBotChecks = checkRuns.check_runs.filter(isBotCheck);
+            const completedBotChecks = allBotChecks.filter(check => check.status === 'completed');
+            const notStartedBotChecks = allBotChecks.filter(check => check.status === 'queued' || check.status === 'waiting');
             const totalBotsFound = foundReviewBots.size + foundCheckBots.size;
-            if (totalBotsFound > 0 && pendingBotChecks.length === 0) {
+            // Only proceed if:
+            // 1. We have found some bot activity AND
+            // 2. There are NO pending bot checks AND
+            // 3. All expected bot checks have completed (none are queued/waiting)
+            if (totalBotsFound > 0 && pendingBotChecks.length === 0 && notStartedBotChecks.length === 0 && completedBotChecks.length > 0) {
               // Format output with consistent identifiers
               const allBots = combineBotArrays(foundReviewBots, foundCheckBots);
               console.log(`[${elapsedSeconds}s] All checks complete. Bots: ${allBots.join(', ')}`);

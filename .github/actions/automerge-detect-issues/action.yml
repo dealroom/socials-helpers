@@ -40,6 +40,21 @@ runs:
           const botUsernames = '${{ inputs.bot-usernames }}'.split(',').map(s => s.trim()).filter(s => s);
           const checkUnresolved = '${{ inputs.check-unresolved }}' === 'true';
 
+          // Create a Set of acceptable bot usernames
+          // For each bot, we accept both "botname" and "botname[bot]" formats
+          // This handles GraphQL returning different formats while preventing impersonation
+          const acceptableBotUsernames = new Set();
+
+          for (const botUsername of botUsernames) {
+            acceptableBotUsernames.add(botUsername);
+            // If the username ends with [bot], also accept without it
+            // This is safe because only GitHub Apps can have the [bot] suffix
+            if (botUsername.endsWith('[bot]')) {
+              const withoutBotSuffix = botUsername.replace(/\[bot\]$/, '');
+              acceptableBotUsernames.add(withoutBotSuffix);
+            }
+          }
+
           // Initialize variables
           let totalIssues = 0;
           const issueSummary = [];
@@ -184,19 +199,19 @@ runs:
               if (copilotReviewIsOutdated) {
                 totalIssues++;
                 const copilotUsername = latestCopilotActivityUser || 'copilot-pull-request-reviewer';
-                issueSummary.push(`[${copilotUsername}] Latest Copilot review does not cover the current commit. Please request a new Copilot review.`);
+                issueSummary.push(`- **[${copilotUsername}]** Latest Copilot review does not cover the current commit. Please request a new Copilot review.`);
               }
 
               // Process all threads
               for (const thread of reviewThreads) {
                 const hasBotComments = thread.comments.nodes.some(comment =>
-                  comment.author && botUsernames.includes(comment.author.login)
+                  comment.author && acceptableBotUsernames.has(comment.author.login)
                 );
 
                 if (hasBotComments) {
                   if (!thread.isResolved && !thread.isOutdated) {
                     const botComments = thread.comments.nodes.filter(comment =>
-                      comment.author && botUsernames.includes(comment.author.login)
+                      comment.author && acceptableBotUsernames.has(comment.author.login)
                     );
 
                     totalIssues++;
@@ -206,9 +221,9 @@ runs:
                     const commentUrl = firstComment.url || '';
 
                     if (commentUrl) {
-                      issueSummary.push(`[${botLogins.join(', ')}] Unresolved thread: "${commentPreview}..." - [View comment](${commentUrl})`);
+                      issueSummary.push(`- **[${botLogins.join(', ')}]** Unresolved thread: "${commentPreview}..." - [View comment](${commentUrl})`);
                     } else {
-                      issueSummary.push(`[${botLogins.join(', ')}] Unresolved thread: "${commentPreview}..."`);
+                      issueSummary.push(`- **[${botLogins.join(', ')}]** Unresolved thread: "${commentPreview}..."`);
                     }
                   }
                 }

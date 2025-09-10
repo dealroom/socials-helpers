@@ -30,17 +30,38 @@ runs:
   steps:
     - shell: bash
       run: |
-        if [[ "${{ github.event_name }}" != "pull_request" ]]; then
-          echo "Skipping PR comment: This action only runs on pull_request events."
+        # Check if this is a PR-related event
+        if [[ "${{ github.event_name }}" != "pull_request" && "${{ github.event_name }}" != "pull_request_review" && "${{ github.event_name }}" != "pull_request_review_comment" && "${{ github.event_name }}" != "issue_comment" ]]; then
+          echo "Skipping PR comment: This action only runs on PR-related events."
+          exit 0
+        fi
+
+        # For issue_comment events, check if it's on a PR
+        if [[ "${{ github.event_name }}" == "issue_comment" && -z "${{ github.event.issue.pull_request }}" ]]; then
+          echo "Skipping PR comment: Issue comment is not on a pull request."
           exit 0
         fi
     - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-      if: github.event_name == 'pull_request'
+      if: |
+        github.event_name == 'pull_request' ||
+        github.event_name == 'pull_request_review' ||
+        github.event_name == 'pull_request_review_comment' ||
+        (github.event_name == 'issue_comment' && github.event.issue.pull_request)
       with:
         github-token: ${{ inputs.github-token }}
         script: |
           const { owner, repo } = context.repo;
-          const issue_number = context.issue.number;
+          let issue_number;
+
+          // Determine PR number based on event type
+          if (context.eventName === 'pull_request' || context.eventName === 'pull_request_review' || context.eventName === 'pull_request_review_comment') {
+            issue_number = context.payload.pull_request.number;
+          } else if (context.eventName === 'issue_comment' && context.payload.issue.pull_request) {
+            issue_number = context.payload.issue.number;
+          } else {
+            core.setFailed('Unable to determine PR number');
+            return;
+          }
 
           // --- Inputs ---
           const identifier = '${{ inputs.comment-identifier }}';

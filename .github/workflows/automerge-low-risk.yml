@@ -81,7 +81,19 @@ jobs:
             if (context.eventName === 'pull_request' || context.eventName === 'pull_request_review' || context.eventName === 'pull_request_review_comment') {
               prAuthor = context.payload.pull_request.user.login;
             } else if (context.eventName === 'issue_comment' && context.payload.issue.pull_request) {
-              prAuthor = context.payload.issue.user.login;
+              // For issue_comment events, we need to fetch the actual PR to get its author
+              const prNumber = context.payload.issue.number;
+              try {
+                const pr = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: prNumber
+                });
+                prAuthor = pr.data.user.login;
+              } catch (fetchError) {
+                core.setFailed(`Failed to fetch PR details: ${fetchError.message}`);
+                return;
+              }
             } else {
               core.setFailed('Unable to determine PR author');
               return;
@@ -199,14 +211,16 @@ jobs:
 
             - **Total issues found:** `${{ steps.check-bot-issues.outputs.issue-count || '0' }}`
             - **Bots that reviewed:** ${{ steps.wait-for-bots.outputs.bots-reviewed || '`None requested`' }}
+            ${{ steps.check-bot-issues.outputs.has-issues == 'true' && '
+            ### 🚨 Issues Found
 
-            ${{ steps.check-bot-issues.outputs.has-issues == 'true' && format('### 🚨 Issues Found
-
-            {0}
+            ' || '' }}${{ steps.check-bot-issues.outputs.issue-summary }}${{ steps.check-bot-issues.outputs.has-issues == 'true' && '
 
             ---
 
-            **⚡ Action required:** Please address these issues before the PR can be auto-merged. The auto-merge has been disabled.', steps.check-bot-issues.outputs.issue-summary) || '### ✅ Status
+            **⚡ Action required:** Please address these issues before the PR can be auto-merged. The auto-merge has been disabled.' || '
+
+            ### ✅ Status
 
             **No issues found!** This PR is ready for auto-merge if all other conditions are met.' }}
       - name: Post Comment About Pending Checks
