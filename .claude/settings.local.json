@@ -236,7 +236,8 @@
       "Task",
       "TodoRead",
       "TodoWrite",
-      "Write"
+      "Write",
+      "Bash(gh api:*)"
     ],
     "deny": [
       "Bash(7z x:*)",
