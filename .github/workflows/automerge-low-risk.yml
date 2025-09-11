@@ -129,6 +129,7 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.pull_request.base.ref != ''
         env:
           BASE_REF: ${{ github.event.pull_request.base.ref }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Validate BASE_REF to prevent shell injection and path traversal
           # Pattern explanation:
@@ -145,9 +146,8 @@ jobs:
             echo "  - Not contain consecutive dots (..)"
             exit 1
           fi
-          # Configure git to use the GitHub token for authentication
-          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-          # Fetch the base branch
+          # Fetch the base branch using the GitHub token from environment
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
           git fetch origin "${BASE_REF}:remotes/origin/${BASE_REF}" --force
           if ! git diff --quiet "origin/${BASE_REF}" HEAD -- .github/; then
             echo "::error::Changes to the '.github/' directory are not allowed for auto-merge."
