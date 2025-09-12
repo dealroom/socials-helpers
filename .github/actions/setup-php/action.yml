@@ -35,7 +35,7 @@ runs:
   steps:
     - id: extcache
       if: ${{ inputs.extensions != 'none' }}
-      uses: shivammathur/cache-extensions@ed47a55c463bf49c0de08e5290a3d55208e2c287 # 1.13.0
+      uses: shivammathur/cache-extensions@4595bea7d6630821b0a3a4894f816402faaf324c # 1.13.0
       with:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
