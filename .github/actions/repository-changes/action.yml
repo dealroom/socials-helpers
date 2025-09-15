@@ -24,6 +24,12 @@ runs:
       id: get-previous-tag
       if: github.ref_type == 'tag'
       uses: WyriHaximus/github-action-get-previous-tag@04e8485ecb6487243907e330d522ff60f02283ce # v1.4.0
+    - name: Configure git authentication
+      if: ${{ inputs.github-token != '' }}
+      shell: bash
+      run: |
+        # Configure git to use the provided token for GitHub operations
+        git config --global url."https://x-access-token:${{ inputs.github-token }}@github.com/".insteadOf "https://github.com/"
     - name: Determine base and head references
       id: refs
       shell: bash
@@ -48,13 +54,23 @@ runs:
           # For all other events (release, workflow_dispatch, schedule, etc.) or first push
           # Use the default branch as base
           DEFAULT_BRANCH="${{ github.event.repository.default_branch || 'main' }}"
-          echo "base=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
-          echo "base_ref=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
-          echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
-          # Configure git with token if provided
-          if [[ -n "${{ inputs.github-token }}" ]]; then
-            git config --global url."https://x-access-token:${{ inputs.github-token }}@github.com/".insteadOf "https://github.com/"
+          # For scheduled/workflow_dispatch runs on default branch, use HEAD~1 to compare with previous commit
+          if [[ ("${{ github.event_name }}" == "schedule" || "${{ github.event_name }}" == "workflow_dispatch") ]] && [[ "${{ github.ref }}" == "refs/heads/${DEFAULT_BRANCH}" ]]; then
+            # Get the previous commit SHA, or use the default branch if this is the first commit
+            if git rev-parse HEAD~1 >/dev/null 2>&1; then
+              PREVIOUS_SHA=$(git rev-parse HEAD~1)
+              echo "base=${PREVIOUS_SHA}" >> "$GITHUB_OUTPUT"
+              echo "base_ref=${PREVIOUS_SHA}" >> "$GITHUB_OUTPUT"
+            else
+              # First commit on branch - compare against default branch
+              echo "base=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
+              echo "base_ref=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "base=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
+            echo "base_ref=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
           fi
+          echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
           # Fetch the default branch if needed
           git fetch origin "$DEFAULT_BRANCH" || true
         fi
@@ -79,10 +95,6 @@ runs:
         if ! git rev-list "${BASE_REF}".."${HEAD_REF}" >/dev/null 2>&1; then
           echo "Cannot create revision range between ${BASE_REF} and ${HEAD_REF}. Using default branch."
           DEFAULT_BRANCH="${{ github.event.repository.default_branch || 'main' }}"
-          # Configure git with token if provided
-          if [[ -n "${{ inputs.github-token }}" ]]; then
-            git config --global url."https://x-access-token:${{ inputs.github-token }}@github.com/".insteadOf "https://github.com/"
-          fi
           git fetch origin "$DEFAULT_BRANCH" || true
           BASE_REF="origin/$DEFAULT_BRANCH"
         fi
