@@ -20,7 +20,7 @@ permissions:
 
 env:
   # renovate: datasource=github-releases depName=kyverno/kyverno
-  KYVERNO_CLI_VERSION: v1.15.1
+  KYVERNO_CLI_VERSION: v1.15.2
 
 jobs:
   repository-changes:
