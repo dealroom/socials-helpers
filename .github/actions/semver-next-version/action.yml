@@ -15,10 +15,10 @@ inputs:
 outputs:
   current:
     description: Current version number / latest tag.
-    value: ${{ steps.semver.outputs.current }}
+    value: ${{ steps.final-outputs.outputs.current }}
   next:
     description: Next version number in format v0.0.0
-    value: ${{ steps.semver.outputs.next }}
+    value: ${{ steps.final-outputs.outputs.next }}
 runs:
   using: composite
   steps:
@@ -28,6 +28,34 @@ runs:
       with:
         fallback: v0.0.0
         prefix: ${{ inputs.tag-prefix }}
+    - name: Check if tags exist
+      id: check-tags
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        INPUT_TAG_PREFIX: ${{ inputs.tag-prefix }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: |
+        # Check if any tags exist with the given prefix
+        set -e  # Exit on error
+
+        if [[ -n "$INPUT_TAG_PREFIX" ]]; then
+          # Use jq with proper argument passing to avoid injection
+          TAG_COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/tags" --paginate --jq '[.[] | select(.name | startswith($prefix))] | length' --arg prefix "$INPUT_TAG_PREFIX")
+        else
+          TAG_COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/tags" --paginate --jq 'length')
+        fi
+
+        echo "tag_count=$TAG_COUNT" >> $GITHUB_OUTPUT
+
+        # Set boolean flag for easier conditional logic
+        if [[ "$TAG_COUNT" -eq 0 ]]; then
+          echo "has_tags=false" >> $GITHUB_OUTPUT
+        else
+          echo "has_tags=true" >> $GITHUB_OUTPUT
+        fi
+
+        echo "Found $TAG_COUNT tags with prefix: '$INPUT_TAG_PREFIX'"
     - name: Prepare Initial Tag Vars
       id: prepare-initial-vars
       shell: bash
@@ -40,55 +68,47 @@ runs:
         elif [[ -n "$INPUT_TAG_PREFIX" ]]; then
           FORMATTED_TAG_PREFIX="$INPUT_TAG_PREFIX"
         fi
-        INITIAL_VERSION="v0.0.0"
+        INITIAL_VERSION="v1.0.0"
         FULL_TAG_NAME="${FORMATTED_TAG_PREFIX}${INITIAL_VERSION}"
         echo "formatted_prefix=$FORMATTED_TAG_PREFIX" >> $GITHUB_OUTPUT
         echo "initial_version=$INITIAL_VERSION" >> $GITHUB_OUTPUT
         echo "full_tag_name=$FULL_TAG_NAME" >> $GITHUB_OUTPUT
-    - name: Create initial tag (if not found)
-      if: ${{ steps.previous-tag.outputs.tag == 'v0.0.0' }}
+    - name: Handle initial release
+      id: initial-release
+      if: ${{ steps.check-tags.outputs.has_tags == 'false' }}
       env:
         FULL_TAG_NAME: ${{ steps.prepare-initial-vars.outputs.full_tag_name }}
         GH_TOKEN: ${{ inputs.github-token }}
       shell: bash
       run: |
-        echo "No tags found. Creating initial tag: ${FULL_TAG_NAME}"
-        OLDEST_COMMIT=$(git rev-list --max-parents=0 HEAD)
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git tag "${FULL_TAG_NAME}" $OLDEST_COMMIT
-
-        # Use GitHub CLI for authenticated push
-        gh api repos/${GITHUB_REPOSITORY}/git/refs \
-          -X POST \
-          -F ref="refs/tags/${FULL_TAG_NAME}" \
-          -F sha="${OLDEST_COMMIT}"
-
-        # Fetch the newly created tag so semver-action can see it
-        git fetch origin tag "${FULL_TAG_NAME}"
+        echo "No tags found. This is an initial release."
+        # For initial release:
+        # - current: empty/none (no current version exists)
+        # - next: v1.0.0 (the first version to be created)
+        echo "current=" >> $GITHUB_OUTPUT
+        echo "next=${FULL_TAG_NAME}" >> $GITHUB_OUTPUT
     - name: Get Next Version
       id: semver
+      if: ${{ steps.check-tags.outputs.has_tags == 'true' }}
       uses: ietf-tools/semver-action@000ddb2ebacad350ff2a15382a344dc05ea4c0a4 # v1.10.2
       with:
         token: ${{ inputs.github-token }}
         prefix: ${{ inputs.tag-prefix }}
         skipInvalidTags: true
         maxTagsToFetch: 100
-        fallbackTag: ${{ steps.prepare-initial-vars.outputs.full_tag_name }}
         # Mapping conventional commits to semver (config-conventional)
         # @see https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional#type-enum
         minorList: feat
         patchList: build, chore, ci, docs, fix, perf, refactor, revert, style, test
-    - name: Delete temporary tag (if created)
-      if: ${{ steps.previous-tag.outputs.tag == 'v0.0.0' }}
-      env:
-        FULL_TAG_NAME: ${{ steps.prepare-initial-vars.outputs.full_tag_name }}
-        GH_TOKEN: ${{ inputs.github-token }}
+    - name: Set final outputs
+      id: final-outputs
       shell: bash
       run: |
-        echo "Deleting temporary initial tag: ${FULL_TAG_NAME}"
-        git tag -d "${FULL_TAG_NAME}"
-
-        # Use GitHub CLI for authenticated deletion
-        gh api repos/${GITHUB_REPOSITORY}/git/refs/tags/${FULL_TAG_NAME} \
-          -X DELETE || echo "Tag may have already been deleted"
+        # Use outputs from initial-release step if no tags exist
+        if [[ "${{ steps.check-tags.outputs.has_tags }}" == "false" ]]; then
+          echo "current=${{ steps.initial-release.outputs.current }}" >> $GITHUB_OUTPUT
+          echo "next=${{ steps.initial-release.outputs.next }}" >> $GITHUB_OUTPUT
+        else
+          echo "current=${{ steps.semver.outputs.current }}" >> $GITHUB_OUTPUT
+          echo "next=${{ steps.semver.outputs.next }}" >> $GITHUB_OUTPUT
+        fi
