@@ -74,6 +74,32 @@ psalm.xml    text eol=lf
 *.cjs      text eol=lf
 *.mjs      text eol=lf
 
+# Python files
+*.py       text eol=lf diff=python
+*.pyi      text eol=lf diff=python
+*.pyx      text eol=lf diff=python
+*.pxd      text eol=lf diff=python
+*.ipynb    text eol=lf
+
+# Python configuration
+pyproject.toml   text eol=lf
+poetry.lock      text eol=lf
+requirements.txt text eol=lf
+setup.py         text eol=lf
+setup.cfg        text eol=lf
+tox.ini          text eol=lf
+pytest.ini       text eol=lf
+.coveragerc      text eol=lf
+
+# Python compiled files
+*.pyc      binary
+*.pyo      binary
+*.pyd      binary
+*.so       binary
+*.egg      binary
+*.egg-info export-ignore
+__pycache__/ export-ignore
+
 # Treat all Go files in this repository as binary, with no git magic updating
 # line endings. Windows users contributing to Go will need to use a
 # modern version of git and editors capable of LF line endings.
