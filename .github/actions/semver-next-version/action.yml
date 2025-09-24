@@ -40,10 +40,11 @@ runs:
         set -e  # Exit on error
 
         if [[ -n "$INPUT_TAG_PREFIX" ]]; then
-          # Use jq with proper argument passing to avoid injection
-          TAG_COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/tags" --paginate --jq '[.[] | select(.name | startswith($prefix))] | length' --arg prefix "$INPUT_TAG_PREFIX")
+          # Escape INPUT_TAG_PREFIX for safe use in grep regex
+          ESCAPED_PREFIX=$(printf '%s\n' "$INPUT_TAG_PREFIX" | sed 's/[[\.*^$()+?{|]]/\\&/g')
+          TAG_COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/tags" --paginate | jq -r '.[].name' | grep "^${ESCAPED_PREFIX}" | wc -l)
         else
-          TAG_COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/tags" --paginate --jq 'length')
+          TAG_COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/tags" --paginate | jq 'length')
         fi
 
         echo "tag_count=$TAG_COUNT" >> $GITHUB_OUTPUT
