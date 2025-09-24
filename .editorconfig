@@ -16,31 +16,48 @@ indent_style = space
 indent_size = 2
 insert_final_newline = true
 
+# Infrastructure
 [**/.terraform]
 ignore = true
 
+# Documentation
 [*.md]
 trim_trailing_whitespace = false
 indent_size = unset
 
+# Configuration files
+[{*.yml,*.yaml}]
+indent_size = 2
+
+# Python
 [*.py]
 indent_size = 4
 
+[{*.pyi,*.pyx,*.pxd}]
+indent_size = 4
+
+[{pyproject.toml,setup.cfg,tox.ini,pytest.ini,.coveragerc,.flake8,.pylintrc}]
+indent_size = 4
+
+# Go
 [{Makefile,go.mod,go.sum,*.go,.gitmodules}]
 indent_style = tab
 indent_size = 4
 
-[Dockerfile]
-indent_size = 4
+[main.go]
+indent_style = unset
 
+# PHP
 [{*.php,composer.json,composer.lock,*.neon}]
 indent_size = 4
 
 [*.neon]
 indent_style = tab
 
+# JavaScript/TypeScript
 [{*.vue,*.js,*.ts,*.tsx}]
 quote_type = single
 
-[main.go]
-indent_style = unset
+# Containers
+[Dockerfile]
+indent_size = 4
