@@ -8,6 +8,13 @@ NEW_VERSION="$3"
 CURRENT_GIT_TAG="$4"
 NEXT_GIT_TAG="$5"
 
+# Validate inputs
+if [[ -z "$OLD_VERSION" ]] || [[ -z "$NEW_VERSION" ]]; then
+  echo "❌ ERROR: OLD_VERSION and NEW_VERSION must be provided"
+  echo "Usage: $0 <files> <old_version> <new_version> <current_tag> <next_tag>"
+  exit 1
+fi
+
 # Function to compare semver versions (handles v prefix)
 # Returns 0 if v1=v2, 1 if v1>v2, 2 if v1<v2
 compare_versions() {
@@ -53,8 +60,7 @@ else
   echo "   This might indicate a previous release creation failure."
 fi
 
-# 2. Check for higher versions in files before attempting to update
-HIGHEST_FILE_VERSION=""
+# 2. Check versions in files
 FILE_ARRAY=()
 
 # Enable extended globbing for the entire operation
@@ -109,31 +115,9 @@ for file in "${FILE_ARRAY[@]}"; do
 
   if [[ -n "$FILE_VERSION" ]]; then
     echo "  Found version '$FILE_VERSION' in $file"
-    if [[ $(compare_versions "$FILE_VERSION" "$HIGHEST_FILE_VERSION") -eq 1 ]]; then
-      HIGHEST_FILE_VERSION="$FILE_VERSION"
-    fi
   fi
 done
 
-if [[ -n "$HIGHEST_FILE_VERSION" ]]; then
-  echo "  Highest version found in files: $HIGHEST_FILE_VERSION"
-  echo "  Planned next version: ${NEXT_GIT_TAG#v}"
-  if [[ $(compare_versions "$HIGHEST_FILE_VERSION" "${NEXT_GIT_TAG#v}") -eq 1 ]]; then
-    echo ""
-    echo "❌ ERROR: Files contain version $HIGHEST_FILE_VERSION which is higher than the planned next version $NEXT_GIT_TAG"
-    echo ""
-    echo "This can happen when:"
-    echo "1. A release was created but the Git tag is missing"
-    echo "2. Manual version bumps were made without creating releases"
-    echo "3. The release workflow was interrupted"
-    echo ""
-    echo "To fix this, create the missing release(s), for example:"
-    echo "  gh release create v$HIGHEST_FILE_VERSION --title \"Release v$HIGHEST_FILE_VERSION\" --notes \"Manual release to sync versions\""
-    echo ""
-    echo "After creating the release, this action will work normally again."
-    exit 1
-  fi
-fi
 echo "✅ Version check passed."
 echo ""
 
@@ -154,11 +138,11 @@ for file in "${FILE_ARRAY[@]}"; do
       # For other JSON files, just update the root version field
       jq --arg version "$NEW_VERSION" '.version = $version' "$file" >"$TMP_FILE" && mv "$TMP_FILE" "$file"
     fi
-  # For other files, do a robust string replacement of all version-like strings.
-  # This is a "self-healing" approach that works even if the file is out of sync.
-  elif grep -qE "[0-9]+\.[0-9]+\.[0-9]+" "$file"; then
-    echo "  Replacing version-like strings in file"
-    sed -E "s/[0-9]+\.[0-9]+\.[0-9]+/$NEW_VERSION/g" "$file" >"$TMP_FILE" && mv "$TMP_FILE" "$file"
+  # For other files, replace only the OLD_VERSION with NEW_VERSION
+  elif grep -qF "$OLD_VERSION" "$file"; then
+    echo "  Replacing $OLD_VERSION with $NEW_VERSION in file"
+    # Use perl for reliable version string replacement (handles dots correctly)
+    perl -pe "s/\Q$OLD_VERSION\E/$NEW_VERSION/g" "$file" >"$TMP_FILE" && mv "$TMP_FILE" "$file"
   else
     echo "  No version string found to update in $file"
   fi
