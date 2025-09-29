@@ -3,7 +3,9 @@
 # Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
-HELMFILE_ENVIRONMENTS=$(awk '/^environments:/ {flag=1; next} /^[[:space:]]+[a-zA-Z0-9_-]+:/ && flag {print $1; next} /^[^[:space:]]/ {flag=0}' helmfile.yaml.gotmpl | sed 's/://')
+# Extract environments from helmfile.yaml.gotmpl
+# This extracts only the environment names (keys) at the first indentation level under 'environments:'
+HELMFILE_ENVIRONMENTS=$(yq eval '.environments | keys | .[]' helmfile.yaml.gotmpl 2>/dev/null || awk '/^environments:/{flag=1;next}/^[^ ]/{flag=0}flag&&/^  [^ ]+:/{sub(/^  /,"");sub(/:.*$/,"");print}' helmfile.yaml.gotmpl)
 echo "$HELMFILE_ENVIRONMENTS"
 if echo "$HELMFILE_ENVIRONMENTS" | grep -wq "$ENVIRONMENT"; then
   echo "Environment '$ENVIRONMENT' is valid and exists in helmfile. Proceeding with the GitHub Action."
