@@ -5,12 +5,24 @@
 
 # Extract environments from helmfile.yaml.gotmpl
 # This extracts only the environment names (keys) at the first indentation level under 'environments:'
-HELMFILE_ENVIRONMENTS=$(yq eval '.environments | keys | .[]' helmfile.yaml.gotmpl 2>/dev/null || awk '/^environments:/{flag=1;next}/^[^ ]/{flag=0}flag&&/^  [^ ]+:/{sub(/^  /,"");sub(/:.*$/,"");print}' helmfile.yaml.gotmpl)
-echo "$HELMFILE_ENVIRONMENTS"
-if echo "$HELMFILE_ENVIRONMENTS" | grep -wq "$ENVIRONMENT"; then
-  echo "Environment '$ENVIRONMENT' is valid and exists in helmfile. Proceeding with the GitHub Action."
-  echo "ENV_FOUND=true" >>"$GITHUB_OUTPUT"
+HELMFILE_ENVIRONMENTS=$(awk '/^environments:/{flag=1;next}/^[^ ]/{flag=0}flag&&/^  [^ ]+:/{sub(/^  /,"");sub(/:.*$/,"");print}' helmfile.yaml.gotmpl | tr '\n' ' ')
+
+# Always output the environments to GitHub output
+if [ -n "$GITHUB_OUTPUT" ]; then
+  echo "HELMFILE_ENVIRONMENTS=$HELMFILE_ENVIRONMENTS" >>"$GITHUB_OUTPUT"
+fi
+
+# If ENVIRONMENT is set, check if it's valid
+if [ -n "$ENVIRONMENT" ]; then
+  echo "$HELMFILE_ENVIRONMENTS"
+  if echo "$HELMFILE_ENVIRONMENTS" | grep -wq "$ENVIRONMENT"; then
+    echo "Environment '$ENVIRONMENT' is valid and exists in helmfile. Proceeding with the GitHub Action."
+    echo "ENV_FOUND=true" >>"$GITHUB_OUTPUT"
+  else
+    echo "App doesn't run in the '$ENVIRONMENT' environment. Exiting gracefully."
+    echo "ENV_FOUND=false" >>"$GITHUB_OUTPUT"
+  fi
 else
-  echo "App doesn't run in the '$ENVIRONMENT' environment. Exiting gracefully."
-  echo "ENV_FOUND=false" >>"$GITHUB_OUTPUT"
+  # If no ENVIRONMENT specified, just list the environments
+  echo "Available environments: $HELMFILE_ENVIRONMENTS"
 fi
