@@ -17,9 +17,9 @@ on:
         type: string
         default: "1"
     outputs:
-      sbom_path:
+      sbom-path:
         description: Path to the generated CycloneDX SBOM file
-        value: ${{ jobs.trivy-scan.outputs.sbom_path }}
+        value: ${{ jobs.trivy-scan.outputs.sbom-path }}
 
 permissions:
   contents: read
@@ -37,7 +37,7 @@ jobs:
       contents: read
       pull-requests: write
     outputs:
-      sbom_path: ${{ steps.sbom.outputs.sbom_path }}
+      sbom-path: ${{ steps.sbom.outputs.sbom-path }}
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -83,7 +83,7 @@ jobs:
         if: always()
         run: |
           trivy fs . --format cyclonedx --output sbom.json --severity "${INPUTS_SEVERITY}"
-          echo "sbom_path=sbom.json" >> "$GITHUB_OUTPUT"
+          echo "sbom-path=sbom.json" >> "$GITHUB_OUTPUT"
         env:
           TRIVY_DISABLE_VEX_NOTICE: "true"
           INPUTS_SEVERITY: ${{ inputs.severity }}

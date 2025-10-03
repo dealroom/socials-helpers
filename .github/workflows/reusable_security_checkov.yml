@@ -12,12 +12,12 @@ on:
         type: boolean
         default: false
     outputs:
-      report_path:
+      report-path:
         description: Path to the generated Checkov report
-        value: ${{ jobs.checkov-scan.outputs.report_path }}
-      checkov_result:
+        value: ${{ jobs.checkov-scan.outputs.report-path }}
+      checkov-result:
         description: Result of the Checkov scan (pass/fail)
-        value: ${{ jobs.checkov-scan.outputs.checkov_result }}
+        value: ${{ jobs.checkov-scan.outputs.checkov-result }}
 
 permissions:
   contents: read
@@ -36,8 +36,8 @@ jobs:
       contents: read
       pull-requests: write
     outputs:
-      report_path: ${{ steps.scan.outputs.report_path }}
-      checkov_result: ${{ steps.scan.outputs.checkov_result }}
+      report-path: ${{ steps.scan.outputs.report-path }}
+      checkov-result: ${{ steps.scan.outputs.checkov-result }}
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -73,12 +73,12 @@ jobs:
         shell: bash
         run: |
           # Set report path for CLI format
-          echo "report_path=checkov-report.cli" >> "$GITHUB_OUTPUT"
+          echo "report-path=checkov-report.cli" >> "$GITHUB_OUTPUT"
           # Set scan result
           if [[ "${STEPS_SCAN_OUTCOME}" == "success" ]]; then
-            echo "checkov_result=pass" >> "$GITHUB_OUTPUT"
+            echo "checkov-result=pass" >> "$GITHUB_OUTPUT"
           else
-            echo "checkov_result=fail" >> "$GITHUB_OUTPUT"
+            echo "checkov-result=fail" >> "$GITHUB_OUTPUT"
           fi
         env:
           STEPS_SCAN_OUTCOME: ${{ steps.scan.outcome }}
