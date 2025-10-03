@@ -29,13 +29,11 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Check repository changes
-      id: repo-changes
+    - id: repo-changes
       uses: ./.github/actions/repository-changes
       with:
         github-token: ${{ inputs.github-token }}
-    - name: Check if should skip release
-      id: check-skip
+    - id: check-skip
       shell: bash
       run: |
         if [ "${{ steps.repo-changes.outputs.github-only }}" == "true" ]; then
@@ -46,8 +44,7 @@ runs:
           echo "skip_release=false" >> "$GITHUB_OUTPUT"
           echo "Files outside .github/ changed, proceeding with version bump"
         fi
-    - name: Get Next Version
-      id: semver
+    - id: semver
       uses: ./.github/actions/semver-next-version
       with:
         github-token: ${{ inputs.github-token }}
@@ -60,8 +57,7 @@ runs:
         OLD_TAG=$(echo "${{ steps.semver.outputs.current }}" | sed 's/^v//')
         echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
         echo "old_tag=$OLD_TAG" >> "$GITHUB_OUTPUT"
-    - name: Sync and Update Versions
-      shell: bash
+    - shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
       run: |
