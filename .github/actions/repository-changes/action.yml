@@ -20,18 +20,15 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Get previous tag for tag-based events
-      id: get-previous-tag
+    - id: get-previous-tag
       if: github.ref_type == 'tag'
       uses: WyriHaximus/github-action-get-previous-tag@04e8485ecb6487243907e330d522ff60f02283ce # v1.4.0
-    - name: Configure git authentication
-      if: ${{ inputs.github-token != '' }}
+    - if: ${{ inputs.github-token != '' }}
       shell: bash
       run: |
         # Configure git to use the provided token for GitHub operations
         git config --global url."https://x-access-token:${{ inputs.github-token }}@github.com/".insteadOf "https://github.com/"
-    - name: Determine base and head references
-      id: refs
+    - id: refs
       shell: bash
       run: |
         if [[ "${{ github.event_name }}" == "pull_request" ]]; then
@@ -74,8 +71,7 @@ runs:
           # Fetch the default branch if needed
           git fetch origin "$DEFAULT_BRANCH" || true
         fi
-    - name: Use paths-filter for terraform and charts
-      id: filter
+    - id: filter
       uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
       with:
         token: ${{ inputs.github-token }}
@@ -85,8 +81,7 @@ runs:
             - 'terraform/**'
           charts:
             - 'charts/**'
-    - name: Manually check for github-only changes
-      id: manual-check
+    - id: manual-check
       shell: bash
       run: |
         BASE_REF="${{ steps.refs.outputs.base_ref }}"

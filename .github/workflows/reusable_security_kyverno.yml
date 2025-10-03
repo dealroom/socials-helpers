@@ -62,8 +62,6 @@ jobs:
       packages: read
       pull-requests: write
     steps:
-      - run: |
-          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
       - name: Checkout Repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -78,8 +76,8 @@ jobs:
       - name: Check if current environment is used by application
         id: detect-env
         run: |
-          chmod +x ${{ env.GITHUB_WORKSPACE }}/.github/scripts/check-if-environment-is-used/script.sh
-          ${{ env.GITHUB_WORKSPACE }}/.github/scripts/check-if-environment-is-used/script.sh
+          chmod +x ./.github/scripts/check-if-environment-is-used/script.sh
+          ./.github/scripts/check-if-environment-is-used/script.sh
         env:
           ENVIRONMENT: ${{ matrix.env }}
       # Fix "fatal: detected dubious ownership in the repository at '/__w/<user>/<repo>'"

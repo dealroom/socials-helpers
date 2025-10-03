@@ -11,8 +11,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Check action version pinning and comments
-      shell: bash
+    - shell: bash
       run: |
         chmod +x ${{ github.action_path }}/scripts/check_versions.sh
         ${{ github.action_path }}/scripts/check_versions.sh

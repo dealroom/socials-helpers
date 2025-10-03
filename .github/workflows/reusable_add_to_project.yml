@@ -22,11 +22,6 @@ on:
 permissions:
   contents: read
 
-env:
-  IMAGE: ${{ vars.REPO_NAME }}
-  IMAGE_TAG: 0.0.0-${{ github.sha }}
-  REPO_GAR: europe-docker.pkg.dev/dealroom-artifacts/dealroom-containers
-
 jobs:
   add-to-project:
     name: Add To Project

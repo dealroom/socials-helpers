@@ -22,14 +22,12 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Get latest tag
-      id: previous-tag
+    - id: previous-tag
       uses: WyriHaximus/github-action-get-previous-tag@04e8485ecb6487243907e330d522ff60f02283ce # v1.4.0
       with:
         fallback: v0.0.0
         prefix: ${{ inputs.tag-prefix }}
-    - name: Check if tags exist
-      id: check-tags
+    - id: check-tags
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
@@ -57,8 +55,7 @@ runs:
         fi
 
         echo "Found $TAG_COUNT tags with prefix: '$INPUT_TAG_PREFIX'"
-    - name: Prepare Initial Tag Vars
-      id: prepare-initial-vars
+    - id: prepare-initial-vars
       shell: bash
       env:
         INPUT_TAG_PREFIX: ${{ inputs.tag-prefix }}
@@ -74,8 +71,7 @@ runs:
         echo "formatted_prefix=$FORMATTED_TAG_PREFIX" >> $GITHUB_OUTPUT
         echo "initial_version=$INITIAL_VERSION" >> $GITHUB_OUTPUT
         echo "full_tag_name=$FULL_TAG_NAME" >> $GITHUB_OUTPUT
-    - name: Handle initial release
-      id: initial-release
+    - id: initial-release
       if: ${{ steps.check-tags.outputs.has_tags == 'false' }}
       env:
         FULL_TAG_NAME: ${{ steps.prepare-initial-vars.outputs.full_tag_name }}
@@ -88,8 +84,7 @@ runs:
         # - next: v1.0.0 (the first version to be created)
         echo "current=" >> $GITHUB_OUTPUT
         echo "next=${FULL_TAG_NAME}" >> $GITHUB_OUTPUT
-    - name: Get Next Version
-      id: semver
+    - id: semver
       if: ${{ steps.check-tags.outputs.has_tags == 'true' }}
       uses: ietf-tools/semver-action@000ddb2ebacad350ff2a15382a344dc05ea4c0a4 # v1.10.2
       with:
@@ -101,8 +96,7 @@ runs:
         # @see https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional#type-enum
         minorList: feat
         patchList: build, chore, ci, docs, fix, perf, refactor, revert, style, test
-    - name: Set final outputs
-      id: final-outputs
+    - id: final-outputs
       shell: bash
       run: |
         # Use outputs from initial-release step if no tags exist
