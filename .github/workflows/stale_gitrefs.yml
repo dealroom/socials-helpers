@@ -11,7 +11,7 @@ on:
   # checkov:skip=CKV_GHA_7 we want to allow manual trigger
   workflow_dispatch:
     inputs:
-      dry_run:
+      dry-run:
         description: Run the action in dry-run mode to see what would be deleted
         required: false
         default: true
@@ -39,7 +39,7 @@ jobs:
         with:
           repo_token: ${{ github.token }}
           date: ${{ github.event.inputs.date || '6 weeks ago' }}
-          dry_run: ${{ github.event.inputs.dry_run || 'false' }}
+          dry_run: ${{ github.event.inputs.dry-run || 'false' }}
           delete_tags: true
           # extra_protected_tag_regex matches SemVer with an optional "<anything>/" prefix
           # Examples:
