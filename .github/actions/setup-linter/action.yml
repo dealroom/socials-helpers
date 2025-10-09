@@ -104,6 +104,10 @@ runs:
           echo "Removing deprecated automerge.yml workflow file"
           rm -f .github/workflows/automerge.yml
         fi
+        if [ -f biome.json ]; then
+          echo "Removing deprecated biome.json config file (replaced by prettier)"
+          rm -f biome.json
+        fi
     # Temporary: Clean up old action directories during migration
     - shell: bash
       run: |

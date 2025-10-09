@@ -12,7 +12,7 @@ module.exports = {
       options: {
         trailingComma: "none",
         semi: true,
-        singleQuote: false,
+        singleQuote: false
       }
     },
     {
@@ -24,7 +24,7 @@ module.exports = {
     {
       files: ["composer.json", "composer.lock"],
       options: {
-        tabWidth: 4,
+        tabWidth: 4
       }
     }
   ]
