@@ -9,7 +9,7 @@ module.exports = {
   parserPreset: {
     parserOpts: {
       headerPattern: /^(\w*)(?:\((.*)\))?!?: (.*)$/,
-      headerCorrespondence: ["type", "scope", "subject"],
+      headerCorrespondence: ["type", "scope", "subject"]
     }
   },
   ignores: [
@@ -31,7 +31,7 @@ module.exports = {
             return [
               false,
               'Jira ticket reference (DRP-1234) is missing. Example: "feat(DRP-1234): implement authentication". \n' +
-                  'Alternatively, use "DEV" scope to skip this check. Example: "chore(DEV): bump dependencies"'
+                'Alternatively, use "DEV" scope to skip this check. Example: "chore(DEV): bump dependencies"'
             ];
           }
           return [true];
