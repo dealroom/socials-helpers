@@ -64,6 +64,15 @@ runs:
       if: ${{ inputs.github-token != '' }}
       run: |
         composer config --global github-oauth.github.com ${{ inputs.github-token }}
+    - shell: sh
+      run: |
+        # Add vendor/ to .gitignore BEFORE creating it to prevent it from being committed
+        # Ensure .gitignore exists and ends with newline
+        touch .gitignore
+        [ -s .gitignore ] && [ -z "$(tail -c 1 .gitignore)" ] || echo "" >> .gitignore
+        if ! grep -q "^vendor/$" .gitignore 2>/dev/null; then
+          echo "vendor/" >> .gitignore
+        fi
     # install composer dependencies
     - shell: sh
       run: composer install --no-progress --prefer-dist --optimize-autoloader --no-scripts --no-interaction
