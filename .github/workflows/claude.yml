@@ -121,8 +121,8 @@ jobs:
       - name: Install Room CLI
         if: steps.check-access.outputs.authorized == 'true'
         env:
-          # Use GitHub App token for private repo access, fallback to PAT or GITHUB_TOKEN
-          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.DEALROOM_PAT || secrets.GITHUB_TOKEN }}
+          # Use GitHub App token for private repo access, fallback to GITHUB_TOKEN
+          GH_TOKEN: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
         run: |
           FILENAME="room-${ROOM_CLI_VERSION}-linux-amd64"
           echo "Looking for asset: ${FILENAME}"
