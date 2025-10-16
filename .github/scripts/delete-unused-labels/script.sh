@@ -12,6 +12,8 @@ KEEP_LABELS=(
   "update-patch"
   "dependencies"
   "low-risk"
+  "high-risk"
+  "risk-accepted"
   "sync"
   "force-lint"
   "auto-docs"
