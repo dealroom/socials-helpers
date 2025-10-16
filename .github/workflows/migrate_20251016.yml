@@ -1,0 +1,54 @@
+# jscpd:ignore-start
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Migrate (16 October 2025)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  # WARNING: The following job will be executed exactly 1 time (per repository).
+  # The workflow is automatically disabled in the last step.
+  migrate:
+    runs-on: ubuntu-24.04
+    permissions:
+      # To be able to sync GHA files
+      actions: write
+      # To read the repository contents
+      contents: read
+      # To manage labels
+      issues: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Get Application Token
+        id: app-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: metadata:read,issues:write
+      - name: Create needed labels
+        run: |
+          #
+          # Create new risk-related labels
+          #
+          gh label create high-risk --force -R "$REPO_NAME" --color B60205 --description "Indicates PR contains dangerous changes (resource removals or high deletion ratio)"
+          gh label create risk-accepted --force -R "$REPO_NAME" --color 0E8A16 --description "Acknowledges and accepts the risks identified by automated checks"
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO_NAME: ${{ github.repository }}
+      - name: Disable itself
+        run: |
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${GITHUB_WORKFLOW}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+# jscpd:ignore-end
