@@ -69,7 +69,7 @@ runs:
           fi
           echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
           # Fetch the default branch if needed
-          git fetch origin "$DEFAULT_BRANCH" || true
+          git fetch origin "$DEFAULT_BRANCH:refs/remotes/origin/$DEFAULT_BRANCH" || true
         fi
     - id: filter
       uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -90,7 +90,7 @@ runs:
         if ! git rev-list "${BASE_REF}".."${HEAD_REF}" >/dev/null 2>&1; then
           echo "Cannot create revision range between ${BASE_REF} and ${HEAD_REF}. Using default branch."
           DEFAULT_BRANCH="${{ github.event.repository.default_branch || 'main' }}"
-          git fetch origin "$DEFAULT_BRANCH" || true
+          git fetch origin "$DEFAULT_BRANCH:refs/remotes/origin/$DEFAULT_BRANCH" || true
           BASE_REF="origin/$DEFAULT_BRANCH"
         fi
         if [[ -z "$CHANGED_FILES" ]]; then
