@@ -96,7 +96,7 @@ jobs:
         with:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: metadata:read,contents:write,pull_requests:write
+          permissions: metadata:read,contents:write,pull_requests:write,workflows:write
       - uses: ./.github/actions/semver-bump
         with:
           github-token: ${{ steps.app-token.outputs.token }}
