@@ -23,9 +23,17 @@ inputs:
     description: Test coverage location to upload to codecov (required if `codecov-export` input is true)
     required: false
     default: .
+  codecov-flags:
+    description: Codecov flags to identify this upload (comma-separated)
+    required: false
+    default: ""
   sonar-token:
     description: SonarQube token (not supported)
     required: false
+  working-directory:
+    description: Working directory for test execution
+    required: false
+    default: .
 runs:
   using: composite
   steps:

@@ -30,6 +30,10 @@ inputs:
     options:
       - true
       - false
+  working-directory:
+    description: Working directory for Composer commands
+    required: false
+    default: "."
 runs:
   using: composite
   steps:
