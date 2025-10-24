@@ -33,7 +33,7 @@ jobs:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
           permissions: metadata:read,contents:write,workflows:write,issues:write,pull_requests:write
-      - name: Generate CLAUDE.md with comprehensive project analysis
+      - name: Generate AGENTS.md with comprehensive project analysis
         id: claude-analysis
         uses: anthropics/claude-code-base-action@e8132bc5e637a42c27763fc757faa37e1ee43b34 # v0.0.63
         with:
@@ -41,7 +41,7 @@ jobs:
           allowed_tools: "Write,View,GlobTool,GrepTool,BatchTool,Bash(git:*),Bash(ls:*)"
           prompt: |
             You are replicating the Claude Code `/init` command. Analyse this codebase comprehensively and create
-            a CLAUDE.md file containing essential project information for agentic coding agents.
+            an AGENTS.md file containing essential project information for agentic coding agents.
 
             ## ANALYSIS REQUIREMENTS:
 
@@ -81,7 +81,7 @@ jobs:
 
             ## OUTPUT FORMAT:
 
-            Create a CLAUDE.md file that follows this structure (approximately 20-30 lines):
+            Create an AGENTS.md file that follows this structure (approximately 20-30 lines):
 
             ```markdown
             # [Project Name] - Development Guide
@@ -150,7 +150,7 @@ jobs:
             3. **Extract real commands** from actual config files (package.json, Makefile, etc.)
             4. **Observe actual code patterns** to determine style guidelines
             5. **Keep it concise but comprehensive** - focus on actionable information
-            6. **If CLAUDE.md already exists**, analyze it and improve/update it rather than replacing it
+            6. **If AGENTS.md already exists**, analyze it and improve/update it rather than replacing it
             7. **Make it team-friendly** - this file should help any developer understand the project quickly
             8. **Focus on commands agents will need** - prioritize build, test, lint, and format commands
             9. **Include single test commands** if they differ from running all tests
@@ -165,10 +165,30 @@ jobs:
             3. Examine a few representative source files for style patterns
             4. Check for existing documentation or style guides
             5. Look for CI/CD configurations that might reveal commands (outside .github)
-            6. Synthesize findings into the CLAUDE.md format
+            6. Synthesize findings into the AGENTS.md format
 
-            Remember: This file will be used by AI coding agents (including Claude Code) to understand your project.
+            Remember: This file will be used by AI coding agents (including Claude Code, Cursor, and others) to understand your project.
             Make it accurate, actionable, and comprehensive enough to guide effective development assistance.
+      - name: Create CLAUDE.md symlink
+        shell: bash
+        run: |
+          set -e
+
+          # Check if AGENTS.md was created
+          if [ -f "AGENTS.md" ]; then
+            if [ -L "CLAUDE.md" ]; then
+              echo "CLAUDE.md is already a symlink"
+            elif [ -e "CLAUDE.md" ]; then
+              echo "CLAUDE.md exists as a regular file, removing before creating symlink"
+              rm -f CLAUDE.md
+              ln -s AGENTS.md CLAUDE.md
+              echo "Symlink created successfully"
+            else
+              echo "Creating symlink CLAUDE.md -> AGENTS.md"
+              ln -s AGENTS.md CLAUDE.md
+              echo "Symlink created successfully"
+            fi
+          fi
       - name: Create Migration PR
         uses: ./.github/actions/github-pull-request
         with:

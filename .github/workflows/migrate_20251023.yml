@@ -1,0 +1,79 @@
+# jscpd:ignore-start
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Migrate (23 Oct 2025)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  migrate:
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write # To modify workflow files
+      contents: write # To checkout the repository
+      pull-requests: write # To create pull requests
+      issues: write # To comment on issues
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Get Application Token
+        id: app-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: metadata:read,contents:write,workflows:write,issues:write,pull_requests:write
+      - name: Migrate CLAUDE.md to AGENTS.md with symlink
+        shell: bash
+        run: |
+          set -e
+
+          # Check if CLAUDE.md exists and is not already a symlink
+          if [ -f "CLAUDE.md" ] && [ ! -L "CLAUDE.md" ]; then
+            if [ ! -f "AGENTS.md" ]; then
+              echo "Migrating CLAUDE.md to AGENTS.md..."
+
+              # Copy CLAUDE.md to AGENTS.md
+              cp CLAUDE.md AGENTS.md
+
+              # Remove CLAUDE.md file
+              rm -f CLAUDE.md
+
+              # Create symlink CLAUDE.md -> AGENTS.md
+              ln -s AGENTS.md CLAUDE.md
+
+              echo "Migration completed successfully"
+              echo "- Created: AGENTS.md"
+              echo "- Created symlink: CLAUDE.md -> AGENTS.md"
+            else
+              echo "Both CLAUDE.md and AGENTS.md exist, skipping migration to avoid data loss"
+            fi
+          elif [ -L "CLAUDE.md" ]; then
+            echo "CLAUDE.md is already a symlink, skipping migration"
+          else
+            echo "CLAUDE.md does not exist, skipping migration"
+          fi
+      - name: Create Migration PR
+        uses: ./.github/actions/github-pull-request
+        with:
+          commit-message: "chore(DEV): migrate claude.md to agents.md with symlink"
+          github-token: ${{ steps.app-token.outputs.token }}
+          branch: feature/DEV/agents-md-migration
+          labels: |
+            sync
+            force-lint
+      - name: Disable itself
+        run: |
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${GITHUB_WORKFLOW}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+# jscpd:ignore-end
