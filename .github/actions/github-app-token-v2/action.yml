@@ -23,9 +23,6 @@ inputs:
   permission-deployments:
     description: Permission level for deployments (read, write)
     required: false
-  permission-discussions:
-    description: Permission level for discussions (read, write)
-    required: false
   permission-issues:
     description: Permission level for issues (read, write)
     required: false
@@ -81,7 +78,6 @@ runs:
         permission-checks: ${{ inputs.permission-checks }}
         permission-contents: ${{ inputs.permission-contents }}
         permission-deployments: ${{ inputs.permission-deployments }}
-        permission-discussions: ${{ inputs.permission-discussions }}
         permission-issues: ${{ inputs.permission-issues }}
         permission-members: ${{ inputs.permission-members }}
         permission-metadata: ${{ inputs.permission-metadata }}
