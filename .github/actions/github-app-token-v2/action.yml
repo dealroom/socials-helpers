@@ -1,0 +1,126 @@
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Get App Token (v2)
+description: |
+  Get an application token for authenticating to Github APIs using the official actions/create-github-app-token action.
+
+  This is the v2 of github-app-token action, migrated to use the official GitHub action
+  (actions/create-github-app-token) instead of the third-party peter-murray/workflow-application-token-action.
+
+  Key differences from v1:
+  - Uses official GitHub action with better maintenance and security
+  - Permissions are specified individually (permission-contents, permission-issues, etc.) instead of comma-separated string
+  - Better type validation and IntelliSense support in GitHub Actions editor
+  - Automatic token revocation handled by the official action
+
+  Migration example from v1:
+
+  Before (v1):
+    - id: app-token
+      uses: ./.github/actions/github-app-token
+      with:
+        application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+        application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+        permissions: metadata:read,packages:read,contents:read
+
+  After (v2):
+    - id: app-token
+      uses: ./.github/actions/github-app-token-v2
+      with:
+        application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+        application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+        permission-metadata: read
+        permission-packages: read
+        permission-contents: read
+
+inputs:
+  application-id:
+    description: GitHub Application ID
+    required: true
+  application-private-key:
+    description: GitHub Application private key
+    required: true
+  permission-actions:
+    description: Permission level for actions (read, write)
+    required: false
+  permission-checks:
+    description: Permission level for checks (read, write)
+    required: false
+  permission-contents:
+    description: Permission level for contents (read, write)
+    required: false
+  permission-deployments:
+    description: Permission level for deployments (read, write)
+    required: false
+  permission-discussions:
+    description: Permission level for discussions (read, write)
+    required: false
+  permission-issues:
+    description: Permission level for issues (read, write)
+    required: false
+  permission-members:
+    description: Permission level for organization members (read, write)
+    required: false
+  permission-metadata:
+    description: Permission level for metadata (read, write)
+    required: false
+  permission-organization-projects:
+    description: Permission level for organization projects (read, write, admin)
+    required: false
+  permission-packages:
+    description: Permission level for packages (read, write)
+    required: false
+  permission-pages:
+    description: Permission level for pages (read, write)
+    required: false
+  permission-pull-requests:
+    description: Permission level for pull requests (read, write)
+    required: false
+  permission-repository-projects:
+    description: Permission level for repository projects (read, write, admin)
+    required: false
+  permission-secrets:
+    description: Permission level for secrets (read, write)
+    required: false
+  permission-security-events:
+    description: Permission level for security events (read, write)
+    required: false
+  permission-statuses:
+    description: Permission level for statuses (read, write)
+    required: false
+  permission-workflows:
+    description: Permission level for workflows (write)
+    required: false
+
+outputs:
+  token:
+    description: Application token to use for authentication to Github APIs
+    value: ${{ steps.get-app-token.outputs.token }}
+
+runs:
+  using: composite
+  steps:
+    - id: get-app-token
+      uses: actions/create-github-app-token@df1071af23b3e0d1e8f1f16d6fa8f5b789b3b8e1 # v2.0.0
+      with:
+        app-id: ${{ inputs.application-id }}
+        private-key: ${{ inputs.application-private-key }}
+        owner: dealroom
+        permission-actions: ${{ inputs.permission-actions }}
+        permission-checks: ${{ inputs.permission-checks }}
+        permission-contents: ${{ inputs.permission-contents }}
+        permission-deployments: ${{ inputs.permission-deployments }}
+        permission-discussions: ${{ inputs.permission-discussions }}
+        permission-issues: ${{ inputs.permission-issues }}
+        permission-members: ${{ inputs.permission-members }}
+        permission-metadata: ${{ inputs.permission-metadata }}
+        permission-organization-projects: ${{ inputs.permission-organization-projects }}
+        permission-packages: ${{ inputs.permission-packages }}
+        permission-pages: ${{ inputs.permission-pages }}
+        permission-pull-requests: ${{ inputs.permission-pull-requests }}
+        permission-repository-projects: ${{ inputs.permission-repository-projects }}
+        permission-secrets: ${{ inputs.permission-secrets }}
+        permission-security-events: ${{ inputs.permission-security-events }}
+        permission-statuses: ${{ inputs.permission-statuses }}
+        permission-workflows: ${{ inputs.permission-workflows }}

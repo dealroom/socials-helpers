@@ -2,7 +2,7 @@
 # The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
 
 name: Get App Token
-description: Get an application token for authenticating to Github APIs
+description: DEPRECATED - Please migrate to github-app-token-v2 which uses the official GitHub action (actions/create-github-app-token). See .github/actions/github-app-token/README.md for migration details
 inputs:
   application-id:
     description: GitHub Application ID
