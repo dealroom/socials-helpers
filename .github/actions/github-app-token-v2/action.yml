@@ -69,7 +69,7 @@ runs:
   using: composite
   steps:
     - id: get-app-token
-      uses: actions/create-github-app-token@064492a9a1762067169d50c792a7dc02bc3d1254 # v2.0.0
+      uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
       with:
         app-id: ${{ inputs.application-id }}
         private-key: ${{ inputs.application-private-key }}
