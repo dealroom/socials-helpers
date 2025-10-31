@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   pr-labels:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     outputs:
       labels: ${{ steps.pr-labels.outputs.labels }}
       # We should be linting only if:

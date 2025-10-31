@@ -9,3 +9,4 @@ self-hosted-runner:
     - linux-8-32-arm64-ubuntu24.04
     - gha-dev-scale-set
     - gha-prod-scale-set
+    - ubuntu-slim

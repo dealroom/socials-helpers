@@ -12,7 +12,7 @@ permissions: read-all
 
 jobs:
   stale:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     permissions:
       # To delete branches
       contents: write

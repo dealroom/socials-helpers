@@ -57,7 +57,7 @@ jobs:
 
   test-results:
     if: ${{ always() }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     name: Test Final Results
     needs: tests
     permissions:
