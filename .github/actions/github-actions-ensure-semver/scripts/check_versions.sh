@@ -134,7 +134,7 @@ while IFS= read -r grep_line; do
   fi
 done <<<"$raw_findings"
 
-if [ ${#final_lines_to_report[@]} -gt 0 ]; then
+if [[ ${#final_lines_to_report[@]} -gt 0 ]]; then
   echo "Error: Found action usages violating the pinning policy:" >&2
   echo "(Policy: Action is valid ONLY IF pinned to a SHA hash AND has a comment with a full semver string 'vX.Y.Z'.)" >&2
   printf '%s\n' "${final_lines_to_report[@]}" >&2

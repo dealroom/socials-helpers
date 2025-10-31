@@ -8,12 +8,12 @@
 HELMFILE_ENVIRONMENTS=$(awk '/^environments:/{flag=1;next}/^[^ ]/{flag=0}flag&&/^  [^ ]+:/{sub(/^  /,"");sub(/:.*$/,"");print}' helmfile.yaml.gotmpl | tr '\n' ' ')
 
 # Always output the environments to GitHub output
-if [ -n "$GITHUB_OUTPUT" ]; then
+if [[ -n "$GITHUB_OUTPUT" ]]; then
   echo "HELMFILE_ENVIRONMENTS=$HELMFILE_ENVIRONMENTS" >>"$GITHUB_OUTPUT"
 fi
 
 # If ENVIRONMENT is set, check if it's valid
-if [ -n "$ENVIRONMENT" ]; then
+if [[ -n "$ENVIRONMENT" ]]; then
   echo "$HELMFILE_ENVIRONMENTS"
   if echo "$HELMFILE_ENVIRONMENTS" | grep -wq "$ENVIRONMENT"; then
     echo "Environment '$ENVIRONMENT' is valid and exists in helmfile. Proceeding with the GitHub Action."
