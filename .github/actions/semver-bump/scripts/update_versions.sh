@@ -10,8 +10,8 @@ NEXT_GIT_TAG="$5"
 
 # Validate inputs
 if [[ -z "$OLD_VERSION" ]] || [[ -z "$NEW_VERSION" ]]; then
-  echo "❌ ERROR: OLD_VERSION and NEW_VERSION must be provided"
-  echo "Usage: $0 <files> <old_version> <new_version> <current_tag> <next_tag>"
+  echo "❌ ERROR: OLD_VERSION and NEW_VERSION must be provided" >&2
+  echo "Usage: $0 <files> <old_version> <new_version> <current_tag> <next_tag>" >&2
   exit 1
 fi
 
