@@ -88,7 +88,12 @@ runs:
         fi
         if [ -f .env.testing.example ]; then
           cp .env.testing.example .env.testing
-          echo -e "DB_HOST=mysql\nES_HOST=elasticsearch\nREDIS_HOST=redis\nRABBITMQ_HOST=rabbitmq" >> .env.testing
+          # Use valkey for dealroom repo, redis for others
+          if [ "${{ github.event.repository.name }}" = "dealroom" ]; then
+            echo -e "DB_HOST=mysql\nES_HOST=elasticsearch\nREDIS_HOST=valkey\nRABBITMQ_HOST=rabbitmq" >> .env.testing
+          else
+            echo -e "DB_HOST=mysql\nES_HOST=elasticsearch\nREDIS_HOST=redis\nRABBITMQ_HOST=rabbitmq" >> .env.testing
+          fi
         fi
     # configure Laravel environment (if applicable)
     - shell: sh
