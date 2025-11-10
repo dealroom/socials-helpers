@@ -60,11 +60,11 @@ runs:
               echo "base_ref=${PREVIOUS_SHA}" >> "$GITHUB_OUTPUT"
             else
               # First commit on branch - compare against default branch
-              echo "base=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
+              echo "base=${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
               echo "base_ref=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
             fi
           else
-            echo "base=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
+            echo "base=${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
             echo "base_ref=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
           fi
           echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
