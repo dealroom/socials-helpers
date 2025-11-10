@@ -11,8 +11,15 @@ inputs:
   application-private-key:
     description: GitHub Application private key
     required: true
+  owner:
+    description: GitHub organization or user to authenticate as
+    required: false
+    default: dealroom
   permission-actions:
     description: Permission level for actions (read, write)
+    required: false
+  permission-administration:
+    description: Permission level for repository administration (read, write)
     required: false
   permission-checks:
     description: Permission level for checks (read, write)
@@ -59,6 +66,12 @@ inputs:
   permission-workflows:
     description: Permission level for workflows (write)
     required: false
+  permission-organization-administration:
+    description: Permission level for organization administration (read, write)
+    required: false
+  permission-organization-secrets:
+    description: Permission level for organization secrets (read, write)
+    required: false
 
 outputs:
   token:
@@ -73,8 +86,9 @@ runs:
       with:
         app-id: ${{ inputs.application-id }}
         private-key: ${{ inputs.application-private-key }}
-        owner: dealroom
+        owner: ${{ inputs.owner }}
         permission-actions: ${{ inputs.permission-actions }}
+        permission-administration: ${{ inputs.permission-administration }}
         permission-checks: ${{ inputs.permission-checks }}
         permission-contents: ${{ inputs.permission-contents }}
         permission-deployments: ${{ inputs.permission-deployments }}
@@ -90,3 +104,5 @@ runs:
         permission-security-events: ${{ inputs.permission-security-events }}
         permission-statuses: ${{ inputs.permission-statuses }}
         permission-workflows: ${{ inputs.permission-workflows }}
+        permission-organization-administration: ${{ inputs.permission-organization-administration }}
+        permission-organization-secrets: ${{ inputs.permission-organization-secrets }}
