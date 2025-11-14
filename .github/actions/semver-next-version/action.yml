@@ -40,7 +40,7 @@ runs:
         if [[ -n "$INPUT_TAG_PREFIX" ]]; then
           # Escape INPUT_TAG_PREFIX for safe use in grep regex
           ESCAPED_PREFIX=$(printf '%s\n' "$INPUT_TAG_PREFIX" | sed 's/[[\.*^$()+?{|]]/\\&/g')
-          TAG_COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/tags" --paginate | jq -r '.[].name' | grep "^${ESCAPED_PREFIX}" | wc -l)
+          TAG_COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/tags" --paginate | jq -r '.[].name' | (grep "^${ESCAPED_PREFIX}" || true) | wc -l)
         else
           TAG_COUNT=$(gh api "repos/${GITHUB_REPOSITORY}/tags" --paginate | jq 'length')
         fi
