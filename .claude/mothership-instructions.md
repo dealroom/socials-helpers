@@ -14,7 +14,7 @@ All commits MUST follow this specification to pass the linter:
 [optional footer(s)]
 ```
 
-**IMPORTANT: The entire commit message subject line MUST be lowercase!**
+**IMPORTANT: The commit message subject line MUST use lowercase or sentence case (first letter capitalized)!**
 
 ### Rules
 
@@ -42,7 +42,7 @@ All commits MUST follow this specification to pass the linter:
 
 - Short description (max 100 characters)
 - Use imperative mood ("add" not "added")
-- **ALL LOWERCASE** - No uppercase letters anywhere in the subject
+- **Use lowercase or sentence case** - Must not use start-case, PascalCase, or all uppercase
 - No period at the end
 
 4. **Body** (optional):
@@ -80,11 +80,13 @@ All commits MUST follow this specification to pass the linter:
 # Good examples
 feat(DRP-1234): add user authentication endpoint
 fix(DRP-5678): resolve array parsing issue with multiple spaces
+feat(DRP-1234): Add user authentication endpoint
 chore(DEV): update development dependencies
 
 # Bad examples
 feat: add authentication  # Missing scope
 Fix(DRP-1234): resolve issue  # Type must be lowercase
+feat(DRP-1234): Add User Authentication Endpoint  # Start-case not allowed
 feat(DRP-1234): Added new feature.  # Past tense and period
 ```
 

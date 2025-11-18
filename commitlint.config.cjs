@@ -50,7 +50,7 @@ module.exports = {
       // Enforce the case of the subject
       2,
       "never",
-      ["sentence-case", "start-case", "pascal-case", "upper-case"]
+      ["start-case", "pascal-case", "upper-case"]
     ],
     "subject-empty": [2, "never"], // Enforce the presence of the subject
     "subject-full-stop": [2, "never", "."], // Enforce the absence of a period at the end of the subject
