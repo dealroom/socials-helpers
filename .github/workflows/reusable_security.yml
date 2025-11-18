@@ -46,7 +46,7 @@ jobs:
 
   security-check-results:
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     name: Security Checks Result
     needs: [checkov, trivy, kyverno]
     permissions:

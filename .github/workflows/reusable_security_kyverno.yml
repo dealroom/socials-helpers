@@ -25,7 +25,7 @@ env:
 jobs:
   repository-changes:
     name: Check Chart Changes
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     outputs:
       charts: ${{ steps.changes.outputs.charts }}
     steps:
