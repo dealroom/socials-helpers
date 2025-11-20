@@ -29,6 +29,9 @@ jobs:
       contents: write
       pull-requests: write
       repository-projects: write
+    # Only run for human-authored PRs with 'low-risk' label
+    # For all event types, check both the PR author AND the actor (comment/review author)
+    # to ensure workflow doesn't run when bots interact with human PRs
     if: |
       !failure()
       &&
@@ -54,15 +57,37 @@ jobs:
           &&
           !endsWith(github.event.issue.user.login, '[bot]')
           &&
+          github.event.comment.user.type != 'Bot'
+          &&
+          !endsWith(github.event.comment.user.login, '[bot]')
+          &&
           contains(github.event.issue.labels.*.name, 'low-risk')
         )
         ||
         (
-          (github.event_name == 'pull_request_review' || github.event_name == 'pull_request_review_comment')
+          github.event_name == 'pull_request_review'
           &&
           github.event.pull_request.user.type != 'Bot'
           &&
           !endsWith(github.event.pull_request.user.login, '[bot]')
+          &&
+          github.event.review.user.type != 'Bot'
+          &&
+          !endsWith(github.event.review.user.login, '[bot]')
+          &&
+          contains(github.event.pull_request.labels.*.name, 'low-risk')
+        )
+        ||
+        (
+          github.event_name == 'pull_request_review_comment'
+          &&
+          github.event.pull_request.user.type != 'Bot'
+          &&
+          !endsWith(github.event.pull_request.user.login, '[bot]')
+          &&
+          github.event.comment.user.type != 'Bot'
+          &&
+          !endsWith(github.event.comment.user.login, '[bot]')
           &&
           contains(github.event.pull_request.labels.*.name, 'low-risk')
         )
@@ -100,19 +125,9 @@ jobs:
             if (context.eventName === 'pull_request' || context.eventName === 'pull_request_review' || context.eventName === 'pull_request_review_comment') {
               prAuthor = context.payload.pull_request.user.login;
             } else if (context.eventName === 'issue_comment' && context.payload.issue.pull_request) {
-              // For issue_comment events, we need to fetch the actual PR to get its author
-              const prNumber = context.payload.issue.number;
-              try {
-                const pr = await github.rest.pulls.get({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber
-                });
-                prAuthor = pr.data.user.login;
-              } catch (fetchError) {
-                core.setFailed(`Failed to fetch PR details: ${fetchError.message}`);
-                return;
-              }
+              // For issue_comment events, use the issue author (which is the PR author)
+              // The job condition already filters out bot PR authors and bot comment authors
+              prAuthor = context.payload.issue.user.login;
             } else {
               core.setFailed('Unable to determine PR author');
               return;
