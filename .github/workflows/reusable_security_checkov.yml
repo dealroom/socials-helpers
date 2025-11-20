@@ -25,7 +25,7 @@ permissions:
 
 env:
   # renovate: datasource=docker depName=bridgecrew/checkov
-  CHECKOV_VERSION: 3.2.493
+  CHECKOV_VERSION: 3.2.494
 
 jobs:
   checkov-scan:
