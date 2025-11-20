@@ -1,0 +1,62 @@
+# jscpd:ignore-start
+# Auto-synced file, managed by [dealroom/mothership](https://github.com/dealroom/mothership)
+# The changes to this file will be automatically overwritten on the next sync. Do not edit by hand!
+
+name: Migrate (20 Nov 2025)
+
+on:
+  push:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  migrate:
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write # To modify workflow files
+      contents: write # To checkout the repository
+      pull-requests: write # To create pull requests
+      issues: write # To comment on issues
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Get Application Token
+        id: app-token
+        uses: ./.github/actions/github-app-token
+        with:
+          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: metadata:read,contents:write,workflows:write,issues:write,pull_requests:write
+      - name: Remove old project_add_core.yml workflow
+        shell: bash
+        run: |
+          set -e
+
+          # Check if project_add_core.yml exists
+          if [ -f ".github/workflows/project_add_core.yml" ]; then
+            echo "Removing old project_add_core.yml workflow..."
+            rm -f .github/workflows/project_add_core.yml
+            echo "Removed: .github/workflows/project_add_core.yml"
+          else
+            echo "project_add_core.yml does not exist, skipping removal"
+          fi
+      - name: Create Migration PR
+        uses: ./.github/actions/github-pull-request
+        with:
+          commit-message: "chore(DEV): rename core project to product project"
+          github-token: ${{ steps.app-token.outputs.token }}
+          branch: feature/DEV/rename-core-to-product
+          labels: |
+            sync
+            force-lint
+      - name: Disable itself
+        run: |
+          gh workflow disable -R "$GITHUB_REPOSITORY" "${GITHUB_WORKFLOW}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+# jscpd:ignore-end
