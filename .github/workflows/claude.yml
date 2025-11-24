@@ -44,7 +44,7 @@ jobs:
       actions: read # Claude's github_ci MCP server requires read permission
     steps:
       - name: Checkout repository
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0 # Room CLI needs full git history
           persist-credentials: true # zizmor:ignore[persist-credentials] Claude action needs git credentials to checkout PR branches
