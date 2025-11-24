@@ -61,3 +61,8 @@ quote_type = single
 # Containers
 [Dockerfile]
 indent_size = 4
+
+# Rego (OPA policies)
+[*.rego]
+indent_style = tab
+indent_size = 4
