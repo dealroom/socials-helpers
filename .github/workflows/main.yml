@@ -33,19 +33,19 @@ jobs:
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           persist-credentials: false
-      - name: Get Application Token
-        id: app-token
+      - name: Get Code Reader Token
+        id: code-reader-token
         uses: ./.github/actions/github-app-token
         with:
-          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
-          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: metadata:read,contents:read,packages:read
+          application-id: ${{ secrets.CODE_READER_APP_ID != '' && secrets.CODE_READER_APP_ID || secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.CODE_READER_APP_PRIVATE_KEY != '' && secrets.CODE_READER_APP_PRIVATE_KEY || secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: contents:read
       - name: Setup Environment
         uses: ./.github/actions/setup-php
         with:
           php-version: ${{ matrix.php-version }}
           extensions: ${{ vars.EXTENSIONS }}
-          github-token: ${{ steps.app-token.outputs.token }}
+          github-token: ${{ steps.code-reader-token.outputs.token }}
           install-language: true
       - name: Test
         uses: ./.github/actions/test-php

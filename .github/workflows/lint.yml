@@ -68,13 +68,13 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Get Application Token
-        id: app-token
+      - name: Get Code Reader Token
+        id: code-reader-token
         uses: ./.github/actions/github-app-token
         with:
-          application-id: ${{ secrets.DEALROOMBA_APP_ID }}
-          application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: metadata:read,packages:read,contents:read,workflows:write
+          application-id: ${{ secrets.CODE_READER_APP_ID != '' && secrets.CODE_READER_APP_ID || secrets.DEALROOMBA_APP_ID }}
+          application-private-key: ${{ secrets.CODE_READER_APP_PRIVATE_KEY != '' && secrets.CODE_READER_APP_PRIVATE_KEY || secrets.DEALROOMBA_APP_PRIVATE_KEY }}
+          permissions: contents:read
       - name: Check Action Version Pinning
         uses: ./.github/actions/github-actions-ensure-semver
         with:
@@ -87,7 +87,7 @@ jobs:
       - name: Setup linting process
         uses: ./.github/actions/setup-linter
         with:
-          github-token: ${{ steps.app-token.outputs.token }}
+          github-token: ${{ steps.code-reader-token.outputs.token }}
           extensions: ${{ vars.EXTENSIONS || 'none' }}
           external-setup: ${{ github.event.repository.name != 'mothership' && false || true }}
           docs-generate: true
