@@ -27,7 +27,7 @@ permissions:
 
 env:
   # renovate: datasource=github-releases depName=aquasecurity/trivy
-  TRIVY_VERSION: v0.67.2
+  TRIVY_VERSION: v0.68.1
 
 jobs:
   trivy-scan:
