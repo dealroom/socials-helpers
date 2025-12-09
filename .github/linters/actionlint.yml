@@ -7,6 +7,6 @@ self-hosted-runner:
     - linux-64-high-mem
     - linux-4-16
     - linux-8-32-arm64-ubuntu24.04
-    - gha-dev-scale-set
-    - gha-prod-scale-set
+    - gha-dev-infra-scale-set
+    - gha-prod-infra-scale-set
     - ubuntu-slim
