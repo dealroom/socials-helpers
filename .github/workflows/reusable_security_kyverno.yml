@@ -49,13 +49,13 @@ jobs:
       matrix:
         include:
           - env: develop
-            runner-type: gha-dev-scale-set
+            runner-type: gha-dev-infra-scale-set
           - env: staging
-            runner-type: gha-dev-scale-set
+            runner-type: gha-dev-infra-scale-set
           - env: beta
-            runner-type: gha-prod-scale-set
+            runner-type: gha-prod-infra-scale-set
           - env: production
-            runner-type: gha-prod-scale-set
+            runner-type: gha-prod-infra-scale-set
     permissions:
       contents: read
       id-token: write
