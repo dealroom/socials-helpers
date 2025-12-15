@@ -110,7 +110,7 @@ jobs:
         with:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: contents:read,metadata:read
+          permissions: contents:write,metadata:read,pull_requests:write,workflows:write
       - name: Configure Git for private repositories
         if: steps.check-access.outputs.authorized == 'true' && steps.app-token.outputs.token != ''
         run: |
@@ -148,6 +148,9 @@ jobs:
           GONOPROXY: github.com/dealroom/*
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ steps.app-token.outputs.token }}
+          bot_id: "189869926"
+          bot_name: dealroomba-app[bot]
           claude_args: |
             --max-turns 300
             --allowedTools ${{ steps.parse-tools.outputs.allowed_tools }}
