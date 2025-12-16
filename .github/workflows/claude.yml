@@ -110,7 +110,7 @@ jobs:
         with:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
-          permissions: contents:write,metadata:read,pull_requests:write,workflows:write
+          permissions: contents:write,issues:write,metadata:read,pull_requests:write,workflows:write
       - name: Configure Git for private repositories
         if: steps.check-access.outputs.authorized == 'true' && steps.app-token.outputs.token != ''
         run: |
