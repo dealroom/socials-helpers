@@ -22,6 +22,7 @@ regexes = [
   '''client_id''',
   '''CLIENT_ID''',
   '''secretProjectId''',
+  '''gcpSecretProject''',
   '''bpiAuth0ClientId''',
   '''auth0ClientId''',
   '''shareToken''',
