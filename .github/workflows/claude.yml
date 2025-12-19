@@ -43,11 +43,12 @@ jobs:
       id-token: write # To retrieve the OIDC token for the claude-code-action
       actions: read # Claude's github_ci MCP server requires read permission
     steps:
+      # First checkout to access local actions and repository settings (with minimal credentials)
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           fetch-depth: 0 # Room CLI needs full git history
-          persist-credentials: true # zizmor:ignore[persist-credentials] Claude action needs git credentials to checkout PR branches
+          persist-credentials: false
       - name: Check if gcp-auth action exists
         id: check-gcp-auth
         uses: andstor/file-existence-action@076e0072799f4942c8bc574a82233e1e4d13e9d6 # v3.0.0
@@ -111,6 +112,14 @@ jobs:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
           permissions: contents:write,issues:write,metadata:read,pull_requests:write,workflows:write
+      # Re-checkout with App Token to ensure git push uses App credentials (triggers workflows)
+      - name: Checkout repository with App Token
+        if: steps.check-access.outputs.authorized == 'true' && steps.app-token.outputs.token != ''
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          fetch-depth: 0 # Room CLI needs full git history
+          persist-credentials: true # zizmor:ignore[persist-credentials] Required for Claude to push commits that trigger workflows
       - name: Configure Git for private repositories
         if: steps.check-access.outputs.authorized == 'true' && steps.app-token.outputs.token != ''
         run: |
