@@ -44,7 +44,7 @@ runs:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
         key: ext-cache-1
-    - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+    - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       if: ${{ inputs.extensions != 'none' }}
       with:
         path: ${{ steps.extcache.outputs.dir }}
@@ -59,7 +59,7 @@ runs:
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ inputs.github-token }}"}}'
-    - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+    - uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: ${{ github.workspace }}/vendor
         key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock', '*/composer.lock') }}
