@@ -25,7 +25,7 @@ jobs:
           application-id: ${{ secrets.DEALROOMBA_APP_ID }}
           application-private-key: ${{ secrets.DEALROOMBA_APP_PRIVATE_KEY }}
           permissions: metadata:read,contents:write,pull_requests:write
-      - uses: peter-evans/rebase@87c3fd9344792e51ab1c7494c3369620c84ed852 # v3.1.0
+      - uses: peter-evans/rebase@e4945786f7ca41fe6e101cead4395f5489593943 # v4.0.0
         name: Rebase Open Sync PRs
         with:
           include-labels: sync
