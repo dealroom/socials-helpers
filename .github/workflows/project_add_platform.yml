@@ -11,12 +11,13 @@ on:
       - reopened
       - ready_for_review
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   add-to-project:
     uses: ./.github/workflows/reusable_add_to_project.yml
+    permissions:
+      contents: read
     with:
       # @see https://github.com/orgs/dealroom/projects/5
       project-number: 5

@@ -21,9 +21,7 @@ on:
         description: Path to the generated CycloneDX SBOM file
         value: ${{ jobs.trivy-scan.outputs.sbom-path }}
 
-permissions:
-  contents: read
-  pull-requests: write
+permissions: {}
 
 env:
   # renovate: datasource=github-releases depName=aquasecurity/trivy

@@ -19,9 +19,7 @@ on:
         description: Result of the Checkov scan (pass/fail)
         value: ${{ jobs.checkov-scan.outputs.checkov-result }}
 
-permissions:
-  contents: read
-  pull-requests: write
+permissions: {}
 
 env:
   # renovate: datasource=docker depName=bridgecrew/checkov
