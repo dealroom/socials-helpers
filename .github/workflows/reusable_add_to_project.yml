@@ -19,8 +19,7 @@ on:
         required: true
         description: Dealroomba App Private Key for GitHub authentication
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   add-to-project:
