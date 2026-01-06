@@ -50,12 +50,12 @@ runs:
         INPUTS_TEST_COMMAND: ${{ inputs.test-command }}
     - shell: sh # coverage disabled or skipped, run the raw command
       if: ${{ inputs.codecov-export != 'true' || steps.coverage-config.outputs.skip_coverage == 'true' }}
-      run: ${INPUTS_TEST_COMMAND}
+      run: eval "${INPUTS_TEST_COMMAND}"
       env:
         INPUTS_TEST_COMMAND: ${{ inputs.test-command }}
     - shell: sh # codecov coverage enabled, run the command with coverage
       if: ${{ inputs.codecov-export == 'true' && steps.coverage-config.outputs.skip_coverage != 'true' }}
-      run: ${STEPS_COVERAGE_CONFIG_OUTPUTS_COMMAND}
+      run: eval "${STEPS_COVERAGE_CONFIG_OUTPUTS_COMMAND}"
       env:
         XDEBUG_MODE: coverage
         STEPS_COVERAGE_CONFIG_OUTPUTS_COMMAND: ${{ steps.coverage-config.outputs.command }}
