@@ -8,7 +8,7 @@ on:
     # At 04:47 on Monday and Thursday.
     - cron: 47 4 * * 1,4
 
-permissions: read-all
+permissions: {}
 
 jobs:
   stale:

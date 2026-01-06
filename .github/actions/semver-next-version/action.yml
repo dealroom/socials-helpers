@@ -100,10 +100,16 @@ runs:
       shell: bash
       run: |
         # Use outputs from initial-release step if no tags exist
-        if [[ "${{ steps.check-tags.outputs.has_tags }}" == "false" ]]; then
-          echo "current=${{ steps.initial-release.outputs.current }}" >> $GITHUB_OUTPUT
-          echo "next=${{ steps.initial-release.outputs.next }}" >> $GITHUB_OUTPUT
+        if [[ "${STEPS_CHECK_TAGS_OUTPUTS_HAS_TAGS}" == "false" ]]; then
+          echo "current=${STEPS_INITIAL_RELEASE_OUTPUTS_CURRENT}" >> $GITHUB_OUTPUT
+          echo "next=${STEPS_INITIAL_RELEASE_OUTPUTS_NEXT}" >> $GITHUB_OUTPUT
         else
-          echo "current=${{ steps.semver.outputs.current }}" >> $GITHUB_OUTPUT
-          echo "next=${{ steps.semver.outputs.next }}" >> $GITHUB_OUTPUT
+          echo "current=${STEPS_SEMVER_OUTPUTS_CURRENT}" >> $GITHUB_OUTPUT
+          echo "next=${STEPS_SEMVER_OUTPUTS_NEXT}" >> $GITHUB_OUTPUT
         fi
+      env:
+        STEPS_CHECK_TAGS_OUTPUTS_HAS_TAGS: ${{ steps.check-tags.outputs.has_tags }}
+        STEPS_INITIAL_RELEASE_OUTPUTS_CURRENT: ${{ steps.initial-release.outputs.current }}
+        STEPS_INITIAL_RELEASE_OUTPUTS_NEXT: ${{ steps.initial-release.outputs.next }}
+        STEPS_SEMVER_OUTPUTS_CURRENT: ${{ steps.semver.outputs.current }}
+        STEPS_SEMVER_OUTPUTS_NEXT: ${{ steps.semver.outputs.next }}

@@ -12,10 +12,12 @@ runs:
   using: composite
   steps:
     - run: |
-        echo "Tests results: ${{ toJson(inputs.needs) }}"
+        echo "Tests results: ${INPUT_NEEDS}"
         echo "Some tests failed, see above for details"
         exit 1
       shell: bash
+      env:
+        INPUT_NEEDS: ${{ inputs.needs }}
       # see https://stackoverflow.com/a/67532120/4907315
       if: >-
         ${{ contains(fromJson(inputs.needs).*.result, 'failure') || contains(fromJson(inputs.needs).*.result, 'cancelled') }}

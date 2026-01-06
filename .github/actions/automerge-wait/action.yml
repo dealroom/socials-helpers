@@ -35,6 +35,11 @@ runs:
   steps:
     - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       id: wait-for-reviews
+      env:
+        INPUT_BOT_USERNAMES: ${{ inputs.bot-usernames }} # zizmor: ignore[template-injection] - accessed via process.env
+        INPUT_BOT_CHECK_NAMES: ${{ inputs.bot-check-names }} # zizmor: ignore[template-injection] - accessed via process.env
+        INPUT_TIMEOUT_SECONDS: ${{ inputs.timeout-seconds }} # zizmor: ignore[template-injection] - accessed via process.env
+        INPUT_POLL_INTERVAL_SECONDS: ${{ inputs.poll-interval-seconds }} # zizmor: ignore[template-injection] - accessed via process.env
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -43,10 +48,10 @@ runs:
           const pull_number = context.payload.pull_request ? context.payload.pull_request.number : context.issue.number;
 
           // Parse inputs
-          const botUsernames = '${{ inputs.bot-usernames }}'.split(',').map(s => s.trim());
-          const botCheckNames = '${{ inputs.bot-check-names }}'.split(',').map(s => s.trim().toLowerCase());
-          const timeoutSeconds = parseInt('${{ inputs.timeout-seconds }}');
-          const pollIntervalSeconds = parseInt('${{ inputs.poll-interval-seconds }}');
+          const botUsernames = process.env.INPUT_BOT_USERNAMES.split(',').map(s => s.trim());
+          const botCheckNames = process.env.INPUT_BOT_CHECK_NAMES.split(',').map(s => s.trim().toLowerCase());
+          const timeoutSeconds = parseInt(process.env.INPUT_TIMEOUT_SECONDS);
+          const pollIntervalSeconds = parseInt(process.env.INPUT_POLL_INTERVAL_SECONDS);
 
           // Define pending statuses
           const PENDING_STATUSES = ['queued', 'in_progress', 'requested', 'waiting', 'pending'];

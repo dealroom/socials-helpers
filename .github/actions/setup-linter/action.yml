@@ -16,16 +16,10 @@ inputs:
     description: Whether to run the external setup action
     required: false
     default: false
-    options:
-      - true
-      - false
   configure-ignores:
     description: Whether to configure ignores specific to linting process
     required: false
     default: false
-    options:
-      - true
-      - false
   extensions:
     description: Extra extensions to install
     required: false
@@ -37,9 +31,6 @@ inputs:
     description: Whether to generate the Terraform docs
     required: false
     default: false
-    options:
-      - true
-      - false
 runs:
   using: composite
   steps:
@@ -105,21 +96,27 @@ runs:
         fi
     # Load the configuration file into the environment (if available)
     - if: inputs.config-file != ''
-      run: |
-        if [ -f ${{ inputs.config-file }} ]; then
-          grep -o '^[^#]*' ${{ inputs.config-file }} >> "$GITHUB_ENV"
+      run: | # zizmor: ignore[github-env]
+        if [ -f ${INPUTS_CONFIG_FILE} ]; then
+          grep -o '^[^#]*' ${INPUTS_CONFIG_FILE} >> "$GITHUB_ENV"
         fi
       shell: bash
+      env:
+        INPUTS_CONFIG_FILE: ${{ inputs.config-file }}
     # Load the configuration file for fixing into the environment (if available)
     - if: inputs.config-file-fix != ''
-      run: |
-        if [ -f ${{ inputs.config-file-fix }} ]; then
-          grep -o '^[^#]*' ${{ inputs.config-file-fix }} >> "$GITHUB_ENV"
+      run: | # zizmor: ignore[github-env]
+        if [ -f ${INPUTS_CONFIG_FILE_FIX} ]; then
+          grep -o '^[^#]*' ${INPUTS_CONFIG_FILE_FIX} >> "$GITHUB_ENV"
         fi
       shell: bash
+      env:
+        INPUTS_CONFIG_FILE_FIX: ${{ inputs.config-file-fix }}
     # Generate the composer auth token for private packages
-    - run: echo "COMPOSER_AUTH={\"github-oauth\":{\"github.com\":\"${{ inputs.github-token }}\"}}" >> "$GITHUB_ENV"
+    - run: echo "COMPOSER_AUTH={\"github-oauth\":{\"github.com\":\"${INPUTS_GITHUB_TOKEN}\"}}" >> "$GITHUB_ENV" # zizmor: ignore[github-env]
       shell: bash
+      env:
+        INPUTS_GITHUB_TOKEN: ${{ inputs.github-token }}
     # Run additional external setup action (if available)
     - if: inputs.external-setup == 'true'
       id: check-files
@@ -171,15 +168,15 @@ runs:
           find . -type f -name "README.md" -print0 | \
             xargs -0 sed -i '/<!-- textlint-disable terminology -->/d; /<!-- textlint-enable terminology -->/d;'
           find . -type f -name "README.md" -print0 | \
-            xargs -0 sed -i '/<!-- markdownlint-disable MD034 -->/d; /<!-- markdownlint-enable MD034 -->/d;'
+            xargs -0 sed -i '/<!-- markdownlint-disable MD034/d; /<!-- markdownlint-enable MD034/d;'
           find . -type f -name "README.md" -print0 | \
             xargs -0 sed -i '/<!-- prettier-ignore-start -->/d; /<!-- prettier-ignore-end -->/d;'
         }
         ensure_no_duplicates
         add_ignore "BEGIN_TF_DOCS" "textlint-disable terminology" "i"
         add_ignore "END_TF_DOCS" "textlint-enable terminology" "a"
-        add_ignore "BEGIN_TF_DOCS" "markdownlint-disable MD034" "i"
-        add_ignore "END_TF_DOCS" "markdownlint-enable MD034" "a"
+        add_ignore "BEGIN_TF_DOCS" "markdownlint-disable MD034 MD060" "i"
+        add_ignore "END_TF_DOCS" "markdownlint-enable MD034 MD060" "a"
         add_ignore "BEGIN_TF_DOCS" "prettier-ignore-start" "i"
         add_ignore "END_TF_DOCS" "prettier-ignore-end" "a"
     # Configure .trivyignore file for Trivy scanning

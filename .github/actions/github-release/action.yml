@@ -22,10 +22,12 @@ runs:
     - id: check-skip
       shell: bash
       run: |
-        if [ "${{ steps.repo-changes.outputs.github-only }}" == "true" ]; then
+        if [ "${STEPS_REPO_CHANGES_OUTPUTS_GITHUB_ONLY}" == "true" ]; then
           echo "Only .github/ files changed, skipping release creation"
           exit 0
         fi
+      env:
+        STEPS_REPO_CHANGES_OUTPUTS_GITHUB_ONLY: ${{ steps.repo-changes.outputs.github-only }}
     - id: semver
       if: steps.repo-changes.outputs.github-only != 'true'
       uses: ./.github/actions/semver-next-version

@@ -19,7 +19,7 @@ runs:
         ORGANIZATION: dealroom
         PROJECT_NUMBER: ${{ inputs.project-number }}
         GH_TOKEN: ${{ inputs.github-token }}
-      run: |
+      run: | # zizmor: ignore[github-env]
         gh api graphql -F query='
           query($org: String!, $number: Int!) {
             organization(login: $org){
@@ -57,7 +57,7 @@ runs:
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         PR_ID: ${{ github.event.pull_request.node_id }}
-      run: |
+      run: | # zizmor: ignore[github-env]
         item_id="$( gh api graphql -F query='
           mutation($project:ID!, $pr:ID!) {
             addProjectV2ItemById(input: {projectId: $project, contentId: $pr}) {
@@ -71,7 +71,7 @@ runs:
         echo 'ITEM_ID='$item_id >> $GITHUB_ENV
     # Current date in `yyyy-mm-dd` format
     - shell: bash
-      run: echo "DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV
+      run: echo "DATE=$(date +"%Y-%m-%d")" >> $GITHUB_ENV # zizmor: ignore[github-env]
     # Project item automation:
     #   - Sets the value of the `Status` field to `Todo`
     #   - Sets the value of the `Date posted` field to previously stored `$DATE` value
@@ -115,6 +115,6 @@ runs:
           }' -F project=$PROJECT_ID \
             -F item=$ITEM_ID \
             -F status_field=$STATUS_FIELD_ID \
-            -F status_value=${{ env.TODO_OPTION_ID }} \
+            -F status_value=${TODO_OPTION_ID} \
             -F date_field=$DATE_FIELD_ID \
             -F date_value=$DATE --silent

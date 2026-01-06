@@ -13,9 +13,6 @@ inputs:
     description: Whether to enable codecov upload
     required: false
     default: false
-    options:
-      - true
-      - false
   codecov-token:
     description: Codecov token
     required: false
@@ -40,23 +37,28 @@ runs:
     - shell: sh
       id: coverage-config
       run: |
-        COMMAND="${{ inputs.test-command }}"
-        if expr "${{ inputs.test-command }}" : ".*phpunit.*" > /dev/null; then
+        COMMAND="${INPUTS_TEST_COMMAND}"
+        if expr "${INPUTS_TEST_COMMAND}" : ".*phpunit.*" > /dev/null; then
           COMMAND="${COMMAND} --coverage-clover coverage.xml"
-        elif expr "${{ inputs.test-command }}" : ".*artisan test.*" > /dev/null; then
+        elif expr "${INPUTS_TEST_COMMAND}" : ".*artisan test.*" > /dev/null; then
           COMMAND="${COMMAND} --coverage-clover=coverage.xml"
         else
           echo "skip_coverage=true" >> "$GITHUB_OUTPUT"
         fi
         echo "command=$COMMAND" >> "$GITHUB_OUTPUT"
+      env:
+        INPUTS_TEST_COMMAND: ${{ inputs.test-command }}
     - shell: sh # coverage disabled or skipped, run the raw command
       if: ${{ inputs.codecov-export != 'true' || steps.coverage-config.outputs.skip_coverage == 'true' }}
-      run: ${{ inputs.test-command }}
+      run: ${INPUTS_TEST_COMMAND}
+      env:
+        INPUTS_TEST_COMMAND: ${{ inputs.test-command }}
     - shell: sh # codecov coverage enabled, run the command with coverage
       if: ${{ inputs.codecov-export == 'true' && steps.coverage-config.outputs.skip_coverage != 'true' }}
-      run: ${{ steps.coverage-config.outputs.command }}
+      run: ${STEPS_COVERAGE_CONFIG_OUTPUTS_COMMAND}
       env:
         XDEBUG_MODE: coverage
+        STEPS_COVERAGE_CONFIG_OUTPUTS_COMMAND: ${{ steps.coverage-config.outputs.command }}
     - uses: codecov/codecov-action@671740ac38dd9b0130fbe1cec585b89eea48d3de # v5.5.2
       if: ${{ inputs.codecov-export == 'true' && steps.coverage-config.outputs.skip_coverage != 'true' }}
       with:

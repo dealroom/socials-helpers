@@ -36,7 +36,7 @@ runs:
     - id: check-skip
       shell: bash
       run: |
-        if [ "${{ steps.repo-changes.outputs.github-only }}" == "true" ]; then
+        if [ "${STEPS_REPO_CHANGES_OUTPUTS_GITHUB_ONLY}" == "true" ]; then
           echo "skip_release=true" >> "$GITHUB_OUTPUT"
           echo "Only .github/ files changed, skipping version bump"
           exit 0
@@ -44,6 +44,8 @@ runs:
           echo "skip_release=false" >> "$GITHUB_OUTPUT"
           echo "Files outside .github/ changed, proceeding with version bump"
         fi
+      env:
+        STEPS_REPO_CHANGES_OUTPUTS_GITHUB_ONLY: ${{ steps.repo-changes.outputs.github-only }}
     - id: semver
       uses: ./.github/actions/semver-next-version
       with:
@@ -53,25 +55,35 @@ runs:
     - id: clean-version
       shell: bash
       run: |
-        NEW_TAG=$(echo "${{ steps.semver.outputs.next }}" | sed 's/^v//')
-        OLD_TAG=$(echo "${{ steps.semver.outputs.current }}" | sed 's/^v//')
+        NEW_TAG=$(echo "${STEPS_SEMVER_OUTPUTS_NEXT}" | sed 's/^v//')
+        OLD_TAG=$(echo "${STEPS_SEMVER_OUTPUTS_CURRENT}" | sed 's/^v//')
         echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
         echo "old_tag=$OLD_TAG" >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_SEMVER_OUTPUTS_NEXT: ${{ steps.semver.outputs.next }}
+        STEPS_SEMVER_OUTPUTS_CURRENT: ${{ steps.semver.outputs.current }}
     - shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
+        INPUTS_VERSION_FILES: ${{ inputs.version-files }}
+        STEPS_CLEAN_VERSION_OUTPUTS_OLD_TAG: ${{ steps.clean-version.outputs.old_tag }}
+        STEPS_CLEAN_VERSION_OUTPUTS_NEW_TAG: ${{ steps.clean-version.outputs.new_tag }}
+        STEPS_SEMVER_OUTPUTS_CURRENT: ${{ steps.semver.outputs.current }}
+        STEPS_SEMVER_OUTPUTS_NEXT: ${{ steps.semver.outputs.next }}
       run: |
         chmod +x ${{ github.action_path }}/scripts/update_versions.sh
         ${{ github.action_path }}/scripts/update_versions.sh \
-          "${{ inputs.version-files }}" \
-          "${{ steps.clean-version.outputs.old_tag }}" \
-          "${{ steps.clean-version.outputs.new_tag }}" \
-          "${{ steps.semver.outputs.current }}" \
-          "${{ steps.semver.outputs.next }}"
+          "${INPUTS_VERSION_FILES}" \
+          "${STEPS_CLEAN_VERSION_OUTPUTS_OLD_TAG}" \
+          "${STEPS_CLEAN_VERSION_OUTPUTS_NEW_TAG}" \
+          "${STEPS_SEMVER_OUTPUTS_CURRENT}" \
+          "${STEPS_SEMVER_OUTPUTS_NEXT}"
     - if: ${{ inputs.extra-cmd != '' }}
       run: |
-        ${{ inputs.extra-cmd }}
+        ${INPUTS_EXTRA_CMD}
       shell: bash
+      env:
+        INPUTS_EXTRA_CMD: ${{ inputs.extra-cmd }}
     - id: create-pr
       if: steps.check-skip.outputs.skip_release != 'true'
       uses: ./.github/actions/github-pull-request
