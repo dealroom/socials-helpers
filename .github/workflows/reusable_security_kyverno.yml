@@ -12,11 +12,7 @@ on:
         default: "1"
         type: string
 
-permissions:
-  contents: read
-  id-token: write
-  packages: read
-  pull-requests: write
+permissions: {}
 
 env:
   # renovate: datasource=github-releases depName=kyverno/kyverno
@@ -26,6 +22,9 @@ jobs:
   repository-changes:
     name: Check Chart Changes
     runs-on: ubuntu-slim
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       charts: ${{ steps.changes.outputs.charts }}
     steps:

@@ -27,32 +27,34 @@ runs:
       shell: bash
       run: |
         # Configure git to use the provided token for GitHub operations
-        git config --global url."https://x-access-token:${{ inputs.github-token }}@github.com/".insteadOf "https://github.com/"
+        git config --global url."https://x-access-token:${INPUTS_GITHUB_TOKEN}@github.com/".insteadOf "https://github.com/"
+      env:
+        INPUTS_GITHUB_TOKEN: ${{ inputs.github-token }}
     - id: refs
       shell: bash
       run: |
-        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+        if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
           # For PRs
           echo "base=" >> "$GITHUB_OUTPUT"  # paths-filter handles PR base automatically
-          echo "base_ref=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
-          echo "head_ref=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
-        elif [[ "${{ github.ref_type }}" == "tag" ]]; then
+          echo "base_ref=${PR_BASE_SHA}" >> "$GITHUB_OUTPUT"
+          echo "head_ref=${PR_HEAD_SHA}" >> "$GITHUB_OUTPUT"
+        elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
           # For tags, use the previous tag
-          PREVIOUS_TAG="${{ steps.get-previous-tag.outputs.tag }}"
+          PREVIOUS_TAG="${STEPS_GET_PREVIOUS_TAG_OUTPUTS_TAG}"
           echo "base=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
           echo "base_ref=${PREVIOUS_TAG}" >> "$GITHUB_OUTPUT"
-          echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
-        elif [[ -n "${{ github.event.before }}" ]] && [[ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
+          echo "head_ref=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+        elif [[ -n "${EVENT_BEFORE}" ]] && [[ "${EVENT_BEFORE}" != "0000000000000000000000000000000000000000" ]]; then
           # For push events with valid before SHA
-          echo "base=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
-          echo "base_ref=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
-          echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "base=${EVENT_BEFORE}" >> "$GITHUB_OUTPUT"
+          echo "base_ref=${EVENT_BEFORE}" >> "$GITHUB_OUTPUT"
+          echo "head_ref=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
         else
           # For all other events (release, workflow_dispatch, schedule, etc.) or first push
           # Use the default branch as base
-          DEFAULT_BRANCH="${{ github.event.repository.default_branch || 'main' }}"
+          DEFAULT_BRANCH="${REPO_DEFAULT_BRANCH:-main}"
           # For scheduled/workflow_dispatch runs on default branch, use HEAD~1 to compare with previous commit
-          if [[ ("${{ github.event_name }}" == "schedule" || "${{ github.event_name }}" == "workflow_dispatch") ]] && [[ "${{ github.ref }}" == "refs/heads/${DEFAULT_BRANCH}" ]]; then
+          if [[ ("${GITHUB_EVENT_NAME}" == "schedule" || "${GITHUB_EVENT_NAME}" == "workflow_dispatch") ]] && [[ "${GITHUB_REF}" == "refs/heads/${DEFAULT_BRANCH}" ]]; then
             # Get the previous commit SHA, or use the default branch if this is the first commit
             if git rev-parse HEAD~1 >/dev/null 2>&1; then
               PREVIOUS_SHA=$(git rev-parse HEAD~1)
@@ -67,10 +69,16 @@ runs:
             echo "base=${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
             echo "base_ref=origin/${DEFAULT_BRANCH}" >> "$GITHUB_OUTPUT"
           fi
-          echo "head_ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          echo "head_ref=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
           # Fetch the default branch if needed
           git fetch origin "$DEFAULT_BRANCH:refs/remotes/origin/$DEFAULT_BRANCH" || true
         fi
+      env:
+        STEPS_GET_PREVIOUS_TAG_OUTPUTS_TAG: ${{ steps.get-previous-tag.outputs.tag }}
+        REPO_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        EVENT_BEFORE: ${{ github.event.before }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     - id: filter
       uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
       with:
@@ -84,12 +92,12 @@ runs:
     - id: manual-check
       shell: bash
       run: |
-        BASE_REF="${{ steps.refs.outputs.base_ref }}"
-        HEAD_REF="${{ steps.refs.outputs.head_ref }}"
+        BASE_REF="${STEPS_REFS_OUTPUTS_BASE_REF}"
+        HEAD_REF="${STEPS_REFS_OUTPUTS_HEAD_REF}"
         # Check if we can create a valid revision range
         if ! git rev-list "${BASE_REF}".."${HEAD_REF}" >/dev/null 2>&1; then
           echo "Cannot create revision range between ${BASE_REF} and ${HEAD_REF}. Using default branch."
-          DEFAULT_BRANCH="${{ github.event.repository.default_branch || 'main' }}"
+          DEFAULT_BRANCH="${REPO_DEFAULT_BRANCH:-main}"
           git fetch origin "$DEFAULT_BRANCH:refs/remotes/origin/$DEFAULT_BRANCH" || true
           BASE_REF="origin/$DEFAULT_BRANCH"
         fi
@@ -113,3 +121,7 @@ runs:
           fi
         done <<< "$CHANGED_FILES"
         echo "result=${IS_GITHUB_ONLY}" >> $GITHUB_OUTPUT
+      env:
+        STEPS_REFS_OUTPUTS_BASE_REF: ${{ steps.refs.outputs.base_ref }}
+        STEPS_REFS_OUTPUTS_HEAD_REF: ${{ steps.refs.outputs.head_ref }}
+        REPO_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}

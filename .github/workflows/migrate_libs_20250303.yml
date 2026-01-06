@@ -6,7 +6,7 @@ name: Migrate Libs (03 March 2025)
 
 on: [push, pull_request]
 
-permissions: read-all
+permissions: {}
 
 jobs:
   # WARNING: The following job will be executed exactly 1 time (per repository).

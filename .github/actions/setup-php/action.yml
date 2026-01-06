@@ -12,9 +12,6 @@ inputs:
     description: Whether to install PHP
     required: false
     default: false
-    options:
-      - true
-      - false
   php-version:
     description: PHP version to install (only valid if `install-language` is true or `extensions` are provided)
     required: false
@@ -27,9 +24,6 @@ inputs:
     description: Whether to generate the docs (not implemented)
     required: false
     default: true
-    options:
-      - true
-      - false
   working-directory:
     description: Working directory for Composer commands
     required: false
@@ -50,7 +44,7 @@ runs:
         path: ${{ steps.extcache.outputs.dir }}
         key: ${{ steps.extcache.outputs.key }}
         restore-keys: ${{ steps.extcache.outputs.key }}
-    - uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f # 2.35.5
+    - uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # 2.36.0
       if: ${{ inputs.install-language == 'true' || inputs.extensions != 'none' }}
       with:
         php-version: ${{ inputs.php-version }}
@@ -67,7 +61,9 @@ runs:
     - shell: sh
       if: ${{ inputs.github-token != '' }}
       run: |
-        composer config --global github-oauth.github.com ${{ inputs.github-token }}
+        composer config --global github-oauth.github.com ${INPUTS_GITHUB_TOKEN}
+      env:
+        INPUTS_GITHUB_TOKEN: ${{ inputs.github-token }}
     - shell: sh
       run: |
         # Add vendor/ to .gitignore BEFORE creating it to prevent it from being committed
@@ -89,12 +85,14 @@ runs:
         if [ -f .env.testing.example ]; then
           cp .env.testing.example .env.testing
           # Use valkey for dealroom repo, redis for others
-          if [ "${{ github.event.repository.name }}" = "dealroom" ]; then
+          if [ "${GITHUB_EVENT_REPOSITORY_NAME}" = "dealroom" ]; then
             echo -e "DB_HOST=mysql\nES_HOST=elasticsearch\nREDIS_HOST=valkey\nRABBITMQ_HOST=rabbitmq" >> .env.testing
           else
             echo -e "DB_HOST=mysql\nES_HOST=elasticsearch\nREDIS_HOST=redis\nRABBITMQ_HOST=rabbitmq" >> .env.testing
           fi
         fi
+      env:
+        GITHUB_EVENT_REPOSITORY_NAME: ${{ github.event.repository.name }}
     # configure Laravel environment (if applicable)
     - shell: sh
       run: |

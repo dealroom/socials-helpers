@@ -30,6 +30,9 @@ runs:
   steps:
     - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       id: check-issues
+      env:
+        INPUT_BOT_USERNAMES: ${{ inputs.bot-usernames }} # zizmor: ignore[template-injection] - accessed via process.env
+        INPUT_CHECK_UNRESOLVED: ${{ inputs.check-unresolved }} # zizmor: ignore[template-injection] - accessed via process.env
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -37,8 +40,8 @@ runs:
           const repo = context.repo.repo;
           const pull_number = context.payload.pull_request ? context.payload.pull_request.number : context.issue.number;
 
-          const botUsernames = '${{ inputs.bot-usernames }}'.split(',').map(s => s.trim()).filter(s => s);
-          const checkUnresolved = '${{ inputs.check-unresolved }}' === 'true';
+          const botUsernames = process.env.INPUT_BOT_USERNAMES.split(',').map(s => s.trim()).filter(s => s);
+          const checkUnresolved = process.env.INPUT_CHECK_UNRESOLVED === 'true';
 
           // Create a Set of acceptable bot usernames
           // For each bot, we accept both "botname" and "botname[bot]" formats

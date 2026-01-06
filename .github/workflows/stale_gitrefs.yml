@@ -20,7 +20,7 @@ on:
         required: false
         default: 6 weeks ago
 
-permissions: read-all
+permissions: {}
 
 jobs:
   housekeeping:
@@ -36,10 +36,13 @@ jobs:
           persist-credentials: true # zizmor:ignore[persist-credentials] Action needs to persist credentials to delete branches
       - name: Delete stale branches
         uses: beatlabs/delete-old-branches-action@4eeeb8740ff8b3cb310296ddd6b43c3387734588 # v0.0.11
+        env:
+          STALE_DATE: ${{ github.event.inputs.date || '6 weeks ago' }}
+          DRY_RUN: ${{ github.event.inputs.dry-run == 'true' }}
         with:
           repo_token: ${{ github.token }}
-          date: ${{ github.event.inputs.date || '6 weeks ago' }}
-          dry_run: ${{ github.event.inputs.dry-run || 'false' }}
+          date: ${{ env.STALE_DATE }}
+          dry_run: ${{ env.DRY_RUN }}
           delete_tags: true
           # extra_protected_tag_regex matches SemVer with an optional "<anything>/" prefix
           # Examples:

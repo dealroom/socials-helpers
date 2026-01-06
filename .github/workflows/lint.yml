@@ -8,7 +8,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
 
-permissions: read-all
+permissions: {}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}-${{ github.event.label.name }}
@@ -92,7 +92,7 @@ jobs:
           external-setup: ${{ github.event.repository.name != 'mothership' && false || true }}
           docs-generate: true
       - name: Lint Codebase
-        uses: super-linter/super-linter/slim@2bdd90ed3262e023ac84bf8fe35dc480721fc1f2 # v8.2.1
+        uses: super-linter/super-linter/slim@d5b0a2ab116623730dd094f15ddc1b6b25bf7b99 # v8.3.2
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -148,7 +148,7 @@ jobs:
           configure-ignores: true
       - name: Fix linting issues
         continue-on-error: true
-        uses: super-linter/super-linter/slim@2bdd90ed3262e023ac84bf8fe35dc480721fc1f2 # v8.2.1
+        uses: super-linter/super-linter/slim@d5b0a2ab116623730dd094f15ddc1b6b25bf7b99 # v8.3.2
         # For a full list of environment variables see `.github/super-linter.env`
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -172,9 +172,11 @@ jobs:
       - uses: ./.github/actions/post-linter
         if: steps.check-files-post.outputs.files_exists == 'true'
       - name: Commit and push linting fixes
-        uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3 # v7.0.0
+        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
+        env:
+          TARGET_BRANCH: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
         with:
-          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          branch: ${{ env.TARGET_BRANCH }}
           commit_message: "fix(auto): address linting concerns"
           commit_user_name: dealroomba-app[bot]
           commit_user_email: 189869926+dealroomba-app[bot]@users.noreply.github.com

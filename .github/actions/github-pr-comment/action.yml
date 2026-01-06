@@ -37,16 +37,24 @@ runs:
         fi
 
         # For issue_comment events, check if it's on a PR
-        if [[ "${{ github.event_name }}" == "issue_comment" && -z "${{ github.event.issue.pull_request }}" ]]; then
+        if [[ "${{ github.event_name }}" == "issue_comment" && -z "${GITHUB_EVENT_ISSUE_PULL_REQUEST}" ]]; then
           echo "Skipping PR comment: Issue comment is not on a pull request."
           exit 0
         fi
+      env:
+        GITHUB_EVENT_ISSUE_PULL_REQUEST: ${{ github.event.issue.pull_request }}
     - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
       if: |
         github.event_name == 'pull_request' ||
         github.event_name == 'pull_request_review' ||
         github.event_name == 'pull_request_review_comment' ||
         (github.event_name == 'issue_comment' && github.event.issue.pull_request)
+      env:
+        INPUT_COMMENT_IDENTIFIER: ${{ inputs.comment-identifier }}
+        INPUT_COMMENT_BODY: ${{ inputs.comment-body }}
+        INPUT_MODE: ${{ inputs.mode }}
+        INPUT_COMMENT_TAG: ${{ inputs.comment-tag }}
+        INPUT_COMMENT_TITLE: ${{ inputs.comment-title }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -64,11 +72,11 @@ runs:
           }
 
           // --- Inputs ---
-          const identifier = '${{ inputs.comment-identifier }}';
-          const body = ${{ toJSON(inputs.comment-body) }};
-          const mode = '${{ inputs.mode }}';
-          const tag = '${{ inputs.comment-tag }}';
-          const title = ${{ toJSON(inputs.comment-title) }};
+          const identifier = process.env.INPUT_COMMENT_IDENTIFIER;
+          const body = process.env.INPUT_COMMENT_BODY;
+          const mode = process.env.INPUT_MODE;
+          const tag = process.env.INPUT_COMMENT_TAG;
+          const title = process.env.INPUT_COMMENT_TITLE;
 
           // --- Helper Functions ---
 
