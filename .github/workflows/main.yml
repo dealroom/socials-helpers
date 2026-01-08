@@ -12,6 +12,13 @@ concurrency:
 
 jobs:
   security:
+    # Skip for Renovate PRs - Mend (Renovate) scans and verifies dependencies
+    if: |
+      github.event_name != 'pull_request'
+      || !(
+        contains(github.event.pull_request.labels.*.name, 'dependencies')
+        && github.event.pull_request.user.login == 'dealroomba-app[bot]'
+      )
     uses: ./.github/workflows/reusable_security.yml
     permissions:
       contents: read
