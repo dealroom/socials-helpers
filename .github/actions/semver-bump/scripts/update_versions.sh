@@ -62,7 +62,7 @@ extract_version() {
 CURRENT_VERSION="${CURRENT_GIT_TAG#v}"
 for file in "${FILE_ARRAY[@]}"; do
   FILE_VERSION=$(extract_version "$file")
-  FILE_VERSION="${FILE_VERSION#v}"  # Strip v prefix if present
+  FILE_VERSION="${FILE_VERSION#v}" # Strip v prefix if present
   if [[ -n "$FILE_VERSION" && -n "$CURRENT_VERSION" ]]; then
     HIGHER=$(printf "%s\n%s" "$FILE_VERSION" "$CURRENT_VERSION" | sort -V | tail -1)
     if [[ "$HIGHER" == "$FILE_VERSION" && "$FILE_VERSION" != "$CURRENT_VERSION" ]]; then
