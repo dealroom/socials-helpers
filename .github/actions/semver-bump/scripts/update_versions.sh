@@ -6,147 +6,103 @@ FILES_INPUT="$1"
 OLD_VERSION="$2"
 NEW_VERSION="$3"
 CURRENT_GIT_TAG="$4"
-NEXT_GIT_TAG="$5"
 
 # Validate inputs
 if [[ -z "$OLD_VERSION" ]] || [[ -z "$NEW_VERSION" ]]; then
   echo "❌ ERROR: OLD_VERSION and NEW_VERSION must be provided" >&2
-  echo "Usage: $0 <files> <old_version> <new_version> <current_tag> <next_tag>" >&2
   exit 1
 fi
 
-# Function to compare semver versions (handles v prefix)
-# Returns 0 if v1=v2, 1 if v1>v2, 2 if v1<v2
-compare_versions() {
-  local v1="${1#v}"
-  local v2="${2#v}"
-
-  # Handle empty strings to avoid errors
-  if [[ -z "$v1" ]]; then
-    [[ -z "$v2" ]] && echo 0 || echo 2
-    return
-  fi
-  if [[ -z "$v2" ]]; then
-    echo 1
-    return
-  fi
-
-  if [[ "$v1" == "$v2" ]]; then
-    echo 0
-    return
-  fi
-  local sorted
-  sorted=$(printf "%s\n%s" "$v1" "$v2" | sort -V)
-  if [[ "$(head -n1 <<<"$sorted")" == "$v2" ]]; then
-    echo 1
-  else
-    echo 2
-  fi
-}
-
 echo "=== Version Sync & Update ==="
 echo "Current Git tag: $CURRENT_GIT_TAG"
-echo "Next version: $NEXT_GIT_TAG"
-echo "Old version string: $OLD_VERSION"
-echo "New version string: $NEW_VERSION"
-echo "Checking files: $FILES_INPUT"
+echo "New version: $NEW_VERSION"
+echo "Files: $FILES_INPUT"
 echo ""
 
-# 1. Check if release exists for current tag
-if gh release view "$CURRENT_GIT_TAG" >/dev/null 2>&1; then
-  echo "✅ Release exists for current tag $CURRENT_GIT_TAG"
-else
-  echo "⚠️  Warning: No release found for current tag $CURRENT_GIT_TAG"
-  echo "   This might indicate a previous release creation failure."
-fi
-
-# 2. Check versions in files
-FILE_ARRAY=()
-
-# Enable extended globbing for the entire operation
+# Build file array from patterns (supports brace expansion and comma-separated)
 shopt -s nullglob globstar extglob
-
-# Handle the input as a single pattern that may contain commas in braces
-# This properly handles patterns like "**/{main.go,README.md}" or "*.json,VERSION"
+FILE_ARRAY=()
 if [[ "$FILES_INPUT" == *"{"*"}"* ]]; then
-  # Pattern contains braces, treat as single pattern
-  declare -a expanded_files
-  eval "expanded_files=($FILES_INPUT)"
-  for file in "${expanded_files[@]}"; do
-    if [[ -f "$file" ]]; then
-      FILE_ARRAY+=("$file")
-    fi
-  done
+  # Brace expansion requires eval (FILES_INPUT comes from trusted workflow files)
+  eval "for file in $FILES_INPUT; do [[ -f \"\$file\" ]] && FILE_ARRAY+=(\"\$file\"); done"
 else
-  # No braces, safe to split by comma
-  IFS=',' read -ra FILE_PATTERNS <<<"$FILES_INPUT"
-  for pattern in "${FILE_PATTERNS[@]}"; do
-    pattern=$(echo "$pattern" | xargs) # Trim whitespace
+  # Comma-separated patterns
+  IFS=',' read -ra patterns <<<"$FILES_INPUT"
+  for pattern in "${patterns[@]}"; do
+    pattern="${pattern#"${pattern%%[![:space:]]*}"}"
+    pattern="${pattern%"${pattern##*[![:space:]]}"}"
     for file in $pattern; do
-      if [[ -f "$file" ]]; then
-        FILE_ARRAY+=("$file")
-      fi
+      [[ -f "$file" ]] && FILE_ARRAY+=("$file")
     done
   done
 fi
-
 shopt -u nullglob globstar extglob
 
-# If no files found, exit gracefully
 if [[ ${#FILE_ARRAY[@]} -eq 0 ]]; then
-  echo "⚠️  No files found matching patterns: $FILES_INPUT"
-  echo "   Skipping version update."
+  echo "⚠️  No files found, skipping."
   exit 0
 fi
 
-echo "  Found ${#FILE_ARRAY[@]} file(s) to check"
+echo "Found ${#FILE_ARRAY[@]} file(s)"
 
-for file in "${FILE_ARRAY[@]}"; do
-  FILE_VERSION=""
-  # Extract version from JSON files with a '.version' key
+# Regex to match semver, avoiding IPs like 127.0.0.1
+VERSION_REGEX='(^|[^0-9.])[0-9]+\.[0-9]+\.[0-9]+([^0-9.]|$)'
+
+# Extract version from file (JSON or text)
+extract_version() {
+  local file="$1"
   if [[ "$file" =~ \.json$ ]] && jq -e '.version' "$file" >/dev/null 2>&1; then
-    FILE_VERSION=$(jq -r '.version' "$file")
-  # Extract version from any file using a regex for semver
-  elif grep -qE '[0-9]+\.[0-9]+\.[0-9]+' "$file"; then
-    # This might find multiple versions, we'll check the highest one found in the file
-    # and use that for comparison. This is a best-effort approach.
-    FILE_VERSION=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+' "$file" | sort -V | tail -n1)
+    jq -r '.version' "$file"
+  elif grep -qE "$VERSION_REGEX" "$file" 2>/dev/null; then
+    grep -oE "$VERSION_REGEX" "$file" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1
   fi
+}
 
-  if [[ -n "$FILE_VERSION" ]]; then
-    echo "  Found version '$FILE_VERSION' in $file"
+# Self-healing: if file version > current tag and no release exists, create it
+CURRENT_VERSION="${CURRENT_GIT_TAG#v}"
+for file in "${FILE_ARRAY[@]}"; do
+  FILE_VERSION=$(extract_version "$file")
+  FILE_VERSION="${FILE_VERSION#v}"  # Strip v prefix if present
+  if [[ -n "$FILE_VERSION" && -n "$CURRENT_VERSION" ]]; then
+    HIGHER=$(printf "%s\n%s" "$FILE_VERSION" "$CURRENT_VERSION" | sort -V | tail -1)
+    if [[ "$HIGHER" == "$FILE_VERSION" && "$FILE_VERSION" != "$CURRENT_VERSION" ]]; then
+      FILE_TAG="v$FILE_VERSION"
+      if ! gh release view "$FILE_TAG" >/dev/null 2>&1; then
+        echo "⚠️  Self-healing: Creating missing release $FILE_TAG"
+        gh release create "$FILE_TAG" --generate-notes --title "$FILE_TAG"
+        echo "✅ Created release $FILE_TAG"
+        # Update OLD_VERSION so file replacements work correctly
+        OLD_VERSION="$FILE_VERSION"
+      fi
+    fi
   fi
 done
 
-echo "✅ Version check passed."
-echo ""
+# Safe file update: only replace if temp file is valid
+safe_update() {
+  local src="$1" dst="$2"
+  if [[ -s "$src" ]]; then
+    cat "$src" >"$dst" && rm "$src"
+  else
+    echo "  ⚠️  Update failed (empty output), keeping original"
+    rm -f "$src"
+    return 1
+  fi
+}
 
-# 3. Update versions in files
+# Update versions in files
 echo "=== Updating Files ==="
 for file in "${FILE_ARRAY[@]}"; do
-  echo "- Processing $file"
-  # Use a different temp file for each processed file to avoid race conditions
-  TMP_FILE=$(mktemp)
-
-  # For JSON files with a .version key, update it directly (self-healing)
+  echo "- $file"
   if [[ "$file" =~ \.json$ ]] && jq -e '.version' "$file" >/dev/null 2>&1; then
-    echo "  Updating .version key in JSON file"
-    # Special handling for package-lock.json to update both version fields at once
-    if [[ "$(basename "$file")" == "package-lock.json" ]] && jq -e '.packages[""].version' "$file" >/dev/null 2>&1; then
-      jq --arg version "$NEW_VERSION" '(.version = $version) | (.packages[""].version = $version)' "$file" >"$TMP_FILE" && mv "$TMP_FILE" "$file"
+    if [[ "$(basename "$file")" == "package-lock.json" ]]; then
+      jq --arg v "$NEW_VERSION" '(.version=$v)|(.packages[""].version=$v)' "$file" >"$file.tmp" && safe_update "$file.tmp" "$file"
     else
-      # For other JSON files, just update the root version field
-      jq --arg version "$NEW_VERSION" '.version = $version' "$file" >"$TMP_FILE" && mv "$TMP_FILE" "$file"
+      jq --arg v "$NEW_VERSION" '.version=$v' "$file" >"$file.tmp" && safe_update "$file.tmp" "$file"
     fi
-  # For other files, replace only the OLD_VERSION with NEW_VERSION
   elif grep -qF "$OLD_VERSION" "$file"; then
-    echo "  Replacing $OLD_VERSION with $NEW_VERSION in file"
-    # Use perl for reliable version string replacement (handles dots correctly)
-    perl -pe "s/\Q$OLD_VERSION\E/$NEW_VERSION/g" "$file" >"$TMP_FILE" && mv "$TMP_FILE" "$file"
-  else
-    echo "  No version string found to update in $file"
+    perl -pe "s/\Q$OLD_VERSION\E/$NEW_VERSION/g" "$file" >"$file.tmp" && safe_update "$file.tmp" "$file"
   fi
 done
 
-echo ""
-echo "✅ All files updated successfully."
+echo "✅ Done."
