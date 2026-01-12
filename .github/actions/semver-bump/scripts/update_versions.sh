@@ -56,6 +56,7 @@ extract_version() {
   elif grep -qE "$VERSION_REGEX" "$file" 2>/dev/null; then
     grep -oE "$VERSION_REGEX" "$file" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -1
   fi
+  return 0
 }
 
 # Self-healing: if file version > current tag and no release exists, create it
