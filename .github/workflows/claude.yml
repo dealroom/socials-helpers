@@ -23,7 +23,7 @@ env:
   # renovate: datasource=github-releases depName=docker/compose
   DOCKER_COMPOSE_VERSION: v5.0.1
   # renovate: datasource=github-releases depName=dealroom/room
-  ROOM_CLI_VERSION: v1.298.7
+  ROOM_CLI_VERSION: v1.298.8
 
 jobs:
   claude:
