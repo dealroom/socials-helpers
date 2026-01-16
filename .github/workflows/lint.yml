@@ -34,6 +34,8 @@ jobs:
           !contains(steps.pr-labels.outputs.labels, 'sync')
           &&
           github.event.pull_request.user.login != 'dealroomba-app[bot]'
+          &&
+          github.event.pull_request.user.login != 'dependabot[bot]'
         )
     permissions:
       # To get PR labels
