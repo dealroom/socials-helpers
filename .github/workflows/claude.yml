@@ -145,7 +145,7 @@ jobs:
           room -v
       - name: Run Claude Code
         if: steps.check-access.outputs.authorized == 'true'
-        uses: anthropics/claude-code-action@1b8ee3b94104046d71fde52ec3557651ad8c0d71 # v1.0.29
+        uses: anthropics/claude-code-action@a017b830c03e23789b11fb69ed571ea61c12e45c # v1.0.30
         env:
           #  Sets the default timeout for long-running bash commands
           BASH_DEFAULT_TIMEOUT_MS: 300000
